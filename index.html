@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Spacewriter</title>
+
+    <script src="lib/phaser.min.js"></script>
+    <script src="game.js"></script>
+
+</head>
+<body touch-action="none">
+	<table width="100%">
+	<tr>
+		<td width="480px" style="border: solid red 1px">
+			<div id="gamecanvas">
+			</div>
+		</td>
+		<td style="border: solid red 1px">
+			<div id="content">
+				<div id="textLog"></div>
+				<input type="text" id="textInput" onkeypress="processKeyPress(event);" oninput="processInput(this.value);" />
+			</div>
+		</td>
+	</tr>
+	</table>
+</body>
+</html>

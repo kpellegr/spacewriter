@@ -1,0 +1,13 @@
+{
+	"levels": [{
+		"name": "Level 1",
+		"fromdict": 1,
+		"todict": 26,
+		"maxenemies": 3
+	},{
+		"name": "Level 2",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6
+	}]
+}
