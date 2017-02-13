@@ -1,0 +1,8 @@
+{
+  "name": "spacewriter",
+  "description": "",
+  "version": "1.0.0",
+  "dependencies": {
+    "myscript-text-web": "^1.2.3"
+  }
+}
