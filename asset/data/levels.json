@@ -9,5 +9,30 @@
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6
+	},{
+		"name": "Level 3",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6
+	},{
+		"name": "Level 4",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6
+	},{
+		"name": "Level 5",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6
+	},{
+		"name": "Level 6",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6
+	},{
+		"name": "Level 7",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6
 	}]
 }

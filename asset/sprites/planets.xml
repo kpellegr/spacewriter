@@ -1,0 +1,11 @@
+<TextureAtlas imagePath="space_atlas.png">
+	<SubTexture name="level0.png" x="0" y="0" width="150" height="150"/>
+	<SubTexture name="level1.png" x="150" y="0" width="150" height="150"/>
+	<SubTexture name="level2.png" x="300" y="0" width="150" height="150"/>
+	<SubTexture name="level3.png" x="450" y="0" width="150" height="150"/>
+	<SubTexture name="level4.png" x="600" y="0" width="150" height="150"/>
+	<SubTexture name="level5.png" x="0" y="150" width="150" height="150"/>
+	<SubTexture name="level6.png" x="150" y="150" width="150" height="150"/>
+	<SubTexture name="level7.png" x="300" y="150" width="150" height="150"/>
+	<SubTexture name="level8.png" x="450" y="150" width="150" height="150"/>
+</TextureAtlas>
