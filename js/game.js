@@ -1,13 +1,13 @@
 class Game {
 
-	constructor(app){
+	constructor(app, game){
 		this.app = app;
 
 		//set width and height variables for game
 		this.width = 480;
 		this.height = 800;
 		//create game object and initialize the canvas
-		this.game = new Phaser.Game(this.width, this.height, Phaser.AUTO, "gamecanvas", {preload: this.cb(this.preload), create: this.cb(this.create), update: this.cb(this.update)});
+		this.game = game;
 
 		this.style = { font: "16px Arial", fill: "#ff0044", wordWrap: false, wordWrapWidth: 100, align: "center", backgroundColor: "#ffffff" };
 
@@ -24,8 +24,13 @@ class Game {
 		this.dictData = null;
 		this.levelData = null;
 		this.currentLevel = 1;
+		this.levelToLoad = null;
 
 		this.textInput = null;
+	}
+
+	loadLevel(level){
+		this.levelToLoad = level;
 	}
 
 
@@ -53,6 +58,9 @@ class Game {
 		this.starfield = this.game.add.tileSprite(0, 0, this.width, this.height, 'background');
 		this.dictData = this.game.cache.getText('dictionary').split('\n');
 		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels;
+		if(this.levelToLoad !== null){
+			console.log(this.levelData.indexOf(this.levelToLoad));
+		}
 
 
 		// Create ammunition
@@ -270,6 +278,10 @@ class Game {
 	    //  The third is ignored when using burst/explode mode
 	    //  The final parameter (10) is how many particles will be emitted in this single burst
 	    this.emitter.start(true, 2000, null, 10);
+	}
+
+	destroy(){
+		this.game.destroy();
 	}
 
 	cb(fun){
