@@ -13,7 +13,7 @@ class Menu extends BaseView {
 	constructor(app, context, options){
 		super(app, context);
 
-		this.padding = 150; 
+		this.padding = app.width / 3.0; 
 		this.menu    = options;
 	}
 

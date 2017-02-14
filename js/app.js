@@ -1,11 +1,20 @@
 class App {
 
 	constructor(args){
+		// Default values, used to determine aspect ratio
 		this.width = 480;
 		this.height = 800;
 
+		this.calculateViewport();
+
 		this.handwritingInput = args.handwritingInput;
 		this.gameCanvas = args.gameCanvas;
+		this.gameContainer = args.gameContainer;
+		this.handwritingContainer = args.handwritingContainer;
+
+		this.gameContainer.style.width = this.width + "px";
+		this.handwritingContainer.style["margin-left"] = this.width + "px";
+
 		this.context    = new Phaser.Game(this.width, this.height, Phaser.AUTO, this.getGameCanvas());
 		this.router     = new Router(this, this.context);
 		this.state      = new GameState(this);
@@ -57,6 +66,18 @@ class App {
 
 	cb(fun){
 		return ownedCallback(this, fun);
+	}
+
+	calculateViewport(){
+		var h = this.height;
+		var wh = window.innerHeight;
+
+		var ratio = wh / h;
+
+		this.height = wh;
+		this.width *= ratio;
+
+		console.log(wh);
 	}
 
 }
