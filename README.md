@@ -14,7 +14,7 @@ Then pull this repo and navigate to the root directory. Run the `bower install` 
 
 This can be accomplished in multiple ways (node, ruby, python, ...). With python it can be achieved in the following manner:
 
-	`python -m SimpleHTTPServer 8000`
+	python -m SimpleHTTPServer 8000
 
 This will start a web server available at `localhost:8000`
 
@@ -24,12 +24,12 @@ To make the code compatible with older browsers babel is used. First you'll have
 
 Now create a new directory `buildtools`:
 
-	`mkdir buildtools`
-	`cd buildtools`
+	mkdir buildtools
+	cd buildtools
 
 Create a new npm project:
 
-	`npm init`
+	npm init
 
 You can enter through all the questions, they are unimportant for building the project.
 
@@ -40,10 +40,10 @@ Next install the required dependencies:
 
 Now you can build the project by navigating to the `build` directory:
 
-	`cd ../build`
+	cd ../build
 
 And running the following python command, as build script is written in python2:
 
-	`python build.py`
+	python build.py
 
 The compiled version of the application will be located in the root directory under the name `index-mini.html`.
