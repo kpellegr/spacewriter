@@ -43,3 +43,13 @@ function setBackoffTimeout(fun = function(){}, backoff = 0){
 function ownedCallback(owner, fun){
 	return function(){ return fun.apply(owner, arguments) }
 }
+
+function range(cb, limit, start = 0, step = 1){
+	for(var i = start; i < limit; i+=step){
+		cb(i);
+	}
+}
+
+function deepCopy(data){
+	return JSON.parse(JSON.stringify(data));
+}

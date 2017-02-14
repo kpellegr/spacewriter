@@ -150,6 +150,8 @@ class Game {
 			this.spawnAsteroid();
 
 		this.asteroids.forEachAlive(this.updateAsteroid, this);
+		// clear the buffer
+		this.wordsBuffer = [];
 	}
 
 	processKeyPress (event) {

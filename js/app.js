@@ -6,8 +6,9 @@ class App {
 
 		this.handwritingInput = args.handwritingInput;
 		this.gameCanvas = args.gameCanvas;
-		this.context = new Phaser.Game(this.width, this.height, Phaser.AUTO, this.getGameCanvas());
-		this.router = new Router(this, this.context);
+		this.context    = new Phaser.Game(this.width, this.height, Phaser.AUTO, this.getGameCanvas());
+		this.router     = new Router(this, this.context);
+		this.state      = new GameState(this);
 
 		this.router.showMenu();
 		this.setupHandwriting();

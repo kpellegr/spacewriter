@@ -10,6 +10,8 @@ class Router {
 
 		this.active_page = null;
 		this.active_page_id = null;
+
+		window.addEventListener('hashchange', this.cb(this.hashChanged));
 	}
 
 	showMenu(){
@@ -33,17 +35,16 @@ class Router {
 	}
 
 	showPage(page){
-		console.log(page);
 		switch(page){
 			case Router.PAGE_MENU:
 			case Router.PAGE_GAME:
 			case Router.PAGE_MENU_LEVELS:
+				this.active_page_id = page;
+				window.location.hash = page.toString();
 				this.context.state.start(page.toString());
 			default:
 				break;
 		}
-
-		this.active_page_id = page;
 	}
 
 	getPage(page, cb){
@@ -63,8 +64,17 @@ class Router {
 	}
 
 	createLevelsMenu(){
-		//var items = [{ title: "<- BACK", action: this.cb(this.showMenu) }];
 		return new LevelsMenu(this.app, this.context);
+	}
+
+	hashChanged(e){
+		var h = window.location.hash.substr(1);
+		var pageInt = parseInt(h);
+		var currentPage = parseInt(this.active_page_id);
+
+		if(pageInt !== currentPage){
+			this.showPage(pageInt);
+		}
 	}
 
 	cb(fun){ return ownedCallback(this, fun); }
