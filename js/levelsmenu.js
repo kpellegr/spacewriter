@@ -31,7 +31,6 @@ class LevelsMenu extends BaseView {
 
 		var offset = 50;
 		this.menu.forEach(this.cb(function(item, index){
-			console.log(item.data);
 			var levelSprite;
 			var x = getXPos(index);
 			var y, spriteSize;
@@ -68,6 +67,8 @@ class LevelsMenu extends BaseView {
 				this.sprites.push(g);
 			}
 
+			var ROTATIONS = 10000;
+			this.game.add.tween(levelSprite).to( { rotation: ROTATIONS*2*Math.PI }, (.5 + Math.random()/2.0) * 60000 * ROTATIONS, Phaser.Easing.Linear.InOut, true);
 			this.sprites.push(levelSprite);
 		}));
 
