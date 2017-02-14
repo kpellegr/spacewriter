@@ -10,7 +10,7 @@ class SimpleDragListener {
 	}
 
 	update(){
-		var pos = this.game.input.mousePointer;
+		var pos = this.game.input.activePointer;
 
 		if(pos.isDown){
 			this.dragUpdated = false;
