@@ -2,7 +2,7 @@
 	Generic class to create a menu with the provided
 	menu options as menu items.
 */
-class Menu {
+class Menu extends BaseView {
 
 	/*
 		Create a new menu view provided an instance of App and
@@ -11,33 +11,15 @@ class Menu {
 		provided action will be called on click.
 	*/
 	constructor(app, context, options){
-		this.app = app;
-		this.game = context;
+		super(app, context);
 
-		//set width and height variables for game
-		this.width   = 480;
-		this.height  = 800;
 		this.padding = 150; 
 		this.menu    = options;
 	}
 
-	preload(){
-		// Load the sprites
-		this.game.load.atlasXML('space_atlas', 'asset/sprites/space_atlas.png', 'asset/sprites/space_atlas.xml');
-	    this.game.load.image('background', 'asset/backgrounds/darkPurple.png');
-	    this.game.load.text('dictionary', 'asset/data/dictionary.txt');
-	    this.game.load.text('levels', 'asset/data/levels.json');
-	}
-
 	create(){
-		//initialize keyboard arrows for the game controls
-		this.cursors = this.game.input.keyboard.createCursorKeys();
-		var keys = [Phaser.KeyCode.SPACEBAR];
-		this.phaserKeys = this.game.input.keyboard.addKeys(keys);
-		this.game.input.keyboard.addKeyCapture(keys);
+		super.create();
 
-		//add background tiles
-		this.starfield = this.game.add.tileSprite(0, 0, this.width, this.height, 'background');
 		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels;
 
 		var availableHeight = this.height - this.padding*2;
@@ -58,14 +40,4 @@ class Menu {
 		}
 	 	
 	}
-
-	update(){
-
-	}
-
-	destroy(){
-		this.game.destroy();
-	}
-
-	cb(fun){ return ownedCallback(this, fun); }
 }
