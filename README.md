@@ -35,8 +35,8 @@ You can enter through all the questions, they are unimportant for building the p
 
 Next install the required dependencies:
 
-    `npm install babel-cli`
-    `npm install babel-preset-es2015-ie`
+	npm install babel-cli
+	npm install babel-preset-es2015-ie
 
 Now you can build the project by navigating to the `build` directory:
 
