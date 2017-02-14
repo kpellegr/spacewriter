@@ -1,15 +1,20 @@
 class App {
 
 	constructor(args){
+		this.width = 480;
+		this.height = 800;
+
 		this.handwritingInput = args.handwritingInput;
+		this.gameCanvas = args.gameCanvas;
+		this.context = new Phaser.Game(this.width, this.height, Phaser.AUTO, this.getGameCanvas());
+		this.router = new Router(this, this.context);
 
+		this.router.showMenu();
 		this.setupHandwriting();
-
-		this.game = new Game(this);
 	}
 
 	setupHandwriting(){
-		this.handwritingInput.addEventListener("myscript-text-web-result", this.cb(function(a, b, c){
+		this.handwritingInput.addEventListener("myscript-text-web-result", this.cb(function(a){
 			try {
 				var segmentResults = a.detail.result.textSegmentResult;
 				var candidates = segmentResults.candidates;
@@ -25,7 +30,7 @@ class App {
 			}
 		}));
 
-		this.handwritingInput.addEventListener("changed", this.cb(setBackoffTimeout(function(a, b, c){
+		this.handwritingInput.addEventListener("changed", this.cb(setBackoffTimeout(function(){
 			// 2 second back off that detects when nothing is input for a while
 			// to automatically clear the area
 			this.clearHandwriting();
@@ -33,11 +38,20 @@ class App {
 	}
 
 	onHandwriteResult(labels){
-		this.game.onHandwriteResult(labels);
+		this.router.getGame(game => game.onHandwriteResult(labels));
 	}
 
 	clearHandwriting(){
 		this.handwritingInput.clear();
+	}
+
+	getGameCanvas(){
+		return this.gameCanvas;
+	}
+
+	startLevel(level){
+		this.router.showGame();
+		this.router.getGame(g => g.loadLevel(level));
 	}
 
 	cb(fun){
