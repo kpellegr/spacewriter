@@ -198,10 +198,12 @@ class Game {
 			// TODO: penalize the user?
 		}
 		if (asteroid && asteroid.text && asteroid.label) {
-			if (this.wordsBuffer.filter(w => w === asteroid.label).length > 0) {
+			var matches = this.wordsBuffer.filter(w => w === asteroid.label);
+			if (matches.length > 0) {
 				this.destroyAsteroid(asteroid, asteroid.label.length); // win
 				// Clear the handwriting input
 				this.app.clearHandwriting();
+				this.showWordOverlay(matches[0])
 			}
 			asteroid.text.x = asteroid.x;
 			asteroid.text.y = asteroid.y - asteroid.height/2 - 10;
@@ -279,6 +281,17 @@ class Game {
 	    //  The final parameter (10) is how many particles will be emitted in this single burst
 	    this.emitter.start(true, 2000, null, 10);
 	}
+
+	showWordOverlay(text){
+		// Text overlay when a word is matched
+		var wordOverlayText = this.game.add.text(0, 0, text, { font: "50px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+		wordOverlayText.setTextBounds(0, 0, this.width, this.height);
+
+		wordOverlayText.alpha = .5;
+    	this.game.add.tween(wordOverlayText).to( { alpha: 0, y: -this.height/4 }, 1000, Phaser.Easing.Cubic.InOut, true).onComplete.add(function(){
+    		wordOverlayText.destroy();
+    	}, this);
+  }
 
 	destroy(){
 		this.game.destroy();
