@@ -3,8 +3,8 @@ class BaseView {
 		this.app  = app;
 		this.game = context;
 
-		this.width  = 480;
-		this.height = 800;
+		this.width  = app.width;
+		this.height = app.height;
 	}
 
 	preload(){

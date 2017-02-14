@@ -16,7 +16,7 @@
 	@return Wrappd function of fun
 */
 function setBackoffTimeout(fun = function(){}, backoff = 0){
-	lastUpdate = new Date().getTime();
+	var lastUpdate = new Date().getTime();
 
 	return function(){
 		lastUpdate = new Date().getTime();

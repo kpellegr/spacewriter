@@ -7,6 +7,7 @@
     <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
 	<link rel="import" href="bower_components/myscript-text-web/myscript-text-web.html">
 
+    <script src="lib/polyfills.js"></script>
     <script src="lib/phaser.min.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/localstore.js"></script>
@@ -26,7 +27,6 @@
 .game-container .side-left {
 	position: absolute;
 	display: block;
-	width: 480px;
 	bottom: 0;
 	top: 0;
 	left: 0;
@@ -35,7 +35,6 @@
 .game-container .side-right {
 	position: absolute;
 	display: block;
-	margin-left: 480px;
 	right: 0;
 	left: 0;
 	top: 0;
@@ -81,9 +80,10 @@
 new App(
 {
 	handwritingInput: document.querySelector("#input-handwriting"),
-	gameCanvas: document.querySelector("#gamecanvas")
-}
-);
+	gameCanvas: document.querySelector("#gamecanvas"),
+	gameContainer: document.querySelector(".game-container .side-left"),
+	handwritingContainer: document.querySelector(".game-container .side-right")
+});
 
 	</script>
 </body>

@@ -4,8 +4,8 @@ class Game {
 		this.app = app;
 
 		//set width and height variables for game
-		this.width = 480;
-		this.height = 800;
+		this.width = app.width;
+		this.height = app.height;
 		//create game object and initialize the canvas
 		this.game = game;
 
