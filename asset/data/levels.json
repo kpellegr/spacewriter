@@ -6,7 +6,7 @@
 		"maxenemies": 3,
 		"checkpoint": true,
 		"planet": "level0.png",
-		"distance": 5
+		"distance": 1
 	},{
 		"name": "Level 2",
 		"fromdict": 27,
@@ -27,21 +27,21 @@
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 25
+		"distance": 50
 	},{
 		"name": "Level 5",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 25
+		"distance": 50
 	},{
 		"name": "Level 6",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 25
+		"distance": 50
 	},{
 		"name": "Level 7",
 		"fromdict": 27,
@@ -49,14 +49,14 @@
 		"maxenemies": 6,
 		"checkpoint": true,
 		"planet": "level1.png",
-		"distance": 25
+		"distance": 50
 	},{
 		"name": "Level 8",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 25
+		"distance": 50
 	},{
 		"name": "Level 9",
 		"fromdict": 27,
@@ -69,21 +69,21 @@
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 25
+		"distance": 50
 	},{
 		"name": "Level 11",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 25
+		"distance": 75
 	},{
 		"name": "Level 12",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 25
+		"distance": 75
 	},{
 		"name": "Level 13",
 		"fromdict": 27,
@@ -91,6 +91,6 @@
 		"maxenemies": 6,
 		"checkpoint": true,
 		"planet": "level2.png",
-		"distance": 25
+		"distance": 75
 	}]
 }

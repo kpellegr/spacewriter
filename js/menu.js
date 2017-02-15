@@ -38,6 +38,5 @@ class Menu extends BaseView {
 
 			y += heightPerItem;
 		}
-	 	
 	}
 }

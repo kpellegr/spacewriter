@@ -58,13 +58,20 @@ class App {
 		this.router.getGame(g => g.loadLevel(level));
 	}
 
-	levelCompleted(level){
+	levelCompleted(levelData){
 		// Unlock the next level if it hasn't been unlocked
-		console.log("level completed", level);
+		var level = levelData.level;
 		if(this.state.getUnlockedIndex() < level+1){
-			console.log("unlocking level", level+1);
 			this.state.setUnlockedIndex(level+1);
 		}
+
+		this.router.showLevelEndScreen(true);
+		this.router.getLevelEndScreen(function(endscreen){
+			endscreen.setData(levelData);
+		});
+	}
+
+	advanceLevelEndScreen(){
 		this.router.showLevels(true);
 	}
 
