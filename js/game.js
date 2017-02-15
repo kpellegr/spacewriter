@@ -1,3 +1,78 @@
+class ComboManager {
+	constructor(){
+		// max milliseconds/letter to write a word in order to increase the multiplier
+		this.COMBO_TRESHOLD      = 1000;
+		// time per letter to keep the current combo
+		this.COMBO_HOLD_TRESHOLD = 2000;
+		this.MAX_MULTIPLIER      = 5;
+
+		this.lastWord  = "";
+		this.lastWordTime = 0;
+		this.multiplier = 1;
+	}
+
+	foundWord(word){
+		var time = this.getCurrentTime();
+		var isCombo = false;
+
+		if(this.insideTreshold(word)){
+			// It's a combo!
+			this.multiplier = Math.min(this.MAX_MULTIPLIER, this.multiplier + 1);
+			isCombo = true;
+		}
+		else if(this.insideHoldTreshold(word)){
+			// multiplier stays as is
+			isCombo = true;
+		}else{
+			// Reset the multiplier
+			this.multiplier = 1;
+		}
+
+		this.lastWordTime = time;
+		this.lastWord = word;
+
+		return isCombo;
+	}
+
+	update(){
+		// Use a word of length 10 to decrease the multiplier
+		if(!this.insideHoldTreshold("0123456789")){
+			this.lastWordTime = this.getCurrentTime();
+			this.multiplier = 1;
+		}
+	}
+
+	insideTreshold(word){
+		var time = this.getCurrentTime();
+		var period = time - this.lastWordTime;
+		// Time available to write the word
+		var treshold = this.COMBO_TRESHOLD * word.length;
+
+		return period < treshold;
+	}
+
+	insideHoldTreshold(word){
+		var time = this.getCurrentTime();
+		var period = time - this.lastWordTime;
+		// Time available to write the word
+		var holdTreshold = this.COMBO_HOLD_TRESHOLD * word.length;
+
+		return period < holdTreshold;
+	}
+
+	getMultiplier(){
+		return this.multiplier;
+	}
+
+	getMaxCombo(){
+		return this.MAX_MULTIPLIER;
+	}
+
+	getCurrentTime(){
+		return new Date().getTime();
+	}
+}
+
 class Game {
 
 	constructor(app, game){
@@ -8,6 +83,7 @@ class Game {
 		this.height = app.height;
 		//create game object and initialize the canvas
 		this.game = game;
+		this.comboManager = new ComboManager();
 
 		this.style = { font: "16px Arial", fill: "#ff0044", wordWrap: false, wordWrapWidth: 100, align: "center", backgroundColor: "#ffffff" };
 
@@ -18,19 +94,23 @@ class Game {
 		this.speed = 175;
 		this.score = 0;
 		this.scoreText = null;
+		this.distance = 0;
+		this.targetDistance = 25;
 		this.nextAsteroidTime = null;
 		this.wordsBuffer = [];
 
 		this.dictData = null;
 		this.levelData = null;
-		this.currentLevel = 1;
-		this.levelToLoad = null;
+		this.currentLevel = 0;
 
 		this.textInput = null;
+
+		this.exhaustCount = 50;
+		this.exhaustDelay = 1000;
 	}
 
-	loadLevel(level){
-		this.levelToLoad = level;
+	loadLevel(levelIndex){
+		this.currentLevel = levelIndex;
 	}
 
 
@@ -58,10 +138,7 @@ class Game {
 		this.starfield = this.game.add.tileSprite(0, 0, this.width, this.height, 'background');
 		this.dictData = this.game.cache.getText('dictionary').split('\n');
 		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels;
-		if(this.levelToLoad !== null){
-			console.log(this.levelData.indexOf(this.levelToLoad));
-		}
-
+		this.targetDistance = this.currentLevelData().distance;
 
 		// Create ammunition
 		this.lasers = this.game.add.group();
@@ -92,8 +169,20 @@ class Game {
 	  	this.emitter.makeParticles('space_atlas', 'meteorGrey_tiny1.png');
 	    this.emitter.gravity = 20;
 
+	    // create exhaust emitter
+	    this.exhaustEmitters = this.add.group();
+	    for(var i = 0; i < this.exhaustCount; i++)
+	    	this.exhaustEmitters.add(this.game.add.emitter(0, 0, 1));
+	    this.exhaustEmitters.setAll("gravity", -10);
+	    this.exhaustEmitters.forEach(l => {
+	    	l.makeParticles("space_atlas", "meteorGrey_tiny1.png")
+
+		    l.minParticleSpeed.set(-30, 80);
+	  		l.maxParticleSpeed.set(30, 100);
+	    });
+
 		//add player sprite
-		this.player = this.game.add.sprite(this.width*0.5, this.height*0.9, 'space_atlas', 'playerShip1_red.png');
+		this.player = this.game.add.sprite(this.width*0.5, this.height*0.8, 'space_atlas', 'playerShip1_red.png');
 		this.player.anchor.set(0.5, 0.5);
 		this.game.physics.enable(this.player, Phaser.Physics.ARCADE);
 		this.player.body.collideWorldBounds = false;
@@ -104,12 +193,42 @@ class Game {
 	 	//Used when we're doing handwriting
 		this.textInput = document.getElementById("textInput");
 		this.textLog = document.getElementById("textLog");
+
+		// Create sprites for the combo bar
+		this.comboBar = [];
+		var maxcombo = this.comboManager.getMaxCombo();
+		for(var i = 0; i < maxcombo; i++){
+			var spr = this.game.add.sprite(this.width-10*(maxcombo - i - 1) - 10, this.height - 10, 'space_atlas', 'laserGreen05.png');
+			spr.anchor.set(1, 1);
+			var mask = 0xff0000;
+			var fadeStart = 0x002222;
+			var fadeEnd   = 0x00ffff;
+
+			var fade = parseInt((fadeEnd - fadeStart) * (1.0 * (i) / (maxcombo-1)) + fadeStart);
+			spr.tint = mask | fade;
+
+			this.comboBar.push(spr);
+		}
+
+		this.distanceBar = this.game.add.graphics(0, 0);
+		this.distanceBar.beginFill(0x00ff00);
+		this.distanceBar.drawRect(0, 0, this.width, 2);
+		this.distanceBar.endFill();
+
+		this.distanceBar.scale.x = 0;
+		this.distanceBar.alpha = .7;
 	}
 
 	update() {	
+		if(this.distance >= this.targetDistance){
+			this.app.levelCompleted(this.currentLevel);
+		}
+
+		this.distanceBar.scale.x = 1.0 * this.distance / this.targetDistance;
+
 		// first, draw the moving background and the health indicators...
 		this.starfield.tilePosition.x = 0.5;
-		this.starfield.tilePosition.y += 2;
+		this.starfield.tilePosition.y += 2 * this.comboManager.getMultiplier();
 
 		//game.physics.arcade.collide(asteroids, asteroids);
 		this.game.physics.arcade.overlap(this.asteroids, this.lasers, this.shootAsteroid, null, this);
@@ -149,9 +268,56 @@ class Game {
 		if (this.moreAsteroidsNeeded())
 			this.spawnAsteroid();
 
-		this.asteroids.forEachAlive(this.updateAsteroid, this);
+		var matchedWord = false;
+		this.asteroids.forEachAlive(this.cb(function(asteroid){
+			var word = this.updateAsteroid(asteroid);
+			if(word !== null && !matchedWord){
+				matchedWord = true;
+				this.comboManager.foundWord(word);
+			}
+		}), this);
+
+		// Check if a combo has run out
+		this.comboManager.update();
+
+		this.updateComboBar();
+
 		// clear the buffer
 		this.wordsBuffer = [];
+	}
+
+	updateComboBar(){
+		this.comboBar.forEach(this.cb(function(c, i){
+			if(i < this.comboManager.getMultiplier()){
+				c.alpha = 1;
+			}else{
+				c.alpha = .4;
+			}
+		}));
+
+		// Update the exhaust
+		var interval = this.comboManager.getMaxCombo() - this.comboManager.getMultiplier() + 1;
+		for(var i = 0; i < this.exhaustEmitters.children.length; i++){
+			var e = this.exhaustEmitters.children[i];
+			e.forEachAlive(function(p){
+				p.alpha = p.lifespan / e.lifespan;
+				p.tint  = 0xffdc51;
+
+				if(i % interval != 0) p.alpha = 0;
+			})
+		}
+
+	    this.exhaustEmitters.setAll("x", this.player.x);
+	    this.exhaustEmitters.setAll("y", this.player.y + this.player.height/2);
+
+	    for(var i = 0; i < this.exhaustEmitters.length; i++){
+	    	var e = this.exhaustEmitters.children[i];
+	    	setTimeout((function(e, t){
+	    		return function(){
+					e.start(true, t.exhaustDelay, null, 1);
+				};
+		    })(e, this), this.exhaustDelay / this.exhaustCount * i);
+	    }
 	}
 
 	processKeyPress (event) {
@@ -195,6 +361,8 @@ class Game {
 	}
 
 	updateAsteroid(asteroid) {
+		var matchedWord = null;
+
 		if (asteroid.y > this.height) {
 			this.destroyAsteroid(asteroid, -asteroid.label.length); // loose
 			// TODO: penalize the user?
@@ -202,14 +370,18 @@ class Game {
 		if (asteroid && asteroid.text && asteroid.label) {
 			var matches = this.wordsBuffer.filter(w => w === asteroid.label);
 			if (matches.length > 0) {
+				matchedWord = matches[0];
+
 				this.destroyAsteroid(asteroid, asteroid.label.length); // win
 				// Clear the handwriting input
 				this.app.clearHandwriting();
-				this.showWordOverlay(matches[0])
+				this.showWordOverlay(matches[0] + " +" + (this.comboManager.getMultiplier() * matchedWord.length));
 			}
 			asteroid.text.x = asteroid.x;
 			asteroid.text.y = asteroid.y - asteroid.height/2 - 10;
 		}
+
+		return matchedWord;
 	}
 
 	moreAsteroidsNeeded() {
@@ -267,6 +439,11 @@ class Game {
 	destroyAsteroid(enemy, delta = 0) {
 		this.score += delta; 
 		this.scoreText.text = this.score;
+
+		// increase the distance when positive
+		if(delta > 0){
+			this.distance += delta * this.comboManager.getMultiplier();
+		}
 
 		if (enemy.text) {
 			enemy.text.destroy();

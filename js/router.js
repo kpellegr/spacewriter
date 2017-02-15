@@ -4,9 +4,9 @@ class Router {
 		this.app = app;
 		this.context = context;
 
-		this.context.state.add(Router.PAGE_MENU, this.cb(this.createMenu));
-		this.context.state.add(Router.PAGE_MENU_LEVELS, this.cb(this.createLevelsMenu));
-		this.context.state.add(Router.PAGE_GAME, function(){ return new Game(app, context); });
+		this.context.state.add(Router.PAGE_MENU, this.createState(Router.PAGE_MENU));
+		this.context.state.add(Router.PAGE_MENU_LEVELS, this.createState(Router.PAGE_MENU_LEVELS));
+		this.context.state.add(Router.PAGE_GAME, this.createState(Router.PAGE_GAME));
 
 		this.active_page = null;
 		this.active_page_id = null;
@@ -14,16 +14,16 @@ class Router {
 		window.addEventListener('hashchange', this.cb(this.hashChanged));
 	}
 
-	showMenu(){
-		this.showPage(Router.PAGE_MENU);
+	showMenu(invalidate = false){
+		this.showPage(Router.PAGE_MENU, invalidate);
 	}
 
-	showLevels(){
-		this.showPage(Router.PAGE_MENU_LEVELS);
+	showLevels(invalidate = false){
+		this.showPage(Router.PAGE_MENU_LEVELS, invalidate);
 	}
 
-	showGame(){
-		this.showPage(Router.PAGE_GAME);
+	showGame(invalidate = false){
+		this.showPage(Router.PAGE_GAME, invalidate);
 	}
 
 	getMenu(cb){
@@ -34,13 +34,16 @@ class Router {
 		this.getPage(Router.PAGE_GAME, cb);
 	}
 
-	showPage(page){
+	showPage(page, invalidate = false){
 		switch(page){
 			case Router.PAGE_MENU:
 			case Router.PAGE_GAME:
 			case Router.PAGE_MENU_LEVELS:
 				this.active_page_id = page;
 				window.location.hash = page.toString();
+				if(invalidate)
+					this.context.state.add(page, this.createState(page));
+
 				this.context.state.start(page.toString());
 			default:
 				break;
@@ -56,7 +59,7 @@ class Router {
 
 	createMenu(){
 		return new Menu(this.app, this.context, [
-			{ title: "PLAY", action: this.cb(this.showLevels) },
+			{ title: "PLAY", action: this.cb(() => this.showLevels()) },
 			{ title: "HIGHSCORES", action: () => {} },
 			{ title: "SETTINGS", action: () => {} },
 			{ title: "QUIT", action: () => {} }
@@ -65,6 +68,20 @@ class Router {
 
 	createLevelsMenu(){
 		return new LevelsMenu(this.app, this.context);
+	}
+
+	createState(state){
+		switch(state){
+			case Router.PAGE_MENU_LEVELS:
+				return this.cb(this.createLevelsMenu);
+			case Router.PAGE_GAME:
+				return this.cb(() => new Game(this.app, this.context));
+			case Router.PAGE_MENU:
+				return this.cb(this.createMenu);
+			default:
+				break;
+		}
+		return null;
 	}
 
 	hashChanged(e){
