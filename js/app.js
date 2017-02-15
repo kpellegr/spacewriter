@@ -15,7 +15,7 @@ class App {
 		this.gameContainer.style.width = this.width + "px";
 		this.handwritingContainer.style["margin-left"] = this.width + "px";
 
-		this.context    = new Phaser.Game(this.width, this.height, Phaser.AUTO, this.getGameCanvas());
+		this.context    = new Phaser.Game(this.width, this.height, Phaser.AUTO, this.gameCanvas);
 		this.router     = new Router(this, this.context);
 		this.state      = new GameState(this);
 
@@ -29,8 +29,6 @@ class App {
 				var segmentResults = a.detail.result.textSegmentResult;
 				var candidates = segmentResults.candidates;
 				var labels = candidates.map(c => c.label.toLowerCase());
-				
-				console.log("text", segmentResults, labels);
 
 				this.onHandwriteResult(labels);
 			}
@@ -55,13 +53,19 @@ class App {
 		this.handwritingInput.clear();
 	}
 
-	getGameCanvas(){
-		return this.gameCanvas;
+	startLevel(level){
+		this.router.showGame(true);
+		this.router.getGame(g => g.loadLevel(level));
 	}
 
-	startLevel(level){
-		this.router.showGame();
-		this.router.getGame(g => g.loadLevel(level));
+	levelCompleted(level){
+		// Unlock the next level if it hasn't been unlocked
+		console.log("level completed", level);
+		if(this.state.getUnlockedIndex() < level+1){
+			console.log("unlocking level", level+1);
+			this.state.setUnlockedIndex(level+1);
+		}
+		this.router.showLevels(true);
 	}
 
 	cb(fun){
