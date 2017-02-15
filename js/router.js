@@ -19,7 +19,6 @@ class Router {
 	}
 
 	showLevels(invalidate = false){
-		console.log("showlevels", invalidate);
 		this.showPage(Router.PAGE_MENU_LEVELS, invalidate);
 	}
 
@@ -36,16 +35,15 @@ class Router {
 	}
 
 	showPage(page, invalidate = false){
-		console.log(invalidate);
 		switch(page){
 			case Router.PAGE_MENU:
 			case Router.PAGE_GAME:
 			case Router.PAGE_MENU_LEVELS:
 				this.active_page_id = page;
 				window.location.hash = page.toString();
-				if(invalidate){
+				if(invalidate)
 					this.context.state.add(page, this.createState(page));
-				}
+
 				this.context.state.start(page.toString());
 			default:
 				break;
