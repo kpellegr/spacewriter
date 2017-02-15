@@ -21,6 +21,8 @@ class App {
 
 		this.router.showMenu();
 		this.setupHandwriting();
+
+		//this.router.showLevelEndScreen();
 	}
 
 	setupHandwriting(){
@@ -73,6 +75,10 @@ class App {
 
 	advanceLevelEndScreen(){
 		this.router.showLevels(true);
+	}
+
+	advanceLevelEndScreenNextLevel(level){
+		this.startLevel(level+1);
 	}
 
 	cb(fun){

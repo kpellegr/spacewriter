@@ -7,6 +7,7 @@ class Router {
 		this.context.state.add(Router.PAGE_MENU, this.createState(Router.PAGE_MENU));
 		this.context.state.add(Router.PAGE_MENU_LEVELS, this.createState(Router.PAGE_MENU_LEVELS));
 		this.context.state.add(Router.PAGE_GAME, this.createState(Router.PAGE_GAME));
+		this.context.state.add(Router.PAGE_LEVEL_END_SCREEN, this.createState(Router.PAGE_LEVEL_END_SCREEN));
 
 		this.active_page = null;
 		this.active_page_id = null;
