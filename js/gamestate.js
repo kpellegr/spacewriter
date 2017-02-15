@@ -6,10 +6,17 @@ class GameState {
 			unlockedIndex: 0
 		};
 		this.invalidate();
+
+		console.log(this.data);
 	}
 
 	getUnlockedIndex(){
-		return 5;//this.data.unlockedIndex;
+		return this.data.unlockedIndex;
+	}
+
+	setUnlockedIndex(index){
+		this.data.unlockedIndex = index;
+		this.invalidate();
 	}
 
 	invalidate(){

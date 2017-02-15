@@ -16,9 +16,9 @@ class LevelsMenu extends BaseView {
 	    var levels = JSON.parse(this.game.cache.getText('levels')).levels;
 	    var startLevel = this.cb(l => this.startLevel(l));
 
-	    this.menu = levels.map(this.cb(l => ({
+	    this.menu = levels.map(this.cb((l, levelIndex) => ({
 	    	data: l,
-	    	action: (function(level){ return () => startLevel(level); })(l)
+	    	action: (function(level){ return () => startLevel(level); })(levelIndex)
 	    })));
 	}
 
