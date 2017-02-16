@@ -56,8 +56,10 @@ class App {
 	}
 
 	startLevel(level){
-		this.router.showGame(true);
-		this.router.getGame(g => g.loadLevel(level));
+		this.router.showMissionScreen();
+		this.router.getMissionScreen(m => m.setData({ level: level }))
+		//this.router.showGame(true);
+		//this.router.getGame(g => g.loadLevel(level));
 	}
 
 	levelCompleted(levelData){

@@ -8,6 +8,7 @@ class LevelsMenu extends BaseView {
 
 		this.sprites = [];
 		this.dragListener = new SimpleDragListener(this.game);
+		this.dragListener.setLowerBounds(0, 0);
 	}
 
 	preload(){

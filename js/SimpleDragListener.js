@@ -7,6 +7,13 @@ class SimpleDragListener {
 		this.baseDraggedY = 0;
 		this.x = 0;
 		this.baseDraggedX = 0;
+
+		this.setLowerBounds(0, 0);
+	}
+
+	setLowerBounds(x, y){
+		this.lowerBoundX = x;
+		this.lowerBoundY = y;
 	}
 
 	update(){
@@ -24,10 +31,10 @@ class SimpleDragListener {
 			this.dragUpdated = true;
 
 			this.baseDraggedY += pos.positionUp.y - pos.positionDown.y;
-			this.baseDraggedY = Math.max(0, this.baseDraggedY);
+			this.baseDraggedY = Math.max(this.lowerBoundY, this.baseDraggedY);
 
 			this.baseDraggedX += pos.positionUp.x - pos.positionDown.x;
-			this.baseDraggedX = Math.max(0, this.baseDraggedX);
+			this.baseDraggedX = Math.max(this.lowerBoundX, this.baseDraggedX);
 		}
 	}
 }
