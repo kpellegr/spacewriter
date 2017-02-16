@@ -53,3 +53,7 @@ function range(cb, limit, start = 0, step = 1){
 function deepCopy(data){
 	return JSON.parse(JSON.stringify(data));
 }
+
+function last(collection){
+	return collection[collection.length-1];
+}
