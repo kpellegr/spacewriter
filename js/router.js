@@ -123,17 +123,18 @@ class Router {
 
 		if(pageInt !== currentPage){
 			switch(pageInt){
-				case Router.PAGE_MENU:
-				case Router.PAGE_MENU_LEVELS:
-					// These are all legal states to return to
-					this.showPage(pageInt);
-					break;
 				case Router.PAGE_GAME:
 				case Router.PAGE_LEVEL_END_SCREEN:
 				case Router.PAGE_LEVEL_FAILED_SCREEN:
 					// These are all illegal game states to return to, keep going back
 					// untill a legal state is reached
 					window.history.back();
+					break;
+				case Router.PAGE_MENU:
+				case Router.PAGE_MENU_LEVELS:
+				default:
+					// These are all legal states to return to
+					this.showPage(pageInt);
 					break;
 			}
 		}
