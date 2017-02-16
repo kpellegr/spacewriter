@@ -2,9 +2,10 @@ class GameState {
 	constructor(app){
 		this.app = app;
 		this.localStore = new LocalStore("GameState");
-		this.data = this.localStore.loadJson() || {
-			unlockedIndex: 0
-		};
+
+		this.data = this.localStore.loadJson() || {};
+		this._setDefault("unlockedIndex", 0);
+		this._setDefault("levels", {});
 		this.invalidate();
 
 		console.log(this.data);
@@ -19,7 +20,29 @@ class GameState {
 		this.invalidate();
 	}
 
+	setLevelData(index, levelData){
+		this.data.levels[index.toString()] = levelData;
+		this.invalidate();
+	}
+
+	getLevelData(index){
+		if(index.toString() in this.data.levels)
+			return this.data.levels[index.toString()];
+		return {
+			starcount: 0
+		};
+	}
+
+	getLevels(){
+		return this.data.levels;
+	}
+
 	invalidate(){
 		this.localStore.store(this.data);
+	}
+
+	_setDefault(name, value){
+		if(!(name in this.data))
+			this.data[name] = value;
 	}
 }

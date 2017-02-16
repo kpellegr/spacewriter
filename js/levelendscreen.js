@@ -56,6 +56,8 @@ class LevelEndScreen extends BaseDialog {
 
 		var levelText = this.game.add.text(0, 0, "Level "+this.data.level, { font: (levelTextHeight*.65)+"px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
 		levelText.setTextBounds(this.dialogX, this.dialogY + this.lineWidthDialog, this.dialogSize, levelTextHeight);
+
+		this.persistScore();
 	}
 
 	update(){
@@ -89,5 +91,11 @@ class LevelEndScreen extends BaseDialog {
 			this.game.add.sprite(0, 0, "space_atlas", 'star_silver.png'),
 			this.game.add.sprite(0, 0, "space_atlas", 'star_gold.png')
 		];
+	}
+
+	persistScore(){
+		var persist = this.app.state.getLevelData(this.data.level);
+		persist.starcount = Math.max(this.getStarCount(), persist.starcount);
+		this.app.state.setLevelData(this.data.level, persist);
 	}
 }

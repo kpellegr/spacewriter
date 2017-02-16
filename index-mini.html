@@ -403,8 +403,6 @@ var BaseDialog = function (_BaseView) {
 		var t = this.game.add.text(0, 0, this.title, { font: "20px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
 		t.setTextBounds(0, this.padding, this.width, this.padding);
 
-		var starCount = this.getStarCount();
-
 		// Draw the dialog frame
 		var dialog = this.game.add.graphics(this.dialogX, this.dialogY);
 		dialog.beginFill(this.backgroundColor);
@@ -565,9 +563,10 @@ var GameState = function () {
 
 		this.app = app;
 		this.localStore = new LocalStore("GameState");
-		this.data = this.localStore.loadJson() || {
-			unlockedIndex: 0
-		};
+
+		this.data = this.localStore.loadJson() || {};
+		this._setDefault("unlockedIndex", 0);
+		this._setDefault("levels", {});
 		this.invalidate();
 
 		console.log(this.data);
@@ -582,8 +581,28 @@ var GameState = function () {
 		this.invalidate();
 	};
 
+	GameState.prototype.setLevelData = function setLevelData(index, levelData) {
+		this.data.levels[index.toString()] = levelData;
+		this.invalidate();
+	};
+
+	GameState.prototype.getLevelData = function getLevelData(index) {
+		if (index.toString() in this.data.levels) return this.data.levels[index.toString()];
+		return {
+			starcount: 0
+		};
+	};
+
+	GameState.prototype.getLevels = function getLevels() {
+		return this.data.levels;
+	};
+
 	GameState.prototype.invalidate = function invalidate() {
 		this.localStore.store(this.data);
+	};
+
+	GameState.prototype._setDefault = function _setDefault(name, value) {
+		if (!(name in this.data)) this.data[name] = value;
 	};
 
 	return GameState;
@@ -942,7 +961,14 @@ var Game = function () {
 		if (this.moreAsteroidsNeeded()) this.spawnAsteroid();
 
 		var matchedWord = false;
-		this.asteroids.forEachAlive(this.cb(function (asteroid) {
+		var sortedAsteroids = [];
+		this.asteroids.forEachAlive(function (a) {
+			return sortedAsteroids.push(a);
+		}, this);
+
+		sortedAsteroids.sort(function (a, b) {
+			return b.y - a.y;
+		}).forEach(this.cb(function (asteroid) {
 			var word = this.updateAsteroid(asteroid);
 			if (word !== null && !matchedWord) {
 				matchedWord = true;
@@ -950,7 +976,7 @@ var Game = function () {
 				// clear the buffer, duplicates are not cleared at once
 				this.wordsBuffer = [];
 			}
-		}), this);
+		}));
 
 		this.lifeManager.updateStreak(this.comboManager.getSteak());
 
@@ -1357,7 +1383,7 @@ var LevelsMenu = function (_BaseView3) {
 		this.menu.forEach(this.cb(function (item, index) {
 			var levelSprite;
 			var x = getXPos(index);
-			var y, spriteSize;
+			var y, spriteSize, starOffset, starScale;
 
 			if (item.data.checkpoint) {
 				offset += 75;
@@ -1365,6 +1391,8 @@ var LevelsMenu = function (_BaseView3) {
 				levelSprite = this.game.add.sprite(x, y, 'planet_atlas', item.data.planet);
 				offset += 75;
 				spriteSize = 150;
+				starOffset = 75;
+				starScale = 1;
 			} else {
 				offset += 25;
 				y = this.height - offset;
@@ -1372,6 +1400,8 @@ var LevelsMenu = function (_BaseView3) {
 				levelSprite.scale.set(.25);
 				offset += 25;
 				spriteSize = 50;
+				starOffset = 25;
+				starScale = .5;
 			}
 
 			levelSprite.anchor.x = .5;
@@ -1394,6 +1424,18 @@ var LevelsMenu = function (_BaseView3) {
 			var ROTATIONS = 10000;
 			this.game.add.tween(levelSprite).to({ rotation: ROTATIONS * 2 * Math.PI }, (.5 + Math.random() / 2.0) * 60000 * ROTATIONS, Phaser.Easing.Linear.InOut, true);
 			this.sprites.push(levelSprite);
+
+			var levelData = null;
+			try {
+				levelData = this.app.state.getLevelData(index);
+			} catch (e) {}
+			console.log(levelData);
+			if (levelData && levelData.starcount > 0) {
+				var starSprite = this.game.add.sprite(x + starOffset, y, "space_atlas", [null, "star_bronze.png", "star_silver.png", "star_gold.png"][levelData.starcount]);
+				starSprite.anchor.set(.5);
+				starSprite.scale.set(starScale);
+				this.sprites.push(starSprite);
+			}
 		}));
 
 		/*var g = this.game.add.graphics(0, 0);
@@ -1500,6 +1542,8 @@ var LevelEndScreen = function (_BaseDialog) {
 
 		var levelText = this.game.add.text(0, 0, "Level " + this.data.level, { font: levelTextHeight * .65 + "px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
 		levelText.setTextBounds(this.dialogX, this.dialogY + this.lineWidthDialog, this.dialogSize, levelTextHeight);
+
+		this.persistScore();
 	};
 
 	LevelEndScreen.prototype.update = function update() {};
@@ -1522,6 +1566,12 @@ var LevelEndScreen = function (_BaseDialog) {
 
 	LevelEndScreen.prototype.createStars = function createStars() {
 		return [this.game.add.sprite(0, 0, "space_atlas", 'star_bronze.png'), this.game.add.sprite(0, 0, "space_atlas", 'star_silver.png'), this.game.add.sprite(0, 0, "space_atlas", 'star_gold.png')];
+	};
+
+	LevelEndScreen.prototype.persistScore = function persistScore() {
+		var persist = this.app.state.getLevelData(this.data.level);
+		persist.starcount = Math.max(this.getStarCount(), persist.starcount);
+		this.app.state.setLevelData(this.data.level, persist);
 	};
 
 	return LevelEndScreen;
@@ -1552,11 +1602,6 @@ var LevelFailedScreen = function (_BaseDialog2) {
 
 	LevelFailedScreen.prototype.create = function create() {
 		_BaseDialog2.prototype.create.call(this);
-
-		// Draw the stars
-		var stars = this.createStars();
-		var starCount = this.getStarCount();
-		var starScale = this.dialogSize / (stars[0].width * stars.length) / 1.5;
 
 		var levelTextHeight = this.dialogSize * .125;
 

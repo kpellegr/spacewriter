@@ -33,7 +33,7 @@ class LevelsMenu extends BaseView {
 		this.menu.forEach(this.cb(function(item, index){
 			var levelSprite;
 			var x = getXPos(index);
-			var y, spriteSize;
+			var y, spriteSize, starOffset, starScale;
 				
 			if(item.data.checkpoint){
 				offset += 75;
@@ -41,6 +41,8 @@ class LevelsMenu extends BaseView {
 				levelSprite = this.game.add.sprite(x, y, 'planet_atlas', item.data.planet);
 				offset += 75;
 				spriteSize = 150;
+				starOffset = 75;
+				starScale = 1;
 			}else{
 				offset += 25;
 				y = this.height - offset;
@@ -48,6 +50,8 @@ class LevelsMenu extends BaseView {
 				levelSprite.scale.set(.25);
 				offset += 25;
 				spriteSize = 50;
+				starOffset = 25;
+				starScale = .5;
 			}
 			
 			levelSprite.anchor.x = .5;
@@ -70,6 +74,17 @@ class LevelsMenu extends BaseView {
 			var ROTATIONS = 10000;
 			this.game.add.tween(levelSprite).to( { rotation: ROTATIONS*2*Math.PI }, (.5 + Math.random()/2.0) * 60000 * ROTATIONS, Phaser.Easing.Linear.InOut, true);
 			this.sprites.push(levelSprite);
+
+			var levelData = null;
+			try { levelData = this.app.state.getLevelData(index); } catch(e){}
+			console.log(levelData);
+			if(levelData && levelData.starcount > 0){
+				var starSprite = this.game.add.sprite(x + starOffset, y, "space_atlas", 
+					[null, "star_bronze.png", "star_silver.png", "star_gold.png"][levelData.starcount]);
+				starSprite.anchor.set(.5);
+				starSprite.scale.set(starScale);
+				this.sprites.push(starSprite);
+			}
 		}));
 
 		/*var g = this.game.add.graphics(0, 0);

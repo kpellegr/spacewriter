@@ -344,15 +344,22 @@ class Game {
 			this.spawnAsteroid();
 
 		var matchedWord = false;
-		this.asteroids.forEachAlive(this.cb(function(asteroid){
-			var word = this.updateAsteroid(asteroid);
-			if(word !== null && !matchedWord){
-				matchedWord = true;
-				this.comboManager.foundWord(word);
-				// clear the buffer, duplicates are not cleared at once
-				this.wordsBuffer = [];
-			}
-		}), this);
+		var sortedAsteroids = [];
+		this.asteroids.forEachAlive(a => sortedAsteroids.push(a), this);
+
+		// Destroy astroids in y-order, if 2 identical astroids are present
+		// the one closest to destruction will be removed first
+		sortedAsteroids
+			.sort((a, b) => b.y - a.y)
+			.forEach(this.cb(function(asteroid){
+				var word = this.updateAsteroid(asteroid);
+				if(word !== null && !matchedWord){
+					matchedWord = true;
+					this.comboManager.foundWord(word);
+					// clear the buffer, duplicates are not cleared at once
+					this.wordsBuffer = [];
+				}
+			}));
 
 		this.lifeManager.updateStreak(this.comboManager.getSteak());
 
