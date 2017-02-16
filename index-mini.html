@@ -179,6 +179,7 @@ var Router = function () {
 		this.context.state.add(Router.PAGE_MENU, this.createState(Router.PAGE_MENU));
 		this.context.state.add(Router.PAGE_MENU_LEVELS, this.createState(Router.PAGE_MENU_LEVELS));
 		this.context.state.add(Router.PAGE_GAME, this.createState(Router.PAGE_GAME));
+		this.context.state.add(Router.PAGE_LEVEL_END_SCREEN, this.createState(Router.PAGE_LEVEL_END_SCREEN));
 
 		this.active_page = null;
 		this.active_page_id = null;
@@ -349,6 +350,76 @@ var BaseView = function () {
 //=======================
 
 
+var BaseDialog = function (_BaseView) {
+	_inherits(BaseDialog, _BaseView);
+
+	function BaseDialog(app, context) {
+		_classCallCheck(this, BaseDialog);
+
+		var _this3 = _possibleConstructorReturn(this, _BaseView.call(this, app, context));
+
+		_this3.padding = _this3.height / 10;
+		_this3.dialogSize = _this3.width - 2 * _this3.padding;
+		_this3.dialogX = (_this3.width - _this3.dialogSize) / 2;
+		_this3.dialogY = (_this3.height - _this3.dialogSize) / 2;
+		_this3.lineWidthDialog = 8;
+		_this3.lineWidthBtn = 4;
+
+		_this3.backgroundColor = 0x040037;
+		_this3.borderColor = 0x00C4C4;
+		_this3.title = "__DIALOG__";
+		_this3.buttons = [];
+		return _this3;
+	}
+
+	BaseDialog.prototype.create = function create() {
+		_BaseView.prototype.create.call(this);
+
+		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
+
+		var t = this.game.add.text(0, 0, this.title, { font: "20px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+		t.setTextBounds(0, this.padding, this.width, this.padding);
+
+		var starCount = this.getStarCount();
+
+		// Draw the dialog frame
+		var dialog = this.game.add.graphics(this.dialogX, this.dialogY);
+		dialog.beginFill(this.backgroundColor);
+		dialog.lineStyle(this.lineWidthDialog, this.borderColor, 1);
+		dialog.drawRect(0, 0, this.dialogSize, this.dialogSize);
+		dialog.endFill();
+
+		// Draw buttons
+		this.drawButtons();
+	};
+
+	BaseDialog.prototype.drawButtons = function drawButtons() {
+		var btnCount = this.buttons.length;
+		if (btnCount == 0) return;
+
+		var btnPadding = this.dialogSize / btnCount * .05;
+		var btnWidth = this.dialogSize / btnCount * .90;
+		var btnHeight = this.dialogSize * .15;
+		var btnFullWidth = this.dialogSize / btnCount;
+
+		this.buttons.forEach(this.cb(function (btn, i) {
+			var menuBg = this.game.add.graphics(this.dialogX + i * btnFullWidth + btnPadding, this.dialogY + this.dialogSize - btnHeight / 2);
+			menuBg.beginFill(this.backgroundColor);
+			menuBg.lineStyle(this.lineWidthBtn, this.borderColor, 1);
+			menuBg.drawRect(0, 0, btnWidth, btnHeight);
+			menuBg.inputEnabled = true;
+			menuBg.events.onInputDown.add(btn.action, this);
+
+			var menuBtn = this.game.add.text(0, 0, btn.title, { font: btnHeight * .5 + "px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+			menuBtn.setTextBounds(this.dialogX + i * btnFullWidth, this.dialogY + this.dialogSize - btnHeight / 2 + this.lineWidthDialog / 2, btnFullWidth, btnHeight);
+		}));
+	};
+
+	return BaseDialog;
+}(BaseView);
+//=======================
+
+
 var App = function () {
 	function App(args) {
 		_classCallCheck(this, App);
@@ -373,6 +444,8 @@ var App = function () {
 
 		this.router.showMenu();
 		this.setupHandwriting();
+
+		this.router.showLevelEndScreen();
 	}
 
 	App.prototype.setupHandwriting = function setupHandwriting() {
@@ -429,6 +502,10 @@ var App = function () {
 
 	App.prototype.advanceLevelEndScreen = function advanceLevelEndScreen() {
 		this.router.showLevels(true);
+	};
+
+	App.prototype.advanceLevelEndScreenNextLevel = function advanceLevelEndScreenNextLevel(level) {
+		this.startLevel(level + 1);
 	};
 
 	App.prototype.cb = function cb(fun) {
@@ -1075,8 +1152,8 @@ function createBlock(food, label, xpos) {
 */
 
 
-var Menu = function (_BaseView) {
-	_inherits(Menu, _BaseView);
+var Menu = function (_BaseView2) {
+	_inherits(Menu, _BaseView2);
 
 	/*
  	Create a new menu view provided an instance of App and
@@ -1087,15 +1164,15 @@ var Menu = function (_BaseView) {
 	function Menu(app, context, options) {
 		_classCallCheck(this, Menu);
 
-		var _this3 = _possibleConstructorReturn(this, _BaseView.call(this, app, context));
+		var _this4 = _possibleConstructorReturn(this, _BaseView2.call(this, app, context));
 
-		_this3.padding = app.width / 3.0;
-		_this3.menu = options;
-		return _this3;
+		_this4.padding = app.width / 3.0;
+		_this4.menu = options;
+		return _this4;
 	}
 
 	Menu.prototype.create = function create() {
-		_BaseView.prototype.create.call(this);
+		_BaseView2.prototype.create.call(this);
 
 		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels;
 
@@ -1125,27 +1202,27 @@ var Menu = function (_BaseView) {
 */
 
 
-var LevelsMenu = function (_BaseView2) {
-	_inherits(LevelsMenu, _BaseView2);
+var LevelsMenu = function (_BaseView3) {
+	_inherits(LevelsMenu, _BaseView3);
 
 	function LevelsMenu(app, context) {
 		_classCallCheck(this, LevelsMenu);
 
-		var _this4 = _possibleConstructorReturn(this, _BaseView2.call(this, app, context, []));
+		var _this5 = _possibleConstructorReturn(this, _BaseView3.call(this, app, context, []));
 
-		_this4.sprites = [];
-		_this4.dragListener = new SimpleDragListener(_this4.game);
-		return _this4;
+		_this5.sprites = [];
+		_this5.dragListener = new SimpleDragListener(_this5.game);
+		return _this5;
 	}
 
 	LevelsMenu.prototype.preload = function preload() {
-		var _this5 = this;
+		var _this6 = this;
 
-		_BaseView2.prototype.preload.call(this);
+		_BaseView3.prototype.preload.call(this);
 
 		var levels = JSON.parse(this.game.cache.getText('levels')).levels;
 		var startLevel = this.cb(function (l) {
-			return _this5.startLevel(l);
+			return _this6.startLevel(l);
 		});
 
 		this.menu = levels.map(this.cb(function (l, levelIndex) {
@@ -1161,7 +1238,7 @@ var LevelsMenu = function (_BaseView2) {
 	};
 
 	LevelsMenu.prototype.create = function create() {
-		_BaseView2.prototype.create.call(this);
+		_BaseView3.prototype.create.call(this);
 
 		var getXPos = this.cb(function (levelIndex) {
 			return (Math.cos(levelIndex * Math.PI / 8.0) * .5 + .5) * this.width / 2 + this.width / 4;
@@ -1226,13 +1303,13 @@ var LevelsMenu = function (_BaseView2) {
 	};
 
 	LevelsMenu.prototype.update = function update() {
-		var _this6 = this;
+		var _this7 = this;
 
-		_BaseView2.prototype.update.call(this);
+		_BaseView3.prototype.update.call(this);
 		this.dragListener.update();
 
 		this.sprites.forEach(this.cb(function (s) {
-			s.position.set(s.oldposition.x, Math.max(s.oldposition.y, s.oldposition.y + _this6.dragListener.y));
+			s.position.set(s.oldposition.x, Math.max(s.oldposition.y, s.oldposition.y + _this7.dragListener.y));
 		}));
 	};
 
@@ -1249,13 +1326,29 @@ var LevelsMenu = function (_BaseView2) {
 //=======================
 
 
-var LevelEndScreen = function (_BaseView3) {
-	_inherits(LevelEndScreen, _BaseView3);
+var LevelEndScreen = function (_BaseDialog) {
+	_inherits(LevelEndScreen, _BaseDialog);
 
 	function LevelEndScreen(app, game) {
 		_classCallCheck(this, LevelEndScreen);
 
-		return _possibleConstructorReturn(this, _BaseView3.call(this, app, game));
+		var _this8 = _possibleConstructorReturn(this, _BaseDialog.call(this, app, game));
+
+		_this8.title = "LEVEL COMPLETE";
+		_this8.buttons = [{ title: "MENU", action: _this8.cb(function () {
+				return _this8.app.advanceLevelEndScreen();
+			}) }, { title: "NEXT", action: _this8.cb(function () {
+				return _this8.app.advanceLevelEndScreenNextLevel(_this8.data.level);
+			}) }];
+
+		_this8.data = {
+			level: 1,
+			wordcount: 50,
+			combo: {
+				maxstreak: 30
+			}
+		};
+		return _this8;
 	}
 
 	LevelEndScreen.prototype.setData = function setData(levelData) {
@@ -1263,21 +1356,41 @@ var LevelEndScreen = function (_BaseView3) {
 	};
 
 	LevelEndScreen.prototype.create = function create() {
-		var _this8 = this;
+		var _this9 = this;
 
-		_BaseView3.prototype.create.call(this);
+		_BaseDialog.prototype.create.call(this);
 
-		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
-
-		console.log(this.levelData, this.data);
-
-		var t = this.game.add.text(0, 0, "LEVEL COMPLETE: " + this.getStarCount(), { color: "white" });
-		t.inputEnabled = true;
-		t.events.onInputDown.add(this.cb(function () {
-			return _this8.app.advanceLevelEndScreen();
-		}), this);
-
+		// Draw the stars
+		var stars = this.createStars();
 		var starCount = this.getStarCount();
+		var starScale = this.dialogSize / (stars[0].width * stars.length) / 1.5;
+
+		var levelTextHeight = this.dialogSize * .125;
+
+		var starYPos = (this.height - this.dialogSize) / 2 + levelTextHeight + this.lineWidthDialog;
+		stars.forEach(this.cb(function (s, i) {
+			s.width *= starScale;
+			s.height *= starScale;
+
+			s.anchor.set(.5, .5);
+			s.x = _this9.width / 2 + (i - Math.floor(stars.length / 2)) * (s.width * 1.25);
+			s.y = starYPos + s.height;
+
+			if (i == 1) s.y -= s.height / 2;
+
+			s.alpha = 0;
+			if (i < starCount) {
+				s.scale.set(3.0 * starScale);
+				_this9.game.add.tween(s.scale).to({ x: starScale, y: starScale }, 300, Phaser.Easing.Linear.None, true, 300 * i);
+				_this9.game.add.tween(s).to({ alpha: 1 }, 300, Phaser.Easing.Linear.None, true, 300 * i);
+			} else {
+				s.scale.set(starScale);
+				_this9.game.add.tween(s).to({ alpha: .35 }, 300, Phaser.Easing.Linear.None, true, 300 * i);
+			}
+		}));
+
+		var levelText = this.game.add.text(0, 0, "Level " + this.data.level, { font: levelTextHeight * .65 + "px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+		levelText.setTextBounds(this.dialogX, this.dialogY + this.lineWidthDialog, this.dialogSize, levelTextHeight);
 	};
 
 	LevelEndScreen.prototype.update = function update() {};
@@ -1294,19 +1407,22 @@ var LevelEndScreen = function (_BaseView3) {
 		// streak should be longer than 80% of the word count
 		var tresholdThree = .8 * wordcount;
 
-		console.log(streak, wordcount);
-
 		if (streak >= tresholdThree) return 3;else if (streak >= tresholdTwo) return 2;else if (streak >= tresholdOne) return 1;
 		return 0;
 	};
 
+	LevelEndScreen.prototype.createStars = function createStars() {
+		return [this.game.add.sprite(0, 0, "space_atlas", 'star_bronze.png'), this.game.add.sprite(0, 0, "space_atlas", 'star_silver.png'), this.game.add.sprite(0, 0, "space_atlas", 'star_gold.png')];
+	};
+
 	return LevelEndScreen;
-}(BaseView);
+}(BaseDialog);
 //=======================
 
 </script>
 	<link rel="import" href="bower_components/myscript-text-web/myscript-text-web.html">
 
+    
     
     
     
