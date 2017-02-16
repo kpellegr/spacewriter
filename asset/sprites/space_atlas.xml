@@ -249,7 +249,7 @@
 	<SubTexture name="star1.png" x="628" y="681" width="25" height="24"/>
 	<SubTexture name="star2.png" x="222" y="84" width="25" height="24"/>
 	<SubTexture name="star3.png" x="576" y="300" width="24" height="24"/>
-	<SubTexture name="star_bronze.png" x="778" y="794" width="31" height="30"/>
+	<SubTexture name="star_bronze.png" x="778" y="794" width="31" height="29.9"/>
 	<SubTexture name="star_gold.png" x="778" y="557" width="31" height="30"/>
 	<SubTexture name="star_silver.png" x="778" y="527" width="31" height="30"/>
 	<SubTexture name="things_bronze.png" x="778" y="495" width="32" height="32"/>

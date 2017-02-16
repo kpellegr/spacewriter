@@ -9,6 +9,12 @@ class ComboManager {
 		this.lastWord  = "";
 		this.lastWordTime = 0;
 		this.multiplier = 1;
+		this.streak = 0;
+
+		// bookkeeping
+		this.b_combos = 0;
+		this.b_maxmultiplier = 0;
+		this.b_maxstreak = 0;
 	}
 
 	foundWord(word){
@@ -30,6 +36,17 @@ class ComboManager {
 
 		this.lastWordTime = time;
 		this.lastWord = word;
+
+		if(isCombo){
+			this.b_combos++;
+			this.streak++;
+
+			// update stats
+			this.b_maxstreak = Math.max(this.b_maxstreak, this.streak);
+			this.b_maxmultiplier = Math.max(this.b_maxmultiplier, this.multiplier);
+		}else{
+			this.streak = 0;
+		}
 
 		return isCombo;
 	}
@@ -71,6 +88,14 @@ class ComboManager {
 	getCurrentTime(){
 		return new Date().getTime();
 	}
+
+	getData(){
+		return {
+			combos: this.b_combos,
+			maxmultiplier: this.b_maxmultiplier,
+			maxstreak: this.b_maxstreak
+		};
+	}
 }
 
 class Game {
@@ -107,6 +132,10 @@ class Game {
 
 		this.exhaustCount = 50;
 		this.exhaustDelay = 1000;
+
+		// bookkeeping
+		this.b_wordcount = 0;
+		this.b_lettercount = 0;
 	}
 
 	loadLevel(levelIndex){
@@ -221,7 +250,7 @@ class Game {
 
 	update() {	
 		if(this.distance >= this.targetDistance){
-			this.app.levelCompleted(this.currentLevel);
+			this.app.levelCompleted(this.getData());
 		}
 
 		this.distanceBar.scale.x = 1.0 * this.distance / this.targetDistance;
@@ -274,6 +303,8 @@ class Game {
 			if(word !== null && !matchedWord){
 				matchedWord = true;
 				this.comboManager.foundWord(word);
+				// clear the buffer, duplicates are not cleared at once
+				this.wordsBuffer = [];
 			}
 		}), this);
 
@@ -281,9 +312,6 @@ class Game {
 		this.comboManager.update();
 
 		this.updateComboBar();
-
-		// clear the buffer
-		this.wordsBuffer = [];
 	}
 
 	updateComboBar(){
@@ -417,7 +445,7 @@ class Game {
 		var v = this.game.rnd.integerInRange(5, 50)
 		var av = this.game.rnd.integerInRange(-25, 25)
 
-		asteroid.reset(xpos, -asteroid.height/2);
+		asteroid.reset(xpos, asteroid.height/2);
 		asteroid.body.velocity.y = v;
 		asteroid.body.angularVelocity = av;
 
@@ -427,8 +455,8 @@ class Game {
 			asteroid.label = this.dictData[idx].trim().toLowerCase();
 		else
 			asteroid.label = "label";
-		asteroid.text = this.game.add.text(0, 0, asteroid.label, { font: "16px Arial", fill: "#c7d0dd" });
-		asteroid.text.anchor.set(0.5, 1);
+		asteroid.text = this.game.add.text(0, 0, asteroid.label, { font: "16px Arial", fill: "#ffffff" });
+		asteroid.text.anchor.set(0.5, -.5);
 	}
 
 	shootAsteroid(enemy, laser) {
@@ -443,6 +471,8 @@ class Game {
 		// increase the distance when positive
 		if(delta > 0){
 			this.distance += delta * this.comboManager.getMultiplier();
+			this.b_wordcount += 1;
+			this.b_lettercount += delta;
 		}
 
 		if (enemy.text) {
@@ -470,7 +500,16 @@ class Game {
     	this.game.add.tween(wordOverlayText).to( { alpha: 0, y: -this.height/4 }, 1000, Phaser.Easing.Cubic.InOut, true).onComplete.add(function(){
     		wordOverlayText.destroy();
     	}, this);
-  }
+  	}
+
+  	getData(){
+  		return {
+  			combo: this.comboManager.getData(),
+  			level: this.currentLevel,
+  			wordcount: this.b_wordcount,
+  			lettercount: this.b_lettercount
+  		};
+  	}
 
 	destroy(){
 		this.game.destroy();

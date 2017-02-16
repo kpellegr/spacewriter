@@ -23,9 +23,9 @@ na elkaar doet +1 leven.
 
 indien target e.g. 50 is:
 
-3 sterren met 15 woorden of minder (5 + 20%)
-2 sterren met 30 woorden of minder (5 + 50%)
-1 ster met 45 woorden of minder (5 + 80%)
+3 sterren als langste opeenvolgende combo langer duurt dan 80% van het totaal aantal woorden
+2 sterren als langste opeenvolgende combo langer duurt dan 50% van het totaal aantal woorden
+1 ster als langste opeenvolgende combo langer duurt dan 20% van het totaal aantal woorden
 
 * je moet combos maken om sterren te kunnen verdienen combos == snel woorden achter elkaar vormen
     * => speler zal sneller en sneller worden in elk level waardoor er betere en langere combos worden gehaald
