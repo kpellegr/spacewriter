@@ -75,10 +75,8 @@ class LevelsMenu extends BaseView {
 			this.game.add.tween(levelSprite).to( { rotation: ROTATIONS*2*Math.PI }, (.5 + Math.random()/2.0) * 60000 * ROTATIONS, Phaser.Easing.Linear.InOut, true);
 			this.sprites.push(levelSprite);
 
-			var levelData = null;
-			try { levelData = this.app.state.getLevelData(index); } catch(e){}
-			console.log(levelData);
-			if(levelData && levelData.starcount > 0){
+			var levelData = this.app.state.getLevelData(index);
+			if(levelData.starcount > 0){
 				var starSprite = this.game.add.sprite(x + starOffset, y, "space_atlas", 
 					[null, "star_bronze.png", "star_silver.png", "star_gold.png"][levelData.starcount]);
 				starSprite.anchor.set(.5);

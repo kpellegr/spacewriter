@@ -352,10 +352,18 @@ class Game {
 		sortedAsteroids
 			.sort((a, b) => b.y - a.y)
 			.forEach(this.cb(function(asteroid){
-				var word = this.updateAsteroid(asteroid);
-				if(word !== null && !matchedWord){
+				// Check if there is a match
+				var matches = this.wordsBuffer.filter(w => w === asteroid.label);
+				// update the current combo
+				if (matches.length > 0) 
+					this.comboManager.foundWord(matches[0]);
+
+				// update/destroy astroid, score will now use the correct combo
+				// as it is updated in the previous line
+				this.updateAsteroid(asteroid);
+
+				if(matches.length > 0 && !matchedWord){
 					matchedWord = true;
-					this.comboManager.foundWord(word);
 					// clear the buffer, duplicates are not cleared at once
 					this.wordsBuffer = [];
 				}
