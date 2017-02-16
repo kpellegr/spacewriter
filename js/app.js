@@ -22,7 +22,7 @@ class App {
 		this.router.showMenu();
 		this.setupHandwriting();
 
-		this.router.showLevelEndScreen();
+		//this.router.showLevelEndScreen();
 	}
 
 	setupHandwriting(){
