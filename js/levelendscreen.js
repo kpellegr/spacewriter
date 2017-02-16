@@ -9,13 +9,13 @@ class LevelEndScreen extends BaseDialog {
 			{ title: "NEXT", action: this.cb(() => this.app.advanceLevelEndScreenNextLevel(this.data.level)) },
 		];
 
-		this.data = {
-			level: 1,
-			wordcount: 50,
-			combo: {
-				maxstreak: 30
-			}
-		};
+		// this.data = {
+		// 	level: 1,
+		// 	wordcount: 50,
+		// 	combo: {
+		// 		maxstreak: 30
+		// 	}
+		// };
 	}
 
 	setData(levelData){
