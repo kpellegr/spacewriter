@@ -89,12 +89,50 @@ class ComboManager {
 		return new Date().getTime();
 	}
 
+	getSteak(){
+		return this.streak;
+	}
+
 	getData(){
 		return {
 			combos: this.b_combos,
 			maxmultiplier: this.b_maxmultiplier,
 			maxstreak: this.b_maxstreak
 		};
+	}
+}
+
+class LifeManager {
+	constructor(startLifeCount, lifecap){
+		this.lifecount = startLifeCount;
+		// max amount of lifes you can have
+		this.LIFE_CAP = lifecap;
+		// Generate a new life everytime x amount of streaks
+		this.STREAK_INTERVAL = 5;
+
+		this.lastStreak = -1;
+	}
+
+	getLifeCount(){
+		return this.lifecount;
+	}
+
+	updateStreak(streak){
+		if(streak !== this.lastStreak){
+			this.lastStreak = streak;
+
+			if(streak >= this.STREAK_INTERVAL && streak % this.STREAK_INTERVAL == 0){
+				this.generateLife();
+			}
+		}
+	}
+
+	generateLife(count = 1){
+		this.lifecount = Math.min(this.lifecount + count, this.LIFE_CAP);
+	}
+
+	consumeLife(count = 1){
+		this.lifecount = Math.max(0, this.lifecount - count);
 	}
 }
 
@@ -109,6 +147,7 @@ class Game {
 		//create game object and initialize the canvas
 		this.game = game;
 		this.comboManager = new ComboManager();
+		this.lifeManager  = new LifeManager(3, 9);
 
 		this.style = { font: "16px Arial", fill: "#ff0044", wordWrap: false, wordWrapWidth: 100, align: "center", backgroundColor: "#ffffff" };
 
@@ -246,11 +285,18 @@ class Game {
 
 		this.distanceBar.scale.x = 0;
 		this.distanceBar.alpha = .7;
+
+		this.createLives();
 	}
 
 	update() {	
 		if(this.distance >= this.targetDistance){
 			this.app.levelCompleted(this.getData());
+			return;
+		}
+		else if(this.lifeManager.getLifeCount() == 0){
+			this.app.levelFailed(this.getData());
+			return;
 		}
 
 		this.distanceBar.scale.x = 1.0 * this.distance / this.targetDistance;
@@ -308,10 +354,13 @@ class Game {
 			}
 		}), this);
 
+		this.lifeManager.updateStreak(this.comboManager.getSteak());
+
 		// Check if a combo has run out
 		this.comboManager.update();
 
 		this.updateComboBar();
+		this.updateLives();
 	}
 
 	updateComboBar(){
@@ -393,6 +442,7 @@ class Game {
 
 		if (asteroid.y > this.height) {
 			this.destroyAsteroid(asteroid, -asteroid.label.length); // loose
+			this.lifeManager.consumeLife();
 			// TODO: penalize the user?
 		}
 		if (asteroid && asteroid.text && asteroid.label) {
@@ -500,6 +550,28 @@ class Game {
     	this.game.add.tween(wordOverlayText).to( { alpha: 0, y: -this.height/4 }, 1000, Phaser.Easing.Cubic.InOut, true).onComplete.add(function(){
     		wordOverlayText.destroy();
     	}, this);
+  	}
+
+  	createLives(){
+  		var maxLives = this.lifeManager.LIFE_CAP;
+  		var spriteName = "playerLife1_red.png";
+  		var padding = this.width*.02;
+  		var scale = .75;
+
+  		this.lives = [];
+  		for(var i = 0; i < maxLives; i++){
+  			var l = this.game.add.sprite(padding, this.height - padding, "space_atlas", spriteName);
+  			l.y -= (l.height + padding) * i * scale;
+  			l.anchor.set(0, 1);
+  			l.scale.set(scale);
+  			this.lives.push(l);
+  		}
+  	}
+
+  	updateLives(){
+  		this.lives.forEach(this.cb(function(l, i){
+  			l.alpha = i < this.lifeManager.getLifeCount() ? 1 : 0;
+  		}));
   	}
 
   	getData(){

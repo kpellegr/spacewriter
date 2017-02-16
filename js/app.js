@@ -68,9 +68,12 @@ class App {
 		}
 
 		this.router.showLevelEndScreen(true);
-		this.router.getLevelEndScreen(function(endscreen){
-			endscreen.setData(levelData);
-		});
+		this.router.getLevelEndScreen(e => e.setData(levelData));
+	}
+
+	levelFailed(levelData){
+		this.router.showLevelFailedScreen(true);
+		this.router.getLevelFailedScreen(f => f.setData(levelData));
 	}
 
 	advanceLevelEndScreen(){

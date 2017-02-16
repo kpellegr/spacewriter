@@ -8,6 +8,7 @@ class Router {
 		this.context.state.add(Router.PAGE_MENU_LEVELS, this.createState(Router.PAGE_MENU_LEVELS));
 		this.context.state.add(Router.PAGE_GAME, this.createState(Router.PAGE_GAME));
 		this.context.state.add(Router.PAGE_LEVEL_END_SCREEN, this.createState(Router.PAGE_LEVEL_END_SCREEN));
+		this.context.state.add(Router.PAGE_LEVEL_FAILED_SCREEN, this.createState(Router.PAGE_LEVEL_FAILED_SCREEN));
 
 		this.active_page = null;
 		this.active_page_id = null;
@@ -27,6 +28,10 @@ class Router {
 		this.showPage(Router.PAGE_LEVEL_END_SCREEN, invalidate);
 	}
 
+	showLevelFailedScreen(invalidate = false){
+		this.showPage(Router.PAGE_LEVEL_FAILED_SCREEN, invalidate);
+	}
+
 	showGame(invalidate = false){
 		this.showPage(Router.PAGE_GAME, invalidate);
 	}
@@ -43,12 +48,17 @@ class Router {
 		this.getPage(Router.PAGE_LEVEL_END_SCREEN, cb);
 	}
 
+	getLevelFailedScreen(cb){
+		this.getPage(Router.PAGE_LEVEL_FAILED_SCREEN, cb);
+	}
+
 	showPage(page, invalidate = false){
 		switch(page){
 			case Router.PAGE_MENU:
 			case Router.PAGE_GAME:
 			case Router.PAGE_MENU_LEVELS:
 			case Router.PAGE_LEVEL_END_SCREEN:
+			case Router.PAGE_LEVEL_FAILED_SCREEN:
 				this.active_page_id = page;
 				window.location.hash = page.toString();
 				if(invalidate)
@@ -84,6 +94,10 @@ class Router {
 		return new LevelEndScreen(this.app, this.context);
 	}
 
+	createLevelFailedScreen(){
+		return new LevelFailedScreen(this.app, this.context);
+	}
+
 	createState(state){
 		switch(state){
 			case Router.PAGE_MENU_LEVELS:
@@ -94,6 +108,8 @@ class Router {
 				return this.cb(this.createMenu);
 			case Router.PAGE_LEVEL_END_SCREEN:
 				return this.cb(this.createLevelEndScreen);
+			case Router.PAGE_LEVEL_FAILED_SCREEN:
+				return this.cb(this.createLevelFailedScreen);
 			default:
 				break;
 		}
@@ -118,3 +134,4 @@ Router.PAGE_MENU = 0;
 Router.PAGE_MENU_LEVELS = 1;
 Router.PAGE_GAME = 2;
 Router.PAGE_LEVEL_END_SCREEN = 3;
+Router.PAGE_LEVEL_FAILED_SCREEN = 4;
