@@ -17,11 +17,6 @@ class LevelFailedScreen extends BaseDialog {
 	create(){
 		super.create();
 
-		// Draw the stars
-		var stars = this.createStars();
-		var starCount = this.getStarCount();
-		var starScale = this.dialogSize / (stars[0].width * stars.length) / 1.5;
-
 		var levelTextHeight = this.dialogSize * .125;
 
 		var levelText = this.game.add.text(0, 0, "Level "+this.data.level, { font: (levelTextHeight*.65)+"px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });

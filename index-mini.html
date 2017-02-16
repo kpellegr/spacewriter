@@ -77,6 +77,10 @@ function range(cb, limit) {
 function deepCopy(data) {
 	return JSON.parse(JSON.stringify(data));
 }
+
+function last(collection) {
+	return collection[collection.length - 1];
+}
 //=======================
 /*
 	Wrapper around the HTML5 localstorage object that represents a single
@@ -180,6 +184,7 @@ var Router = function () {
 		this.context.state.add(Router.PAGE_MENU_LEVELS, this.createState(Router.PAGE_MENU_LEVELS));
 		this.context.state.add(Router.PAGE_GAME, this.createState(Router.PAGE_GAME));
 		this.context.state.add(Router.PAGE_LEVEL_END_SCREEN, this.createState(Router.PAGE_LEVEL_END_SCREEN));
+		this.context.state.add(Router.PAGE_LEVEL_FAILED_SCREEN, this.createState(Router.PAGE_LEVEL_FAILED_SCREEN));
 
 		this.active_page = null;
 		this.active_page_id = null;
@@ -205,6 +210,12 @@ var Router = function () {
 		this.showPage(Router.PAGE_LEVEL_END_SCREEN, invalidate);
 	};
 
+	Router.prototype.showLevelFailedScreen = function showLevelFailedScreen() {
+		var invalidate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+		this.showPage(Router.PAGE_LEVEL_FAILED_SCREEN, invalidate);
+	};
+
 	Router.prototype.showGame = function showGame() {
 		var invalidate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
@@ -223,6 +234,10 @@ var Router = function () {
 		this.getPage(Router.PAGE_LEVEL_END_SCREEN, cb);
 	};
 
+	Router.prototype.getLevelFailedScreen = function getLevelFailedScreen(cb) {
+		this.getPage(Router.PAGE_LEVEL_FAILED_SCREEN, cb);
+	};
+
 	Router.prototype.showPage = function showPage(page) {
 		var invalidate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
@@ -231,6 +246,7 @@ var Router = function () {
 			case Router.PAGE_GAME:
 			case Router.PAGE_MENU_LEVELS:
 			case Router.PAGE_LEVEL_END_SCREEN:
+			case Router.PAGE_LEVEL_FAILED_SCREEN:
 				this.active_page_id = page;
 				window.location.hash = page.toString();
 				if (invalidate) this.context.state.add(page, this.createState(page));
@@ -264,6 +280,10 @@ var Router = function () {
 		return new LevelEndScreen(this.app, this.context);
 	};
 
+	Router.prototype.createLevelFailedScreen = function createLevelFailedScreen() {
+		return new LevelFailedScreen(this.app, this.context);
+	};
+
 	Router.prototype.createState = function createState(state) {
 		var _this2 = this;
 
@@ -278,6 +298,8 @@ var Router = function () {
 				return this.cb(this.createMenu);
 			case Router.PAGE_LEVEL_END_SCREEN:
 				return this.cb(this.createLevelEndScreen);
+			case Router.PAGE_LEVEL_FAILED_SCREEN:
+				return this.cb(this.createLevelFailedScreen);
 			default:
 				break;
 		}
@@ -308,6 +330,7 @@ Router.PAGE_MENU = 0;
 Router.PAGE_MENU_LEVELS = 1;
 Router.PAGE_GAME = 2;
 Router.PAGE_LEVEL_END_SCREEN = 3;
+Router.PAGE_LEVEL_FAILED_SCREEN = 4;
 //=======================
 
 var BaseView = function () {
@@ -445,7 +468,7 @@ var App = function () {
 		this.router.showMenu();
 		this.setupHandwriting();
 
-		this.router.showLevelEndScreen();
+		//this.router.showLevelEndScreen();
 	}
 
 	App.prototype.setupHandwriting = function setupHandwriting() {
@@ -495,8 +518,15 @@ var App = function () {
 		}
 
 		this.router.showLevelEndScreen(true);
-		this.router.getLevelEndScreen(function (endscreen) {
-			endscreen.setData(levelData);
+		this.router.getLevelEndScreen(function (e) {
+			return e.setData(levelData);
+		});
+	};
+
+	App.prototype.levelFailed = function levelFailed(levelData) {
+		this.router.showLevelFailedScreen(true);
+		this.router.getLevelFailedScreen(function (f) {
+			return f.setData(levelData);
 		});
 	};
 
@@ -653,6 +683,10 @@ var ComboManager = function () {
 		return new Date().getTime();
 	};
 
+	ComboManager.prototype.getSteak = function getSteak() {
+		return this.streak;
+	};
+
 	ComboManager.prototype.getData = function getData() {
 		return {
 			combos: this.b_combos,
@@ -662,6 +696,48 @@ var ComboManager = function () {
 	};
 
 	return ComboManager;
+}();
+
+var LifeManager = function () {
+	function LifeManager(startLifeCount, lifecap) {
+		_classCallCheck(this, LifeManager);
+
+		this.lifecount = startLifeCount;
+		// max amount of lifes you can have
+		this.LIFE_CAP = lifecap;
+		// Generate a new life everytime x amount of streaks
+		this.STREAK_INTERVAL = 5;
+
+		this.lastStreak = -1;
+	}
+
+	LifeManager.prototype.getLifeCount = function getLifeCount() {
+		return this.lifecount;
+	};
+
+	LifeManager.prototype.updateStreak = function updateStreak(streak) {
+		if (streak !== this.lastStreak) {
+			this.lastStreak = streak;
+
+			if (streak >= this.STREAK_INTERVAL && streak % this.STREAK_INTERVAL == 0) {
+				this.generateLife();
+			}
+		}
+	};
+
+	LifeManager.prototype.generateLife = function generateLife() {
+		var count = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+		this.lifecount = Math.min(this.lifecount + count, this.LIFE_CAP);
+	};
+
+	LifeManager.prototype.consumeLife = function consumeLife() {
+		var count = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+		this.lifecount = Math.max(0, this.lifecount - count);
+	};
+
+	return LifeManager;
 }();
 
 var Game = function () {
@@ -676,6 +752,7 @@ var Game = function () {
 		//create game object and initialize the canvas
 		this.game = game;
 		this.comboManager = new ComboManager();
+		this.lifeManager = new LifeManager(3, 9);
 
 		this.style = { font: "16px Arial", fill: "#ff0044", wordWrap: false, wordWrapWidth: 100, align: "center", backgroundColor: "#ffffff" };
 
@@ -812,11 +889,17 @@ var Game = function () {
 
 		this.distanceBar.scale.x = 0;
 		this.distanceBar.alpha = .7;
+
+		this.createLives();
 	};
 
 	Game.prototype.update = function update() {
 		if (this.distance >= this.targetDistance) {
 			this.app.levelCompleted(this.getData());
+			return;
+		} else if (this.lifeManager.getLifeCount() == 0) {
+			this.app.levelFailed(this.getData());
+			return;
 		}
 
 		this.distanceBar.scale.x = 1.0 * this.distance / this.targetDistance;
@@ -869,10 +952,13 @@ var Game = function () {
 			}
 		}), this);
 
+		this.lifeManager.updateStreak(this.comboManager.getSteak());
+
 		// Check if a combo has run out
 		this.comboManager.update();
 
 		this.updateComboBar();
+		this.updateLives();
 	};
 
 	Game.prototype.updateComboBar = function updateComboBar() {
@@ -956,6 +1042,7 @@ var Game = function () {
 
 		if (asteroid.y > this.height) {
 			this.destroyAsteroid(asteroid, -asteroid.label.length); // loose
+			this.lifeManager.consumeLife();
 			// TODO: penalize the user?
 		}
 		if (asteroid && asteroid.text && asteroid.label) {
@@ -1061,6 +1148,28 @@ var Game = function () {
 		this.game.add.tween(wordOverlayText).to({ alpha: 0, y: -this.height / 4 }, 1000, Phaser.Easing.Cubic.InOut, true).onComplete.add(function () {
 			wordOverlayText.destroy();
 		}, this);
+	};
+
+	Game.prototype.createLives = function createLives() {
+		var maxLives = this.lifeManager.LIFE_CAP;
+		var spriteName = "playerLife1_red.png";
+		var padding = this.width * .02;
+		var scale = .75;
+
+		this.lives = [];
+		for (var i = 0; i < maxLives; i++) {
+			var l = this.game.add.sprite(padding, this.height - padding, "space_atlas", spriteName);
+			l.y -= (l.height + padding) * i * scale;
+			l.anchor.set(0, 1);
+			l.scale.set(scale);
+			this.lives.push(l);
+		}
+	};
+
+	Game.prototype.updateLives = function updateLives() {
+		this.lives.forEach(this.cb(function (l, i) {
+			l.alpha = i < this.lifeManager.getLifeCount() ? 1 : 0;
+		}));
 	};
 
 	Game.prototype.getData = function getData() {
@@ -1341,13 +1450,13 @@ var LevelEndScreen = function (_BaseDialog) {
 				return _this8.app.advanceLevelEndScreenNextLevel(_this8.data.level);
 			}) }];
 
-		_this8.data = {
-			level: 1,
-			wordcount: 50,
-			combo: {
-				maxstreak: 30
-			}
-		};
+		// this.data = {
+		// 	level: 1,
+		// 	wordcount: 50,
+		// 	combo: {
+		// 		maxstreak: 30
+		// 	}
+		// };
 		return _this8;
 	}
 
@@ -1419,9 +1528,50 @@ var LevelEndScreen = function (_BaseDialog) {
 }(BaseDialog);
 //=======================
 
+
+var LevelFailedScreen = function (_BaseDialog2) {
+	_inherits(LevelFailedScreen, _BaseDialog2);
+
+	function LevelFailedScreen(app, game) {
+		_classCallCheck(this, LevelFailedScreen);
+
+		var _this10 = _possibleConstructorReturn(this, _BaseDialog2.call(this, app, game));
+
+		_this10.title = "LEVEL FAILED";
+		_this10.buttons = [{ title: "MENU", action: _this10.cb(function () {
+				return _this10.app.router.showLevels();
+			}) }, { title: "RETRY", action: _this10.cb(function () {
+				return _this10.app.startLevel(_this10.data.level);
+			}) }];
+		return _this10;
+	}
+
+	LevelFailedScreen.prototype.setData = function setData(levelData) {
+		this.data = levelData;
+	};
+
+	LevelFailedScreen.prototype.create = function create() {
+		_BaseDialog2.prototype.create.call(this);
+
+		// Draw the stars
+		var stars = this.createStars();
+		var starCount = this.getStarCount();
+		var starScale = this.dialogSize / (stars[0].width * stars.length) / 1.5;
+
+		var levelTextHeight = this.dialogSize * .125;
+
+		var levelText = this.game.add.text(0, 0, "Level " + this.data.level, { font: levelTextHeight * .65 + "px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+		levelText.setTextBounds(this.dialogX, this.dialogY + this.lineWidthDialog, this.dialogSize, levelTextHeight);
+	};
+
+	return LevelFailedScreen;
+}(BaseDialog);
+//=======================
+
 </script>
 	<link rel="import" href="bower_components/myscript-text-web/myscript-text-web.html">
 
+    
     
     
     

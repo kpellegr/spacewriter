@@ -23,8 +23,6 @@ class BaseDialog extends BaseView {
 		var t = this.game.add.text(0, 0, this.title, { font: "20px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
 		t.setTextBounds(0, this.padding, this.width, this.padding);
 
-		var starCount = this.getStarCount();
-
 		// Draw the dialog frame
 		var dialog = this.game.add.graphics(this.dialogX, this.dialogY);
 		dialog.beginFill(this.backgroundColor);
