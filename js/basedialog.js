@@ -10,8 +10,8 @@ class BaseDialog extends BaseView {
 		this.lineWidthBtn = 4;
 		this.btnHeight    = this.dialogSize * .15;
 
-		this.backgroundColor = 0x040037;
-		this.borderColor = 0x00C4C4;
+		this.backgroundColor = 0x3A2E3F;
+		this.borderColor = 0xcccccc;
 		this.title = "__DIALOG__";
 		this.buttons = [];
 	}
@@ -25,10 +25,10 @@ class BaseDialog extends BaseView {
 		t.setTextBounds(0, this.padding, this.width, this.padding);
 
 		// Draw the dialog frame
-		var dialog = this.game.add.graphics(this.dialogX, this.dialogY);
+		var dialog = this.game.add.graphics(this.dialogX - this.lineWidthDialog/2, this.dialogY - this.lineWidthDialog/2);
 		dialog.beginFill(this.backgroundColor);
 		dialog.lineStyle(this.lineWidthDialog, this.borderColor, 1);
-		dialog.drawRect(0, 0, this.dialogSize, this.dialogSize);
+		dialog.drawRect(0, 0, this.dialogSize + this.lineWidthDialog, this.dialogSize + this.btnHeight/2 + this.lineWidthDialog*2);
 		dialog.endFill();
 
 		// Draw buttons
@@ -40,9 +40,9 @@ class BaseDialog extends BaseView {
 		if(btnCount == 0) return;
 
 		var btnHeight    = this.btnHeight;
-		var btnPadding   = (this.dialogSize / btnCount) * .05;
-		var btnWidth     = (this.dialogSize / btnCount) * .90;
-		var btnFullWidth = this.dialogSize / btnCount;
+		var btnPadding   = this.lineWidthDialog;
+		var btnFullWidth = ((this.dialogSize-btnPadding) / btnCount);
+		var btnWidth     = btnFullWidth - btnPadding;
 
 		this.buttons.forEach(this.cb(function(btn, i){
 			var menuBg = this.game.add.graphics(this.dialogX + i * btnFullWidth + btnPadding, this.dialogY + this.dialogSize - btnHeight/2);

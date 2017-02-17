@@ -187,6 +187,8 @@ var SimpleDragListener = function () {
 		this.game = game;
 		this.dragUpdated = false;
 		this.beenDown = false;
+		this.click = true;
+		this.clickableItems = [];
 
 		this.y = 0;
 		this.baseDraggedY = 0;
@@ -195,6 +197,8 @@ var SimpleDragListener = function () {
 
 		this.setLowerBounds(-SimpleDragListener.INFINITE, -SimpleDragListener.INFINITE);
 		this.setUpperBounds(SimpleDragListener.INFINITE, SimpleDragListener.INFINITE);
+
+		this.onClick = this._onClick;
 	}
 
 	SimpleDragListener.prototype.setLowerBounds = function setLowerBounds(x, y) {
@@ -205,6 +209,10 @@ var SimpleDragListener = function () {
 	SimpleDragListener.prototype.setUpperBounds = function setUpperBounds(x, y) {
 		this.upperBoundX = x;
 		this.upperBoundY = y;
+	};
+
+	SimpleDragListener.prototype.registerClick = function registerClick(element, action) {
+		this.clickableItems.push({ "element": element, "action": action });
 	};
 
 	SimpleDragListener.prototype.update = function update() {
@@ -218,6 +226,11 @@ var SimpleDragListener = function () {
 			var draggedExtraX = pos.position.x - pos.positionDown.x;
 			this.y = this._normalizeY(this.baseDraggedY + draggedExtraY);
 			this.x = this._normalizeX(this.baseDraggedX + draggedExtraX);
+
+			var distance = Math.sqrt(draggedExtraX * draggedExtraX + draggedExtraY * draggedExtraY);
+			if (distance > SimpleDragListener.CLICK_DISTANCE) {
+				this.click = false;
+			}
 		} else if (!this.dragUpdated && this.beenDown) {
 			this.dragUpdated = true;
 
@@ -226,6 +239,13 @@ var SimpleDragListener = function () {
 
 			this.baseDraggedX += pos.positionUp.x - pos.positionDown.x;
 			this.baseDraggedX = this._normalizeX(this.baseDraggedX);
+
+			// Send a "click" event if the distance traveled stayed below
+			// the CLICK_DISTANCE value during the dragging
+			if (this.click) {
+				this.onClick(pos.positionUp.x, pos.positionUp.y);
+			}
+			this.click = true;
 		}
 	};
 
@@ -241,10 +261,18 @@ var SimpleDragListener = function () {
 		return Math.min(upper, Math.max(lower, value));
 	};
 
+	SimpleDragListener.prototype._onClick = function _onClick(x, y) {
+		var candidates = this.clickableItems.filter(function (i) {
+			return i.element.getBounds().contains(x, y);
+		});
+		if (candidates.length > 0) candidates[0].action();
+	};
+
 	return SimpleDragListener;
 }();
 
 SimpleDragListener.INFINITE = Infinity;
+SimpleDragListener.CLICK_DISTANCE = 25;
 //=======================
 
 var Router = function () {
@@ -545,8 +573,8 @@ var BaseDialog = function (_BaseView) {
 		_this3.lineWidthBtn = 4;
 		_this3.btnHeight = _this3.dialogSize * .15;
 
-		_this3.backgroundColor = 0x040037;
-		_this3.borderColor = 0x00C4C4;
+		_this3.backgroundColor = 0x3A2E3F;
+		_this3.borderColor = 0xcccccc;
 		_this3.title = "__DIALOG__";
 		_this3.buttons = [];
 		return _this3;
@@ -561,10 +589,10 @@ var BaseDialog = function (_BaseView) {
 		t.setTextBounds(0, this.padding, this.width, this.padding);
 
 		// Draw the dialog frame
-		var dialog = this.game.add.graphics(this.dialogX, this.dialogY);
+		var dialog = this.game.add.graphics(this.dialogX - this.lineWidthDialog / 2, this.dialogY - this.lineWidthDialog / 2);
 		dialog.beginFill(this.backgroundColor);
 		dialog.lineStyle(this.lineWidthDialog, this.borderColor, 1);
-		dialog.drawRect(0, 0, this.dialogSize, this.dialogSize);
+		dialog.drawRect(0, 0, this.dialogSize + this.lineWidthDialog, this.dialogSize + this.btnHeight / 2 + this.lineWidthDialog * 2);
 		dialog.endFill();
 
 		// Draw buttons
@@ -576,9 +604,9 @@ var BaseDialog = function (_BaseView) {
 		if (btnCount == 0) return;
 
 		var btnHeight = this.btnHeight;
-		var btnPadding = this.dialogSize / btnCount * .05;
-		var btnWidth = this.dialogSize / btnCount * .90;
-		var btnFullWidth = this.dialogSize / btnCount;
+		var btnPadding = this.lineWidthDialog;
+		var btnFullWidth = (this.dialogSize - btnPadding) / btnCount;
+		var btnWidth = btnFullWidth - btnPadding;
 
 		this.buttons.forEach(this.cb(function (btn, i) {
 			var menuBg = this.game.add.graphics(this.dialogX + i * btnFullWidth + btnPadding, this.dialogY + this.dialogSize - btnHeight / 2);
@@ -1531,6 +1559,7 @@ var LevelsMenu = function (_BaseView3) {
 		var _this5 = _possibleConstructorReturn(this, _BaseView3.call(this, app, context, []));
 
 		_this5.sprites = [];
+		_this5.clickableItems = [];
 		_this5.dragListener = new SimpleDragListener(_this5.game);
 		_this5.dragListener.setLowerBounds(0, 0);
 		return _this5;
@@ -1590,6 +1619,8 @@ var LevelsMenu = function (_BaseView3) {
 				starScale = .5;
 			}
 
+			this.dragListener.setUpperBounds(0, offset + 50 - this.height);
+
 			levelSprite.anchor.x = .5;
 			levelSprite.anchor.y = .5;
 
@@ -1601,9 +1632,8 @@ var LevelsMenu = function (_BaseView3) {
 				g.beginFill("black");
 				g.drawCircle(0, 0, spriteSize);
 				g.endFill();
-				g.inputEnabled = true;
-				g.events.onInputDown.add(item.action, this);
 
+				this.dragListener.registerClick(g, item.action);
 				this.sprites.push(g);
 			}
 
@@ -1619,16 +1649,6 @@ var LevelsMenu = function (_BaseView3) {
 				this.sprites.push(starSprite);
 			}
 		}));
-
-		/*var g = this.game.add.graphics(0, 0);
-  g.beginFill("black")
-  g.drawRect(0, 0, this.width, 100);
-  g.endFill();
-  g.inputEnabled = true;
-  g.events.onInputDown.add(this.cb(() => this.app.router.showMenu()), this);
-  	var text = this.game.add.text(0, 0, "<- BACK", { font: "20px Arial Black", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
-  text.setTextBounds(0, 0, this.width, 100);
-  */
 
 		this.sprites.forEach(function (s) {
 			return s.oldposition = deepCopy(s.position);
@@ -1648,10 +1668,6 @@ var LevelsMenu = function (_BaseView3) {
 
 	LevelsMenu.prototype.startLevel = function startLevel(level) {
 		this.app.startLevel(level);
-	};
-
-	LevelsMenu.prototype.onPointerAction = function onPointerAction(e) {
-		console.log(e);
 	};
 
 	return LevelsMenu;
