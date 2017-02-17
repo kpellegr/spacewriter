@@ -94,7 +94,12 @@
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
-		"checkpoint": false
+		"checkpoint": false,
+		"distance": 50,
+		"mission": {
+			"title": "TitleMission1",
+			"description": "DescriptionMission1"
+		}
 	},{
 		"name": "TitleLevel10",
 		"fromdict": 27,

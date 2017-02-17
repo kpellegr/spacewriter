@@ -7,6 +7,7 @@ class LevelsMenu extends BaseView {
 		super(app, context, []);
 
 		this.sprites = [];
+		this.clickableItems = [];
 		this.dragListener = new SimpleDragListener(this.game);
 		this.dragListener.setLowerBounds(0, 0);
 	}
@@ -54,6 +55,8 @@ class LevelsMenu extends BaseView {
 				starOffset = 25;
 				starScale = .5;
 			}
+
+			this.dragListener.setUpperBounds(0, offset + 50 - this.height);
 			
 			levelSprite.anchor.x = .5;
 			levelSprite.anchor.y = .5;
@@ -66,9 +69,8 @@ class LevelsMenu extends BaseView {
 				g.beginFill("black");
 				g.drawCircle(0, 0, spriteSize);
 				g.endFill();
-				g.inputEnabled = true;
-				g.events.onInputDown.add(item.action, this);
 
+				this.dragListener.registerClick(g, item.action);
 				this.sprites.push(g);
 			}
 
@@ -85,17 +87,6 @@ class LevelsMenu extends BaseView {
 				this.sprites.push(starSprite);
 			}
 		}));
-
-		/*var g = this.game.add.graphics(0, 0);
-		g.beginFill("black")
-		g.drawRect(0, 0, this.width, 100);
-		g.endFill();
-		g.inputEnabled = true;
-		g.events.onInputDown.add(this.cb(() => this.app.router.showMenu()), this);
-
-		var text = this.game.add.text(0, 0, "<- BACK", { font: "20px Arial Black", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
-		text.setTextBounds(0, 0, this.width, 100);
-		*/
 
 		this.sprites.forEach(s => s.oldposition = deepCopy(s.position));
 	}
@@ -114,9 +105,5 @@ class LevelsMenu extends BaseView {
 
 	startLevel(level){
 		this.app.startLevel(level);
-	}
-
-	onPointerAction(e){
-		console.log(e);
 	}
 }
