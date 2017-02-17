@@ -105,5 +105,4 @@ class App {
 		this.height = wh;
 		this.width *= ratio;
 	}
-
 }
