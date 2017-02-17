@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>Spacewriter</title>
 
-    <script src='bower_components/webcomponentsjs/webcomponents-lite.js'></script><script src='lib/polyfills.js'></script><script src='lib/phaser.min.js'></script><script>"use strict";
+    <script src='bower_components/webcomponentsjs/webcomponents-lite.js'></script><script src='lib/polyfills.js'></script><script src='lib/phaser.min.js'></script><script>'use strict';
 
 function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -133,6 +133,52 @@ var LocalStore = function () {
 }();
 //=======================
 
+
+var TranslationManager = function () {
+	function TranslationManager(game, locale) {
+		_classCallCheck(this, TranslationManager);
+
+		this.game = game;
+		this.locale = locale;
+	}
+
+	TranslationManager.prototype.preload = function preload() {
+		// Load the selected language
+		var strippedMain = this._strippedLocale(this.locale);
+		this.game.load.text(this.locale, 'asset/data/translate/' + strippedMain + '.json');
+
+		// Load the fallback language
+		var stripped = this._strippedLocale(TranslationManager.KEY_FALLBACK);
+		this.game.load.text(TranslationManager.KEY_FALLBACK, 'asset/data/translate/' + stripped + '.json');
+	};
+
+	TranslationManager.prototype.create = function create() {
+		this.mainDict = JSON.parse(this.game.cache.getText(this.locale));
+		this.fallbackDict = JSON.parse(this.game.cache.getText(TranslationManager.KEY_FALLBACK));
+	};
+
+	TranslationManager.prototype.get = function get(key) {
+		if (this.mainDict && this.fallbackDict) {
+			if (key in this.mainDict) {
+				return this.mainDict[key];
+			} else if (key in this.fallbackDict) {
+				return this.fallbackDict[key];
+			}
+		}
+		return key;
+	};
+
+	TranslationManager.prototype._strippedLocale = function _strippedLocale(key) {
+		return key.replace("translate_", "");
+	};
+
+	return TranslationManager;
+}();
+
+TranslationManager.KEY_NL = "translate_nl";
+TranslationManager.KEY_EN = "translate_en";
+TranslationManager.KEY_FALLBACK = TranslationManager.KEY_EN;
+//=======================
 
 var SimpleDragListener = function () {
 	function SimpleDragListener(game) {
@@ -307,9 +353,9 @@ var Router = function () {
 	Router.prototype.createMenu = function createMenu() {
 		var _this = this;
 
-		return new Menu(this.app, this.context, [{ title: "PLAY", action: this.cb(function () {
+		return new Menu(this.app, this.context, [{ title: "MenuMainPlay", action: this.cb(function () {
 				return _this.showLevels();
-			}) }, { title: "HIGHSCORES", action: function action() {} }, { title: "SETTINGS", action: function action() {} }, { title: "QUIT", action: function action() {} }]);
+			}) }, { title: "MenuMainHighscores", action: function action() {} }, { title: "MenuMainSettings", action: function action() {} }, { title: "MenuMainQuit", action: function action() {} }]);
 	};
 
 	Router.prototype.createLevelsMenu = function createLevelsMenu() {
@@ -401,12 +447,14 @@ var BaseView = function () {
 
 		this.app = app;
 		this.game = context;
+		this.translate = new TranslationManager(this.game, this.app.state.getLocale());
 
 		this.width = app.width;
 		this.height = app.height;
 	}
 
 	BaseView.prototype.preload = function preload() {
+		this.translate.preload();
 		// Load the sprites
 		this.game.load.atlasXML('space_atlas', 'asset/sprites/space_atlas.png', 'asset/sprites/space_atlas.xml');
 		this.game.load.atlasXML('planet_atlas', 'asset/sprites/planets.png', 'asset/sprites/planets.xml');
@@ -416,6 +464,7 @@ var BaseView = function () {
 	};
 
 	BaseView.prototype.create = function create() {
+		this.translate.create();
 		// draw background
 		this.starfield = this.game.add.tileSprite(0, 0, this.width, this.height, 'background');
 	};
@@ -463,7 +512,7 @@ var BaseDialog = function (_BaseView) {
 
 		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
 
-		var t = this.game.add.text(0, 0, this.title, { font: "20px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+		var t = this.game.add.text(0, 0, this.translate.get(this.title), { font: "20px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
 		t.setTextBounds(0, this.padding, this.width, this.padding);
 
 		// Draw the dialog frame
@@ -494,7 +543,7 @@ var BaseDialog = function (_BaseView) {
 			menuBg.inputEnabled = true;
 			menuBg.events.onInputDown.add(btn.action, this);
 
-			var menuBtn = this.game.add.text(0, 0, btn.title, { font: btnHeight * .5 + "px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+			var menuBtn = this.game.add.text(0, 0, this.translate.get(btn.title), { font: btnHeight * .5 + "px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
 			menuBtn.setTextBounds(this.dialogX + i * btnFullWidth, this.dialogY + this.dialogSize - btnHeight / 2 + this.lineWidthDialog / 2, btnFullWidth, btnHeight);
 		}));
 	};
@@ -522,9 +571,9 @@ var App = function () {
 		this.gameContainer.style.width = this.width + "px";
 		this.handwritingContainer.style["margin-left"] = this.width + "px";
 
+		this.state = new GameState(this);
 		this.context = new Phaser.Game(this.width, this.height, Phaser.AUTO, this.gameCanvas);
 		this.router = new Router(this, this.context);
-		this.state = new GameState(this);
 
 		this.router.showMenu();
 		this.setupHandwriting();
@@ -637,6 +686,7 @@ var GameState = function () {
 		this.data = this.localStore.loadJson() || {};
 		this._setDefault("unlockedIndex", 0);
 		this._setDefault("levels", {});
+		this._setDefault("locale", TranslationManager.KEY_FALLBACK);
 		this.invalidate();
 
 		console.log(this.data);
@@ -648,6 +698,15 @@ var GameState = function () {
 
 	GameState.prototype.setUnlockedIndex = function setUnlockedIndex(index) {
 		this.data.unlockedIndex = index;
+		this.invalidate();
+	};
+
+	GameState.prototype.getLocale = function getLocale() {
+		return this.data.locale;
+	};
+
+	GameState.prototype.setLocale = function setLocale(locale) {
+		this.data.locale = locale;
 		this.invalidate();
 	};
 
@@ -1397,7 +1456,7 @@ var Menu = function (_BaseView2) {
 		var y = this.padding;
 
 		for (var i = 0; i < this.menu.length; i++) {
-			var title = this.menu[i].title;
+			var title = this.translate.get(this.menu[i].title).toUpperCase();
 			var action = this.menu[i].action;
 
 			// add entry to menu
@@ -1563,10 +1622,10 @@ var LevelEndScreen = function (_BaseDialog) {
 
 		var _this8 = _possibleConstructorReturn(this, _BaseDialog.call(this, app, game));
 
-		_this8.title = "LEVEL COMPLETE";
-		_this8.buttons = [{ title: "MENU", action: _this8.cb(function () {
+		_this8.title = "TitleLevelCompleted";
+		_this8.buttons = [{ title: "ButtonMenu", action: _this8.cb(function () {
 				return _this8.app.advanceLevelEndScreen();
-			}) }, { title: "NEXT", action: _this8.cb(function () {
+			}) }, { title: "ButtonNext", action: _this8.cb(function () {
 				return _this8.app.advanceLevelEndScreenNextLevel(_this8.data.level);
 			}) }];
 
@@ -1588,6 +1647,8 @@ var LevelEndScreen = function (_BaseDialog) {
 		var _this9 = this;
 
 		_BaseDialog.prototype.create.call(this);
+
+		var levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
 
 		// Draw the stars
 		var stars = this.createStars();
@@ -1618,7 +1679,7 @@ var LevelEndScreen = function (_BaseDialog) {
 			}
 		}));
 
-		var levelText = this.game.add.text(0, 0, "Level " + this.data.level, { font: levelTextHeight * .65 + "px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+		var levelText = this.game.add.text(0, 0, this.translate.get(levelData.name), { font: levelTextHeight * .65 + "px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
 		levelText.setTextBounds(this.dialogX, this.dialogY + this.lineWidthDialog, this.dialogSize, levelTextHeight);
 
 		this.persistScore();
@@ -1665,10 +1726,10 @@ var LevelFailedScreen = function (_BaseDialog2) {
 
 		var _this10 = _possibleConstructorReturn(this, _BaseDialog2.call(this, app, game));
 
-		_this10.title = "LEVEL FAILED";
-		_this10.buttons = [{ title: "MENU", action: _this10.cb(function () {
+		_this10.title = "TitleLevelFailed";
+		_this10.buttons = [{ title: "ButtonMenu", action: _this10.cb(function () {
 				return _this10.app.router.showLevels();
-			}) }, { title: "RETRY", action: _this10.cb(function () {
+			}) }, { title: "ButtonRetry", action: _this10.cb(function () {
 				return _this10.app.startLevel(_this10.data.level);
 			}) }];
 		return _this10;
@@ -1681,9 +1742,11 @@ var LevelFailedScreen = function (_BaseDialog2) {
 	LevelFailedScreen.prototype.create = function create() {
 		_BaseDialog2.prototype.create.call(this);
 
+		var levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
+
 		var levelTextHeight = this.dialogSize * .125;
 
-		var levelText = this.game.add.text(0, 0, "Level " + this.data.level, { font: levelTextHeight * .65 + "px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+		var levelText = this.game.add.text(0, 0, this.translate.get(levelData.name), { font: levelTextHeight * .65 + "px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
 		levelText.setTextBounds(this.dialogX, this.dialogY + this.lineWidthDialog, this.dialogSize, levelTextHeight);
 	};
 
@@ -1700,7 +1763,6 @@ var MissionScreen = function (_BaseDialog3) {
 
 		var _this11 = _possibleConstructorReturn(this, _BaseDialog3.call(this, app, game));
 
-		_this11.title = "MISSION";
 		_this11.textPadding = _this11.dialogSize * .05;
 		_this11.textWidth = _this11.dialogSize - 2 * _this11.textPadding;
 		_this11.dragListener = new SimpleDragListener(_this11.game);
@@ -1718,16 +1780,17 @@ var MissionScreen = function (_BaseDialog3) {
 	MissionScreen.prototype.create = function create() {
 		var _this12 = this;
 
-		this.buttons = [{ title: "START", action: this.cb(function () {
+		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
+		this.buttons = [{ title: "ButtonStart", action: this.cb(function () {
 				return _this12.app.beginLevel(_this12.data.level);
 			}) }];
-		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
 
 		if (this.levelData.mission && this.levelData.mission.title && this.levelData.mission.description) {
+			this.title = this.levelData.mission.title;
+
 			_BaseDialog3.prototype.create.call(this);
 
-			this.missionTitle = this.game.add.text(0, 0, this.levelData.mission.title);
-			this.missionDescription = this.game.add.text(0, 0, this.levelData.mission.description, { font: '12px Arial', fill: '#ccc', align: 'left', wordWrap: true, wordWrapWidth: this.textWidth });
+			this.missionDescription = this.game.add.text(0, 0, this.translate.get(this.levelData.mission.description), { font: '12px Arial', fill: '#ccc', align: 'left', wordWrap: true, wordWrapWidth: this.textWidth });
 
 			this.missionDescription.setTextBounds(this.dialogX + this.textPadding, this.dialogY + this.textPadding, this.textWidth, this.textWidth);
 
@@ -1764,6 +1827,7 @@ var MissionScreen = function (_BaseDialog3) {
 </script>
 	<link rel="import" href="bower_components/myscript-text-web/myscript-text-web.html">
 
+    
     
     
     
@@ -1838,7 +1902,7 @@ var MissionScreen = function (_BaseDialog3) {
 
 	<script type="text/javascript">
 
-new App(
+var app = new App(
 {
 	handwritingInput: document.querySelector("#input-handwriting"),
 	gameCanvas: document.querySelector("#gamecanvas"),
