@@ -21,7 +21,7 @@ class BaseDialog extends BaseView {
 
 		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
 
-		var t = this.game.add.text(0, 0, this.title, { font: "20px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+		var t = this.game.add.text(0, 0, this.translate.get(this.title), { font: "20px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
 		t.setTextBounds(0, this.padding, this.width, this.padding);
 
 		// Draw the dialog frame
@@ -52,7 +52,7 @@ class BaseDialog extends BaseView {
 			menuBg.inputEnabled = true;
 			menuBg.events.onInputDown.add(btn.action, this);
 
-			var menuBtn = this.game.add.text(0, 0, btn.title, { font: (btnHeight*.5)+"px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+			var menuBtn = this.game.add.text(0, 0, this.translate.get(btn.title), { font: (btnHeight*.5)+"px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
 			menuBtn.setTextBounds(this.dialogX + i * btnFullWidth, this.dialogY + this.dialogSize - btnHeight/2 + this.lineWidthDialog/2, btnFullWidth, btnHeight);
 		}));
 	}

@@ -6,6 +6,7 @@ class GameState {
 		this.data = this.localStore.loadJson() || {};
 		this._setDefault("unlockedIndex", 0);
 		this._setDefault("levels", {});
+		this._setDefault("locale", TranslationManager.KEY_FALLBACK);
 		this.invalidate();
 
 		console.log(this.data);
@@ -17,6 +18,15 @@ class GameState {
 
 	setUnlockedIndex(index){
 		this.data.unlockedIndex = index;
+		this.invalidate();
+	}
+
+	getLocale(){
+		return this.data.locale;
+	}
+
+	setLocale(locale){
+		this.data.locale = locale;
 		this.invalidate();
 	}
 

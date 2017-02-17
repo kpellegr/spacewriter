@@ -16,9 +16,9 @@ class App {
 		this.gameContainer.style.width = this.width + "px";
 		this.handwritingContainer.style["margin-left"] = this.width + "px";
 
+		this.state      = new GameState(this);
 		this.context    = new Phaser.Game(this.width, this.height, Phaser.AUTO, this.gameCanvas);
 		this.router     = new Router(this, this.context);
-		this.state      = new GameState(this);
 
 		this.router.showMenu();
 		this.setupHandwriting();
