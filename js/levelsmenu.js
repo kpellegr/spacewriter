@@ -55,6 +55,8 @@ class LevelsMenu extends BaseView {
 				starOffset = 25;
 				starScale = .5;
 			}
+
+			this.dragListener.setUpperBounds(0, offset + 50 - this.height);
 			
 			levelSprite.anchor.x = .5;
 			levelSprite.anchor.y = .5;
