@@ -2,7 +2,7 @@ class BaseDialog extends BaseView {
 	constructor(app, context){
 		super(app, context);
 
-		this.padding = this.height / 10;
+		this.padding = this.width / 10;
 		this.dialogSize = this.width - 2*this.padding;
 		this.dialogX = (this.width - this.dialogSize)/2;
 		this.dialogY = (this.height - this.dialogSize)/2;
