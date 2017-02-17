@@ -2,7 +2,6 @@ class MissionScreen extends BaseDialog {
 	constructor(app, game){
 		super(app, game);
 
-		this.title = "MISSION";
 		this.textPadding = this.dialogSize * .05;
 		this.textWidth = this.dialogSize - 2*this.textPadding;
 		this.dragListener = new SimpleDragListener(this.game);
@@ -17,16 +16,17 @@ class MissionScreen extends BaseDialog {
 	}
 
 	create(){
-		this.buttons = [
-			{ title: "START", action: this.cb(() => this.app.beginLevel(this.data.level)) }
-		];
 		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
+		this.buttons = [
+			{ title: "ButtonStart", action: this.cb(() => this.app.beginLevel(this.data.level)) }
+		];
 
 		if(this.levelData.mission && this.levelData.mission.title && this.levelData.mission.description){
+			this.title = this.levelData.mission.title;
+			
 			super.create();
 
-			this.missionTitle = this.game.add.text(0, 0, this.levelData.mission.title);
-			this.missionDescription = this.game.add.text(0, 0, this.levelData.mission.description, 
+			this.missionDescription = this.game.add.text(0, 0, this.translate.get(this.levelData.mission.description), 
 				{ font: '12px Arial', fill: '#ccc', align: 'left', wordWrap: true, wordWrapWidth: this.textWidth });
 
 			this.missionDescription.setTextBounds(this.dialogX + this.textPadding, 

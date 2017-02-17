@@ -27,7 +27,7 @@ class Menu extends BaseView {
 		var y = this.padding;
 
 		for(var i = 0; i < this.menu.length; i++){
-			var title  = this.menu[i].title;
+			var title  = this.translate.get(this.menu[i].title).toUpperCase();
 			var action = this.menu[i].action;
 
 			// add entry to menu

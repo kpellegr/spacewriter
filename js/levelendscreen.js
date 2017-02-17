@@ -3,10 +3,10 @@ class LevelEndScreen extends BaseDialog {
 	constructor(app, game){
 		super(app, game);
 
-		this.title = "LEVEL COMPLETE";
+		this.title = "TitleLevelCompleted";
 		this.buttons = [
-			{ title: "MENU", action: this.cb(() => this.app.advanceLevelEndScreen()) },
-			{ title: "NEXT", action: this.cb(() => this.app.advanceLevelEndScreenNextLevel(this.data.level)) },
+			{ title: "ButtonMenu", action: this.cb(() => this.app.advanceLevelEndScreen()) },
+			{ title: "ButtonNext", action: this.cb(() => this.app.advanceLevelEndScreenNextLevel(this.data.level)) },
 		];
 
 		// this.data = {
@@ -24,6 +24,8 @@ class LevelEndScreen extends BaseDialog {
 
 	create(){
 		super.create();
+
+		var levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
 
 		// Draw the stars
 		var stars = this.createStars();
@@ -54,7 +56,7 @@ class LevelEndScreen extends BaseDialog {
 			}
 		}));
 
-		var levelText = this.game.add.text(0, 0, "Level "+this.data.level, { font: (levelTextHeight*.65)+"px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+		var levelText = this.game.add.text(0, 0, this.translate.get(levelData.name), { font: (levelTextHeight*.65)+"px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
 		levelText.setTextBounds(this.dialogX, this.dialogY + this.lineWidthDialog, this.dialogSize, levelTextHeight);
 
 		this.persistScore();

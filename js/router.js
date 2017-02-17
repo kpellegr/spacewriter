@@ -89,10 +89,10 @@ class Router {
 
 	createMenu(){
 		return new Menu(this.app, this.context, [
-			{ title: "PLAY", action: this.cb(() => this.showLevels()) },
-			{ title: "HIGHSCORES", action: () => {} },
-			{ title: "SETTINGS", action: () => {} },
-			{ title: "QUIT", action: () => {} }
+			{ title: "MenuMainPlay", action: this.cb(() => this.showLevels()) },
+			{ title: "MenuMainHighscores", action: () => {} },
+			{ title: "MenuMainSettings", action: () => {} },
+			{ title: "MenuMainQuit", action: () => {} }
 		]);
 	}
 
