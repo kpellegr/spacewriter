@@ -10,9 +10,12 @@ class Router {
 		this.context.state.add(Router.PAGE_LEVEL_END_SCREEN, this.createState(Router.PAGE_LEVEL_END_SCREEN));
 		this.context.state.add(Router.PAGE_LEVEL_FAILED_SCREEN, this.createState(Router.PAGE_LEVEL_FAILED_SCREEN));
 		this.context.state.add(Router.PAGE_MISSION_SCREEN, this.createState(Router.PAGE_MISSION_SCREEN));
+		this.context.state.add(Router.PAGE_SETTINGS_SCREEN, this.createState(Router.PAGE_SETTINGS_SCREEN));
 
 		this.active_page = null;
 		this.active_page_id = null;
+		this.localeChanged = false;
+		this.localeUpdates = {};
 
 		window.addEventListener('hashchange', this.cb(this.hashChanged));
 	}
@@ -41,6 +44,10 @@ class Router {
 		this.showPage(Router.PAGE_MISSION_SCREEN, invalidate);
 	}
 
+	showSettingsScreen(invalidate = false){
+		this.showPage(Router.PAGE_SETTINGS_SCREEN, invalidate);
+	}
+
 	getMenu(cb){
 		this.getPage(Router.PAGE_MENU, cb);
 	}
@@ -61,6 +68,10 @@ class Router {
 		this.getPage(Router.PAGE_MISSION_SCREEN, cb);
 	}
 
+	getSettingsScreen(cb){
+		this.getPage(Router.PAGE_SETTINGS_SCREEN, cb);
+	}
+
 	showPage(page, invalidate = false){
 		switch(page){
 			case Router.PAGE_MENU:
@@ -69,10 +80,13 @@ class Router {
 			case Router.PAGE_LEVEL_END_SCREEN:
 			case Router.PAGE_LEVEL_FAILED_SCREEN:
 			case Router.PAGE_MISSION_SCREEN:
+			case Router.PAGE_SETTINGS_SCREEN:
 				this.active_page_id = page;
 				window.location.hash = page.toString();
-				if(invalidate)
+				if(invalidate || this.shouldUpdateLocale(page)){
+					this.localeUpdates[page.toString()] = true;
 					this.context.state.add(page, this.createState(page));
+				}
 
 				this.context.state.start(page.toString());
 			default:
@@ -89,9 +103,9 @@ class Router {
 
 	createMenu(){
 		return new Menu(this.app, this.context, [
-			{ title: "MenuMainPlay", action: this.cb(() => this.showLevels()) },
+			{ title: "MenuMainPlay", action: this.cb(this.showLevels) },
 			{ title: "MenuMainHighscores", action: () => {} },
-			{ title: "MenuMainSettings", action: () => {} },
+			{ title: "MenuMainSettings", action: this.cb(() => this.showSettingsScreen(true)) },
 			{ title: "MenuMainQuit", action: () => {} }
 		]);
 	}
@@ -112,6 +126,10 @@ class Router {
 		return new MissionScreen(this.app, this.context);
 	}
 
+	createSettingsScreen(){
+		return new SettingsScreen(this.app, this.context);
+	}
+
 	createState(state){
 		switch(state){
 			case Router.PAGE_MENU_LEVELS:
@@ -126,6 +144,8 @@ class Router {
 				return this.cb(this.createLevelFailedScreen);
 			case Router.PAGE_MISSION_SCREEN:
 				return this.cb(this.createMissionScreen);
+			case Router.PAGE_SETTINGS_SCREEN:
+				return this.cb(this.createSettingsScreen);
 			default:
 				break;
 		}
@@ -149,12 +169,34 @@ class Router {
 					break;
 				case Router.PAGE_MENU:
 				case Router.PAGE_MENU_LEVELS:
+				case Router.PAGE_SETTINGS_SCREEN:
 				default:
 					// These are all legal states to return to
 					this.showPage(pageInt);
 					break;
 			}
 		}
+	}
+
+	invalidateLocale(){
+		this.localeChanged = true;
+
+		for(var key in this.localeUpdates){
+			this.localeUpdates[key] = false;
+		}
+	}
+
+	shouldUpdateLocale(page){
+		page = page.toString();
+		if(!(page in this.localeUpdates)){
+			this.localeUpdates[page] = true;
+			return true;
+		}
+		else if(!this.localeUpdates[page]){
+			this.localeUpdates[page] = true;
+			return true;
+		}
+		return false;
 	}
 
 	cb(fun){ return ownedCallback(this, fun); }
@@ -167,3 +209,4 @@ Router.PAGE_GAME = 2;
 Router.PAGE_LEVEL_END_SCREEN = 3;
 Router.PAGE_LEVEL_FAILED_SCREEN = 4;
 Router.PAGE_MISSION_SCREEN = 5;
+Router.PAGE_SETTINGS_SCREEN = 6;

@@ -10,5 +10,8 @@
 	"ButtonStart": "Begin",
 	"ButtonMenu": "Menu",
 	"ButtonNext": "Volgende",
-	"ButtonRetry": "Opnieuw"
+	"ButtonRetry": "Opnieuw",
+
+	"SettingLanguagenl": "Taal: Dutch",
+	"SettingLanguageen": "Taal: English"
 }
