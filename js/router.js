@@ -9,6 +9,7 @@ class Router {
 		this.context.state.add(Router.PAGE_GAME, this.createState(Router.PAGE_GAME));
 		this.context.state.add(Router.PAGE_LEVEL_END_SCREEN, this.createState(Router.PAGE_LEVEL_END_SCREEN));
 		this.context.state.add(Router.PAGE_LEVEL_FAILED_SCREEN, this.createState(Router.PAGE_LEVEL_FAILED_SCREEN));
+		this.context.state.add(Router.PAGE_MISSION_SCREEN, this.createState(Router.PAGE_MISSION_SCREEN));
 
 		this.active_page = null;
 		this.active_page_id = null;
@@ -36,6 +37,10 @@ class Router {
 		this.showPage(Router.PAGE_GAME, invalidate);
 	}
 
+	showMissionScreen(invalidate = false){
+		this.showPage(Router.PAGE_MISSION_SCREEN, invalidate);
+	}
+
 	getMenu(cb){
 		this.getPage(Router.PAGE_MENU, cb);
 	}
@@ -52,6 +57,10 @@ class Router {
 		this.getPage(Router.PAGE_LEVEL_FAILED_SCREEN, cb);
 	}
 
+	getMissionScreen(cb){
+		this.getPage(Router.PAGE_MISSION_SCREEN, cb);
+	}
+
 	showPage(page, invalidate = false){
 		switch(page){
 			case Router.PAGE_MENU:
@@ -59,6 +68,7 @@ class Router {
 			case Router.PAGE_MENU_LEVELS:
 			case Router.PAGE_LEVEL_END_SCREEN:
 			case Router.PAGE_LEVEL_FAILED_SCREEN:
+			case Router.PAGE_MISSION_SCREEN:
 				this.active_page_id = page;
 				window.location.hash = page.toString();
 				if(invalidate)
@@ -98,6 +108,10 @@ class Router {
 		return new LevelFailedScreen(this.app, this.context);
 	}
 
+	createMissionScreen(){
+		return new MissionScreen(this.app, this.context);
+	}
+
 	createState(state){
 		switch(state){
 			case Router.PAGE_MENU_LEVELS:
@@ -110,6 +124,8 @@ class Router {
 				return this.cb(this.createLevelEndScreen);
 			case Router.PAGE_LEVEL_FAILED_SCREEN:
 				return this.cb(this.createLevelFailedScreen);
+			case Router.PAGE_MISSION_SCREEN:
+				return this.cb(this.createMissionScreen);
 			default:
 				break;
 		}
@@ -126,6 +142,7 @@ class Router {
 				case Router.PAGE_GAME:
 				case Router.PAGE_LEVEL_END_SCREEN:
 				case Router.PAGE_LEVEL_FAILED_SCREEN:
+				case Router.PAGE_MISSION_SCREEN:
 					// These are all illegal game states to return to, keep going back
 					// untill a legal state is reached
 					window.history.back();
@@ -149,3 +166,4 @@ Router.PAGE_MENU_LEVELS = 1;
 Router.PAGE_GAME = 2;
 Router.PAGE_LEVEL_END_SCREEN = 3;
 Router.PAGE_LEVEL_FAILED_SCREEN = 4;
+Router.PAGE_MISSION_SCREEN = 5;

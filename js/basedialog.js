@@ -8,6 +8,7 @@ class BaseDialog extends BaseView {
 		this.dialogY = (this.height - this.dialogSize)/2;
 		this.lineWidthDialog = 8;
 		this.lineWidthBtn = 4;
+		this.btnHeight    = this.dialogSize * .15;
 
 		this.backgroundColor = 0x040037;
 		this.borderColor = 0x00C4C4;
@@ -38,9 +39,9 @@ class BaseDialog extends BaseView {
 		var btnCount = this.buttons.length;
 		if(btnCount == 0) return;
 
+		var btnHeight    = this.btnHeight;
 		var btnPadding   = (this.dialogSize / btnCount) * .05;
 		var btnWidth     = (this.dialogSize / btnCount) * .90;
-		var btnHeight    = this.dialogSize * .15;
 		var btnFullWidth = this.dialogSize / btnCount;
 
 		this.buttons.forEach(this.cb(function(btn, i){

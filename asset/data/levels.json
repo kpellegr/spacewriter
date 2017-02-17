@@ -6,42 +6,66 @@
 		"maxenemies": 3,
 		"checkpoint": true,
 		"planet": "level0.png",
-		"distance": 1
+		"distance": 1,
+		"mission": {
+			"title": "Apollo 9",
+			"description": "Lorem ipsum dolor sit amet, eos graeco dictas timeam ex. Illum paulo temporibus eos et, id feugait qualisque eam, liber viderer eam ad. No mei eros suscipiantur, case error elaboraret nec in. Facete definiebas sea ne, utinam repudiandae ne mei.\n\nAn noster recusabo vel, ne vim partem labore. Everti omnium ius an, et mel summo reprimique intellegebat, wisi possit nostrud ne mei. Quo illum option id, omittam iudicabit omittantur quo et. Ex mea dicit putent.\n\nSea everti dignissim consequat eu. Ea nec vitae oblique signiferumque, erat albucius vix ut, quo an nominati dignissim. Mazim latine prodesset sit an, an munere moderatius duo. Ad usu mazim integre nominati, esse nullam officiis his in.\n\nEt his copiosae instructior concludaturque, eum at oportere accommodare, vel eu cibo debet. Vide adhuc viderer no vis, cu enim disputando mea. Alii contentiones ea nam, ius tale porro similique ne, malis nullam sensibus eum ei. Ex usu saepe vocibus. Dicam vocibus urbanitas ne usu, diceret probatus platonem an ius.\n\nMunere fastidii mea ad, mel liber postea similique ex, at idque minimum pri. Ei idque vocibus deserunt nec, vim autem ocurreret torquatos an. Sonet mandamus sea no, cum movet pertinacia ex. Eos eruditi habemus persequeris cu."
+		}
 	},{
 		"name": "Level 2",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 25
+		"distance": 25,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 3",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 25
+		"distance": 25,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 4",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 50
+		"distance": 50,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 5",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 50
+		"distance": 50,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 6",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 50
+		"distance": 50,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 7",
 		"fromdict": 27,
@@ -49,14 +73,22 @@
 		"maxenemies": 6,
 		"checkpoint": true,
 		"planet": "level1.png",
-		"distance": 50
+		"distance": 50,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 8",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 50
+		"distance": 50,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 9",
 		"fromdict": 27,
@@ -69,21 +101,33 @@
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 50
+		"distance": 50,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 11",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 75
+		"distance": 75,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 12",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 75
+		"distance": 75,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 13",
 		"fromdict": 27,
@@ -91,6 +135,10 @@
 		"maxenemies": 6,
 		"checkpoint": true,
 		"planet": "level2.png",
-		"distance": 75
+		"distance": 75,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	}]
 }
