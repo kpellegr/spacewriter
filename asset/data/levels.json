@@ -17,35 +17,55 @@
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 25
+		"distance": 25,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 3",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 25
+		"distance": 25,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 4",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 50
+		"distance": 50,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 5",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 50
+		"distance": 50,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 6",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 50
+		"distance": 50,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 7",
 		"fromdict": 27,
@@ -53,14 +73,22 @@
 		"maxenemies": 6,
 		"checkpoint": true,
 		"planet": "level1.png",
-		"distance": 50
+		"distance": 50,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 8",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 50
+		"distance": 50,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 9",
 		"fromdict": 27,
@@ -73,21 +101,33 @@
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 50
+		"distance": 50,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 11",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 75
+		"distance": 75,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 12",
 		"fromdict": 27,
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": false,
-		"distance": 75
+		"distance": 75,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	},{
 		"name": "Level 13",
 		"fromdict": 27,
@@ -95,6 +135,10 @@
 		"maxenemies": 6,
 		"checkpoint": true,
 		"planet": "level2.png",
-		"distance": 75
+		"distance": 75,
+		"mission": {
+			"title": "Mission title",
+			"description": "_"
+		}
 	}]
 }

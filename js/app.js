@@ -5,12 +5,13 @@ class App {
 		this.width = 480;
 		this.height = 800;
 
-		this.calculateViewport();
 
 		this.handwritingInput = args.handwritingInput;
 		this.gameCanvas = args.gameCanvas;
 		this.gameContainer = args.gameContainer;
 		this.handwritingContainer = args.handwritingContainer;
+
+		this.calculateViewport();
 
 		this.gameContainer.style.width = this.width + "px";
 		this.handwritingContainer.style["margin-left"] = this.width + "px";
@@ -56,10 +57,15 @@ class App {
 	}
 
 	startLevel(level){
-		this.router.showMissionScreen();
+		this.router.showMissionScreen(true);
 		this.router.getMissionScreen(m => m.setData({ level: level }))
 		//this.router.showGame(true);
 		//this.router.getGame(g => g.loadLevel(level));
+	}
+
+	beginLevel(level){
+		this.router.showGame(true);
+		this.router.getGame(g => g.loadLevel(level));
 	}
 
 	levelCompleted(levelData){
@@ -92,14 +98,12 @@ class App {
 
 	calculateViewport(){
 		var h = this.height;
-		var wh = window.innerHeight;
+		var wh = this.gameContainer.getBoundingClientRect().height;
 
 		var ratio = wh / h;
 
 		this.height = wh;
 		this.width *= ratio;
-
-		console.log(wh);
 	}
 
 }

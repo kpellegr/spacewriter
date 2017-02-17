@@ -140,38 +140,66 @@ var SimpleDragListener = function () {
 
 		this.game = game;
 		this.dragUpdated = false;
+		this.beenDown = false;
 
 		this.y = 0;
 		this.baseDraggedY = 0;
 		this.x = 0;
 		this.baseDraggedX = 0;
+
+		this.setLowerBounds(-SimpleDragListener.INFINITE, -SimpleDragListener.INFINITE);
+		this.setUpperBounds(SimpleDragListener.INFINITE, SimpleDragListener.INFINITE);
 	}
+
+	SimpleDragListener.prototype.setLowerBounds = function setLowerBounds(x, y) {
+		this.lowerBoundX = x;
+		this.lowerBoundY = y;
+	};
+
+	SimpleDragListener.prototype.setUpperBounds = function setUpperBounds(x, y) {
+		this.upperBoundX = x;
+		this.upperBoundY = y;
+	};
 
 	SimpleDragListener.prototype.update = function update() {
 		var pos = this.game.input.activePointer;
 
 		if (pos.isDown) {
+			this.beenDown = true;
 			this.dragUpdated = false;
 
 			var draggedExtraY = pos.position.y - pos.positionDown.y;
 			var draggedExtraX = pos.position.x - pos.positionDown.x;
-			this.y = this.baseDraggedY + draggedExtraY;
-			this.x = this.baseDraggedX + draggedExtraX;
-		} else if (!this.dragUpdated) {
+			this.y = this._normalizeY(this.baseDraggedY + draggedExtraY);
+			this.x = this._normalizeX(this.baseDraggedX + draggedExtraX);
+		} else if (!this.dragUpdated && this.beenDown) {
 			this.dragUpdated = true;
 
 			this.baseDraggedY += pos.positionUp.y - pos.positionDown.y;
-			this.baseDraggedY = Math.max(0, this.baseDraggedY);
+			this.baseDraggedY = this._normalizeY(this.baseDraggedY);
 
 			this.baseDraggedX += pos.positionUp.x - pos.positionDown.x;
-			this.baseDraggedX = Math.max(0, this.baseDraggedX);
+			this.baseDraggedX = this._normalizeX(this.baseDraggedX);
 		}
+	};
+
+	SimpleDragListener.prototype._normalizeY = function _normalizeY(y) {
+		return this._normalize(y, this.upperBoundY, this.lowerBoundY);
+	};
+
+	SimpleDragListener.prototype._normalizeX = function _normalizeX(x) {
+		return this._normalize(x, this.upperBoundX, this.lowerBoundX);
+	};
+
+	SimpleDragListener.prototype._normalize = function _normalize(value, upper, lower) {
+		return Math.min(upper, Math.max(lower, value));
 	};
 
 	return SimpleDragListener;
 }();
-//=======================
 
+SimpleDragListener.INFINITE = Infinity;
+//=======================
 
 var Router = function () {
 	function Router(app, context) {
@@ -185,6 +213,7 @@ var Router = function () {
 		this.context.state.add(Router.PAGE_GAME, this.createState(Router.PAGE_GAME));
 		this.context.state.add(Router.PAGE_LEVEL_END_SCREEN, this.createState(Router.PAGE_LEVEL_END_SCREEN));
 		this.context.state.add(Router.PAGE_LEVEL_FAILED_SCREEN, this.createState(Router.PAGE_LEVEL_FAILED_SCREEN));
+		this.context.state.add(Router.PAGE_MISSION_SCREEN, this.createState(Router.PAGE_MISSION_SCREEN));
 
 		this.active_page = null;
 		this.active_page_id = null;
@@ -222,6 +251,12 @@ var Router = function () {
 		this.showPage(Router.PAGE_GAME, invalidate);
 	};
 
+	Router.prototype.showMissionScreen = function showMissionScreen() {
+		var invalidate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+		this.showPage(Router.PAGE_MISSION_SCREEN, invalidate);
+	};
+
 	Router.prototype.getMenu = function getMenu(cb) {
 		this.getPage(Router.PAGE_MENU, cb);
 	};
@@ -238,6 +273,10 @@ var Router = function () {
 		this.getPage(Router.PAGE_LEVEL_FAILED_SCREEN, cb);
 	};
 
+	Router.prototype.getMissionScreen = function getMissionScreen(cb) {
+		this.getPage(Router.PAGE_MISSION_SCREEN, cb);
+	};
+
 	Router.prototype.showPage = function showPage(page) {
 		var invalidate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
@@ -247,6 +286,7 @@ var Router = function () {
 			case Router.PAGE_MENU_LEVELS:
 			case Router.PAGE_LEVEL_END_SCREEN:
 			case Router.PAGE_LEVEL_FAILED_SCREEN:
+			case Router.PAGE_MISSION_SCREEN:
 				this.active_page_id = page;
 				window.location.hash = page.toString();
 				if (invalidate) this.context.state.add(page, this.createState(page));
@@ -284,6 +324,10 @@ var Router = function () {
 		return new LevelFailedScreen(this.app, this.context);
 	};
 
+	Router.prototype.createMissionScreen = function createMissionScreen() {
+		return new MissionScreen(this.app, this.context);
+	};
+
 	Router.prototype.createState = function createState(state) {
 		var _this2 = this;
 
@@ -300,6 +344,8 @@ var Router = function () {
 				return this.cb(this.createLevelEndScreen);
 			case Router.PAGE_LEVEL_FAILED_SCREEN:
 				return this.cb(this.createLevelFailedScreen);
+			case Router.PAGE_MISSION_SCREEN:
+				return this.cb(this.createMissionScreen);
 			default:
 				break;
 		}
@@ -312,7 +358,22 @@ var Router = function () {
 		var currentPage = parseInt(this.active_page_id);
 
 		if (pageInt !== currentPage) {
-			this.showPage(pageInt);
+			switch (pageInt) {
+				case Router.PAGE_GAME:
+				case Router.PAGE_LEVEL_END_SCREEN:
+				case Router.PAGE_LEVEL_FAILED_SCREEN:
+				case Router.PAGE_MISSION_SCREEN:
+					// These are all illegal game states to return to, keep going back
+					// untill a legal state is reached
+					window.history.back();
+					break;
+				case Router.PAGE_MENU:
+				case Router.PAGE_MENU_LEVELS:
+				default:
+					// These are all legal states to return to
+					this.showPage(pageInt);
+					break;
+			}
 		}
 	};
 
@@ -331,6 +392,7 @@ Router.PAGE_MENU_LEVELS = 1;
 Router.PAGE_GAME = 2;
 Router.PAGE_LEVEL_END_SCREEN = 3;
 Router.PAGE_LEVEL_FAILED_SCREEN = 4;
+Router.PAGE_MISSION_SCREEN = 5;
 //=======================
 
 var BaseView = function () {
@@ -387,6 +449,7 @@ var BaseDialog = function (_BaseView) {
 		_this3.dialogY = (_this3.height - _this3.dialogSize) / 2;
 		_this3.lineWidthDialog = 8;
 		_this3.lineWidthBtn = 4;
+		_this3.btnHeight = _this3.dialogSize * .15;
 
 		_this3.backgroundColor = 0x040037;
 		_this3.borderColor = 0x00C4C4;
@@ -418,9 +481,9 @@ var BaseDialog = function (_BaseView) {
 		var btnCount = this.buttons.length;
 		if (btnCount == 0) return;
 
+		var btnHeight = this.btnHeight;
 		var btnPadding = this.dialogSize / btnCount * .05;
 		var btnWidth = this.dialogSize / btnCount * .90;
-		var btnHeight = this.dialogSize * .15;
 		var btnFullWidth = this.dialogSize / btnCount;
 
 		this.buttons.forEach(this.cb(function (btn, i) {
@@ -449,12 +512,12 @@ var App = function () {
 		this.width = 480;
 		this.height = 800;
 
-		this.calculateViewport();
-
 		this.handwritingInput = args.handwritingInput;
 		this.gameCanvas = args.gameCanvas;
 		this.gameContainer = args.gameContainer;
 		this.handwritingContainer = args.handwritingContainer;
+
+		this.calculateViewport();
 
 		this.gameContainer.style.width = this.width + "px";
 		this.handwritingContainer.style["margin-left"] = this.width + "px";
@@ -502,6 +565,15 @@ var App = function () {
 	};
 
 	App.prototype.startLevel = function startLevel(level) {
+		this.router.showMissionScreen(true);
+		this.router.getMissionScreen(function (m) {
+			return m.setData({ level: level });
+		});
+		//this.router.showGame(true);
+		//this.router.getGame(g => g.loadLevel(level));
+	};
+
+	App.prototype.beginLevel = function beginLevel(level) {
 		this.router.showGame(true);
 		this.router.getGame(function (g) {
 			return g.loadLevel(level);
@@ -542,14 +614,12 @@ var App = function () {
 
 	App.prototype.calculateViewport = function calculateViewport() {
 		var h = this.height;
-		var wh = window.innerHeight;
+		var wh = this.gameContainer.getBoundingClientRect().height;
 
 		var ratio = wh / h;
 
 		this.height = wh;
 		this.width *= ratio;
-
-		console.log(wh);
 	};
 
 	return App;
@@ -971,10 +1041,19 @@ var Game = function () {
 		sortedAsteroids.sort(function (a, b) {
 			return b.y - a.y;
 		}).forEach(this.cb(function (asteroid) {
-			var word = this.updateAsteroid(asteroid);
-			if (word !== null && !matchedWord) {
+			// Check if there is a match
+			var matches = this.wordsBuffer.filter(function (w) {
+				return w === asteroid.label;
+			});
+			// update the current combo
+			if (matches.length > 0) this.comboManager.foundWord(matches[0]);
+
+			// update/destroy astroid, score will now use the correct combo
+			// as it is updated in the previous line
+			this.updateAsteroid(asteroid);
+
+			if (matches.length > 0 && !matchedWord) {
 				matchedWord = true;
-				this.comboManager.foundWord(word);
 				// clear the buffer, duplicates are not cleared at once
 				this.wordsBuffer = [];
 			}
@@ -1349,6 +1428,7 @@ var LevelsMenu = function (_BaseView3) {
 
 		_this5.sprites = [];
 		_this5.dragListener = new SimpleDragListener(_this5.game);
+		_this5.dragListener.setLowerBounds(0, 0);
 		return _this5;
 	}
 
@@ -1427,12 +1507,8 @@ var LevelsMenu = function (_BaseView3) {
 			this.game.add.tween(levelSprite).to({ rotation: ROTATIONS * 2 * Math.PI }, (.5 + Math.random() / 2.0) * 60000 * ROTATIONS, Phaser.Easing.Linear.InOut, true);
 			this.sprites.push(levelSprite);
 
-			var levelData = null;
-			try {
-				levelData = this.app.state.getLevelData(index);
-			} catch (e) {}
-			console.log(levelData);
-			if (levelData && levelData.starcount > 0) {
+			var levelData = this.app.state.getLevelData(index);
+			if (levelData.starcount > 0) {
 				var starSprite = this.game.add.sprite(x + starOffset, y, "space_atlas", [null, "star_bronze.png", "star_silver.png", "star_gold.png"][levelData.starcount]);
 				starSprite.anchor.set(.5);
 				starSprite.scale.set(starScale);
@@ -1615,9 +1691,80 @@ var LevelFailedScreen = function (_BaseDialog2) {
 }(BaseDialog);
 //=======================
 
+
+var MissionScreen = function (_BaseDialog3) {
+	_inherits(MissionScreen, _BaseDialog3);
+
+	function MissionScreen(app, game) {
+		_classCallCheck(this, MissionScreen);
+
+		var _this11 = _possibleConstructorReturn(this, _BaseDialog3.call(this, app, game));
+
+		_this11.title = "MISSION";
+		_this11.textPadding = _this11.dialogSize * .05;
+		_this11.textWidth = _this11.dialogSize - 2 * _this11.textPadding;
+		_this11.dragListener = new SimpleDragListener(_this11.game);
+		_this11.dragListener.setLowerBounds(0, -SimpleDragListener.INFINITE);
+		_this11.dragListener.setUpperBounds(0, 0);
+
+		_this11.validMission = true;
+		return _this11;
+	}
+
+	MissionScreen.prototype.setData = function setData(missionData) {
+		this.data = missionData;
+	};
+
+	MissionScreen.prototype.create = function create() {
+		var _this12 = this;
+
+		this.buttons = [{ title: "START", action: this.cb(function () {
+				return _this12.app.beginLevel(_this12.data.level);
+			}) }];
+		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
+
+		if (this.levelData.mission && this.levelData.mission.title && this.levelData.mission.description) {
+			_BaseDialog3.prototype.create.call(this);
+
+			this.missionTitle = this.game.add.text(0, 0, this.levelData.mission.title);
+			this.missionDescription = this.game.add.text(0, 0, this.levelData.mission.description, { font: '12px Arial', fill: '#ccc', align: 'left', wordWrap: true, wordWrapWidth: this.textWidth });
+
+			this.missionDescription.setTextBounds(this.dialogX + this.textPadding, this.dialogY + this.textPadding, this.textWidth, this.textWidth);
+
+			var maskHeight = this.dialogSize - this.btnHeight;
+			this.mask = this.game.add.graphics(0, 0);
+			this.mask.beginFill("black");
+			this.mask.drawRect(0, this.dialogY, this.width, maskHeight);
+			this.mask.endFill();
+
+			this.missionDescription.mask = this.mask;
+
+			this.dragListener.setLowerBounds(0, -this.missionDescription.height + maskHeight);
+		} else {
+			// No mission set, just start the level
+			this.validMission = false;
+			setTimeout(this.buttons[0].action, 50);
+		}
+	};
+
+	MissionScreen.prototype.update = function update() {
+		_BaseDialog3.prototype.update.call(this);
+
+		if (this.validMission) {
+			this.dragListener.update();
+			var y = this.dragListener.y;
+			this.missionDescription.setTextBounds(this.dialogX + this.textPadding, this.dialogY + this.textPadding + y, this.textWidth, this.textWidth);
+		}
+	};
+
+	return MissionScreen;
+}(BaseDialog);
+//=======================
+
 </script>
 	<link rel="import" href="bower_components/myscript-text-web/myscript-text-web.html">
 
+    
     
     
     
