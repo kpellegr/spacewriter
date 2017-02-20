@@ -1,149 +1,1236 @@
 {
-	"levels": [{
-		"name": "TitleLevel1",
-		"fromdict": 1,
-		"todict": 26,
-		"maxenemies": 3,
-		"checkpoint": true,
-		"planet": "level0.png",
-		"distance": 1,
-		"mission": {
-			"title": "TitleMission1",
-			"description": "DescriptionMission1"
-		}
-	},{
-		"name": "TitleLevel2",
-		"fromdict": 27,
-		"todict": 32,
-		"maxenemies": 6,
-		"checkpoint": false,
-		"distance": 25,
-		"mission": {
-			"title": "TitleMission1",
-			"description": "DescriptionMission1"
-		}
-	},{
-		"name": "TitleLevel3",
-		"fromdict": 27,
-		"todict": 32,
-		"maxenemies": 6,
-		"checkpoint": false,
-		"distance": 25,
-		"mission": {
-			"title": "TitleMission1",
-			"description": "DescriptionMission1"
-		}
-	},{
-		"name": "TitleLevel4",
-		"fromdict": 27,
-		"todict": 32,
-		"maxenemies": 6,
-		"checkpoint": false,
-		"distance": 50,
-		"mission": {
-			"title": "TitleMission1",
-			"description": "DescriptionMission1"
-		}
-	},{
-		"name": "TitleLevel5",
-		"fromdict": 27,
-		"todict": 32,
-		"maxenemies": 6,
-		"checkpoint": false,
-		"distance": 50,
-		"mission": {
-			"title": "TitleMission1",
-			"description": "DescriptionMission1"
-		}
-	},{
-		"name": "TitleLevel6",
-		"fromdict": 27,
-		"todict": 32,
-		"maxenemies": 6,
-		"checkpoint": false,
-		"distance": 50,
-		"mission": {
-			"title": "TitleMission1",
-			"description": "DescriptionMission1"
-		}
-	},{
-		"name": "TitleLevel7",
-		"fromdict": 27,
-		"todict": 32,
-		"maxenemies": 6,
-		"checkpoint": true,
-		"planet": "level1.png",
-		"distance": 50,
-		"mission": {
-			"title": "TitleMission1",
-			"description": "DescriptionMission1"
-		}
-	},{
-		"name": "TitleLevel8",
-		"fromdict": 27,
-		"todict": 32,
-		"maxenemies": 6,
-		"checkpoint": false,
-		"distance": 50,
-		"mission": {
-			"title": "TitleMission1",
-			"description": "DescriptionMission1"
-		}
-	},{
-		"name": "TitleLevel9",
-		"fromdict": 27,
-		"todict": 32,
-		"maxenemies": 6,
-		"checkpoint": false,
-		"distance": 50,
-		"mission": {
-			"title": "TitleMission1",
-			"description": "DescriptionMission1"
-		}
-	},{
-		"name": "TitleLevel10",
-		"fromdict": 27,
-		"todict": 32,
-		"maxenemies": 6,
-		"checkpoint": false,
-		"distance": 50,
-		"mission": {
-			"title": "TitleMission1",
-			"description": "DescriptionMission1"
-		}
-	},{
-		"name": "TitleLevel11",
-		"fromdict": 27,
-		"todict": 32,
-		"maxenemies": 6,
-		"checkpoint": false,
-		"distance": 75,
-		"mission": {
-			"title": "TitleMission1",
-			"description": "DescriptionMission1"
-		}
-	},{
-		"name": "TitleLevel12",
-		"fromdict": 27,
-		"todict": 32,
-		"maxenemies": 6,
-		"checkpoint": false,
-		"distance": 75,
-		"mission": {
-			"title": "TitleMission1",
-			"description": "DescriptionMission1"
-		}
-	},{
-		"name": "TitleLevel13",
-		"fromdict": 27,
-		"todict": 32,
-		"maxenemies": 6,
-		"checkpoint": true,
-		"planet": "level2.png",
-		"distance": 75,
-		"mission": {
-			"title": "TitleMission1",
-			"description": "DescriptionMission1"
-		}
-	}]
+    "levels": [
+        {
+            "distance": 50, 
+            "name": "TitleLevel1", 
+            "mission": {
+                "description": "DescriptionMission1", 
+                "title": "TitleMission1"
+            }, 
+            "checkpoint": true, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "planet": "mercury.png", 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel2", 
+            "mission": {
+                "description": "DescriptionMission2", 
+                "title": "TitleMission2"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel3", 
+            "mission": {
+                "description": "DescriptionMission3", 
+                "title": "TitleMission3"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel4", 
+            "mission": {
+                "description": "DescriptionMission4", 
+                "title": "TitleMission4"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel5", 
+            "mission": {
+                "description": "DescriptionMission5", 
+                "title": "TitleMission5"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel6", 
+            "mission": {
+                "description": "DescriptionMission6", 
+                "title": "TitleMission6"
+            }, 
+            "checkpoint": true, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "planet": "venus.png", 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel7", 
+            "mission": {
+                "description": "DescriptionMission7", 
+                "title": "TitleMission7"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel8", 
+            "mission": {
+                "description": "DescriptionMission8", 
+                "title": "TitleMission8"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel9", 
+            "mission": {
+                "description": "DescriptionMission9", 
+                "title": "TitleMission9"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel10", 
+            "mission": {
+                "description": "DescriptionMission10", 
+                "title": "TitleMission10"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel11", 
+            "mission": {
+                "description": "DescriptionMission11", 
+                "title": "TitleMission11"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel12", 
+            "mission": {
+                "description": "DescriptionMission12", 
+                "title": "TitleMission12"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel13", 
+            "mission": {
+                "description": "DescriptionMission13", 
+                "title": "TitleMission13"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel14", 
+            "mission": {
+                "description": "DescriptionMission14", 
+                "title": "TitleMission14"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel15", 
+            "mission": {
+                "description": "DescriptionMission15", 
+                "title": "TitleMission15"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel16", 
+            "mission": {
+                "description": "DescriptionMission16", 
+                "title": "TitleMission16"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel17", 
+            "mission": {
+                "description": "DescriptionMission17", 
+                "title": "TitleMission17"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel18", 
+            "mission": {
+                "description": "DescriptionMission18", 
+                "title": "TitleMission18"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel19", 
+            "mission": {
+                "description": "DescriptionMission19", 
+                "title": "TitleMission19"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel20", 
+            "mission": {
+                "description": "DescriptionMission20", 
+                "title": "TitleMission20"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel21", 
+            "mission": {
+                "description": "DescriptionMission21", 
+                "title": "TitleMission21"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel22", 
+            "mission": {
+                "description": "DescriptionMission22", 
+                "title": "TitleMission22"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel23", 
+            "mission": {
+                "description": "DescriptionMission23", 
+                "title": "TitleMission23"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel24", 
+            "mission": {
+                "description": "DescriptionMission24", 
+                "title": "TitleMission24"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel25", 
+            "mission": {
+                "description": "DescriptionMission25", 
+                "title": "TitleMission25"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel26", 
+            "mission": {
+                "description": "DescriptionMission26", 
+                "title": "TitleMission26"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel27", 
+            "mission": {
+                "description": "DescriptionMission27", 
+                "title": "TitleMission27"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel28", 
+            "mission": {
+                "description": "DescriptionMission28", 
+                "title": "TitleMission28"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel29", 
+            "mission": {
+                "description": "DescriptionMission29", 
+                "title": "TitleMission29"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel30", 
+            "mission": {
+                "description": "DescriptionMission30", 
+                "title": "TitleMission30"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel31", 
+            "mission": {
+                "description": "DescriptionMission31", 
+                "title": "TitleMission31"
+            }, 
+            "checkpoint": true, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "planet": "earth.png", 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel32", 
+            "mission": {
+                "description": "DescriptionMission32", 
+                "title": "TitleMission32"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel33", 
+            "mission": {
+                "description": "DescriptionMission33", 
+                "title": "TitleMission33"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel34", 
+            "mission": {
+                "description": "DescriptionMission34", 
+                "title": "TitleMission34"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel35", 
+            "mission": {
+                "description": "DescriptionMission35", 
+                "title": "TitleMission35"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel36", 
+            "mission": {
+                "description": "DescriptionMission36", 
+                "title": "TitleMission36"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel37", 
+            "mission": {
+                "description": "DescriptionMission37", 
+                "title": "TitleMission37"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel38", 
+            "mission": {
+                "description": "DescriptionMission38", 
+                "title": "TitleMission38"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel39", 
+            "mission": {
+                "description": "DescriptionMission39", 
+                "title": "TitleMission39"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel40", 
+            "mission": {
+                "description": "DescriptionMission40", 
+                "title": "TitleMission40"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel41", 
+            "mission": {
+                "description": "DescriptionMission41", 
+                "title": "TitleMission41"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel42", 
+            "mission": {
+                "description": "DescriptionMission42", 
+                "title": "TitleMission42"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel43", 
+            "mission": {
+                "description": "DescriptionMission43", 
+                "title": "TitleMission43"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel44", 
+            "mission": {
+                "description": "DescriptionMission44", 
+                "title": "TitleMission44"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel45", 
+            "mission": {
+                "description": "DescriptionMission45", 
+                "title": "TitleMission45"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel46", 
+            "mission": {
+                "description": "DescriptionMission46", 
+                "title": "TitleMission46"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel47", 
+            "mission": {
+                "description": "DescriptionMission47", 
+                "title": "TitleMission47"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel48", 
+            "mission": {
+                "description": "DescriptionMission48", 
+                "title": "TitleMission48"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel49", 
+            "mission": {
+                "description": "DescriptionMission49", 
+                "title": "TitleMission49"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel50", 
+            "mission": {
+                "description": "DescriptionMission50", 
+                "title": "TitleMission50"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel51", 
+            "mission": {
+                "description": "DescriptionMission51", 
+                "title": "TitleMission51"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel52", 
+            "mission": {
+                "description": "DescriptionMission52", 
+                "title": "TitleMission52"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel53", 
+            "mission": {
+                "description": "DescriptionMission53", 
+                "title": "TitleMission53"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel54", 
+            "mission": {
+                "description": "DescriptionMission54", 
+                "title": "TitleMission54"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel55", 
+            "mission": {
+                "description": "DescriptionMission55", 
+                "title": "TitleMission55"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel56", 
+            "mission": {
+                "description": "DescriptionMission56", 
+                "title": "TitleMission56"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel57", 
+            "mission": {
+                "description": "DescriptionMission57", 
+                "title": "TitleMission57"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel58", 
+            "mission": {
+                "description": "DescriptionMission58", 
+                "title": "TitleMission58"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel59", 
+            "mission": {
+                "description": "DescriptionMission59", 
+                "title": "TitleMission59"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel60", 
+            "mission": {
+                "description": "DescriptionMission60", 
+                "title": "TitleMission60"
+            }, 
+            "checkpoint": true, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "planet": "mars.png", 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel61", 
+            "mission": {
+                "description": "DescriptionMission61", 
+                "title": "TitleMission61"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel62", 
+            "mission": {
+                "description": "DescriptionMission62", 
+                "title": "TitleMission62"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel63", 
+            "mission": {
+                "description": "DescriptionMission63", 
+                "title": "TitleMission63"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel64", 
+            "mission": {
+                "description": "DescriptionMission64", 
+                "title": "TitleMission64"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel65", 
+            "mission": {
+                "description": "DescriptionMission65", 
+                "title": "TitleMission65"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel66", 
+            "mission": {
+                "description": "DescriptionMission66", 
+                "title": "TitleMission66"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel67", 
+            "mission": {
+                "description": "DescriptionMission67", 
+                "title": "TitleMission67"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel68", 
+            "mission": {
+                "description": "DescriptionMission68", 
+                "title": "TitleMission68"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel69", 
+            "mission": {
+                "description": "DescriptionMission69", 
+                "title": "TitleMission69"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel70", 
+            "mission": {
+                "description": "DescriptionMission70", 
+                "title": "TitleMission70"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel71", 
+            "mission": {
+                "description": "DescriptionMission71", 
+                "title": "TitleMission71"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel72", 
+            "mission": {
+                "description": "DescriptionMission72", 
+                "title": "TitleMission72"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel73", 
+            "mission": {
+                "description": "DescriptionMission73", 
+                "title": "TitleMission73"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel74", 
+            "mission": {
+                "description": "DescriptionMission74", 
+                "title": "TitleMission74"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel75", 
+            "mission": {
+                "description": "DescriptionMission75", 
+                "title": "TitleMission75"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel76", 
+            "mission": {
+                "description": "DescriptionMission76", 
+                "title": "TitleMission76"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel77", 
+            "mission": {
+                "description": "DescriptionMission77", 
+                "title": "TitleMission77"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel78", 
+            "mission": {
+                "description": "DescriptionMission78", 
+                "title": "TitleMission78"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel79", 
+            "mission": {
+                "description": "DescriptionMission79", 
+                "title": "TitleMission79"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel80", 
+            "mission": {
+                "description": "DescriptionMission80", 
+                "title": "TitleMission80"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel81", 
+            "mission": {
+                "description": "DescriptionMission81", 
+                "title": "TitleMission81"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel82", 
+            "mission": {
+                "description": "DescriptionMission82", 
+                "title": "TitleMission82"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel83", 
+            "mission": {
+                "description": "DescriptionMission83", 
+                "title": "TitleMission83"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel84", 
+            "mission": {
+                "description": "DescriptionMission84", 
+                "title": "TitleMission84"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel85", 
+            "mission": {
+                "description": "DescriptionMission85", 
+                "title": "TitleMission85"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel86", 
+            "mission": {
+                "description": "DescriptionMission86", 
+                "title": "TitleMission86"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel87", 
+            "mission": {
+                "description": "DescriptionMission87", 
+                "title": "TitleMission87"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel88", 
+            "mission": {
+                "description": "DescriptionMission88", 
+                "title": "TitleMission88"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel89", 
+            "mission": {
+                "description": "DescriptionMission89", 
+                "title": "TitleMission89"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel90", 
+            "mission": {
+                "description": "DescriptionMission90", 
+                "title": "TitleMission90"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel91", 
+            "mission": {
+                "description": "DescriptionMission91", 
+                "title": "TitleMission91"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel92", 
+            "mission": {
+                "description": "DescriptionMission92", 
+                "title": "TitleMission92"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel93", 
+            "mission": {
+                "description": "DescriptionMission93", 
+                "title": "TitleMission93"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel94", 
+            "mission": {
+                "description": "DescriptionMission94", 
+                "title": "TitleMission94"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel95", 
+            "mission": {
+                "description": "DescriptionMission95", 
+                "title": "TitleMission95"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel96", 
+            "mission": {
+                "description": "DescriptionMission96", 
+                "title": "TitleMission96"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel97", 
+            "mission": {
+                "description": "DescriptionMission97", 
+                "title": "TitleMission97"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel98", 
+            "mission": {
+                "description": "DescriptionMission98", 
+                "title": "TitleMission98"
+            }, 
+            "checkpoint": false, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel99", 
+            "mission": {
+                "description": "DescriptionMission99", 
+                "title": "TitleMission99"
+            }, 
+            "checkpoint": true, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "planet": "jupiter.png", 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel100", 
+            "mission": {
+                "description": "DescriptionMission100", 
+                "title": "TitleMission100"
+            }, 
+            "checkpoint": true, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "planet": "saturn.png", 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel101", 
+            "mission": {
+                "description": "DescriptionMission101", 
+                "title": "TitleMission101"
+            }, 
+            "checkpoint": true, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "planet": "uranus.png", 
+            "maxenemies": 6
+        }, 
+        {
+            "distance": 50, 
+            "name": "TitleLevel102", 
+            "mission": {
+                "description": "DescriptionMission102", 
+                "title": "TitleMission102"
+            }, 
+            "checkpoint": true, 
+            "fromdict": 27, 
+            "todict": 32, 
+            "planet": "neptune.png", 
+            "maxenemies": 6
+        }
+    ]
 }
