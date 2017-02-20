@@ -1,0 +1,12 @@
+<TextureAtlas imagePath="planetsv2.png">
+	<SubTexture name="earth.png" x="0" y="0" width="150" height="150"/>
+	<SubTexture name="jupiter.png" x="150" y="0" width="150" height="150"/>
+	<SubTexture name="moon.png" x="300" y="0" width="150" height="150"/>
+	<SubTexture name="mars.png" x="450" y="0" width="150" height="150"/>
+	<SubTexture name="neptune.png" x="600" y="0" width="150" height="150"/>
+	<SubTexture name="venus.png" x="0" y="150" width="150" height="150"/>
+	<SubTexture name="mercury.png" x="150" y="150" width="150" height="150"/>
+	<SubTexture name="saturn.png" x="300" y="150" width="150" height="150"/>
+	<SubTexture name="uranus.png" x="450" y="150" width="150" height="150"/>
+	<SubTexture name="sun.png" x="600" y="150" width="150" height="150"/>
+</TextureAtlas>
