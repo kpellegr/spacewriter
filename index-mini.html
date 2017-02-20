@@ -534,6 +534,7 @@ var Router = function () {
 		this._registerScreen(Router.PAGE_LEVEL_FAILED_SCREEN, "LevelFailedScreen");
 		this._registerScreen(Router.PAGE_MISSION_SCREEN, "MissionScreen");
 		this._registerScreen(Router.PAGE_SETTINGS_SCREEN, "SettingsScreen");
+		this._registerScreen(Router.PAGE_HIGHSCORES_SCREEN, "HighscoresScreen");
 
 		this.active_page = null;
 		this.active_page_id = null;
@@ -554,6 +555,7 @@ var Router = function () {
 			case Router.PAGE_LEVEL_FAILED_SCREEN:
 			case Router.PAGE_MISSION_SCREEN:
 			case Router.PAGE_SETTINGS_SCREEN:
+			case Router.PAGE_HIGHSCORES_SCREEN:
 				this.active_page_id = page;
 				window.location.hash = page.toString();
 				if (invalidate || this.shouldUpdateLocale(page)) {
@@ -577,7 +579,7 @@ var Router = function () {
 	Router.prototype.createMenu = function createMenu() {
 		var _this = this;
 
-		return new Menu(this.app, this.context, [{ title: "MenuMainPlay", action: this.cb(this.showLevels) }, { title: "MenuMainHighscores", action: function action() {} }, { title: "MenuMainSettings", action: this.cb(function () {
+		return new Menu(this.app, this.context, [{ title: "MenuMainPlay", action: this.cb(this.showLevels) }, { title: "MenuMainHighscores", action: this.cb(this.showHighscoresScreen) }, { title: "MenuMainSettings", action: this.cb(function () {
 				return _this.showSettingsScreen(true);
 			}) }, { title: "MenuMainQuit", action: function action() {} }]);
 	};
@@ -622,6 +624,10 @@ var Router = function () {
 				return this.cb(this.createMissionScreen);
 			case Router.PAGE_SETTINGS_SCREEN:
 				return this.cb(this.createSettingsScreen);
+			case Router.PAGE_HIGHSCORES_SCREEN:
+				return this.cb(function () {
+					return new HighscoresScreen(_this2.app, _this2.context);
+				});
 			default:
 				break;
 		}
@@ -646,6 +652,7 @@ var Router = function () {
 				case Router.PAGE_MENU:
 				case Router.PAGE_MENU_LEVELS:
 				case Router.PAGE_SETTINGS_SCREEN:
+				case Router.PAGE_HIGHSCORES_SCREEN:
 				default:
 					// These are all legal states to return to
 					this.showPage(pageInt);
@@ -705,6 +712,7 @@ Router.PAGE_LEVEL_END_SCREEN = 3;
 Router.PAGE_LEVEL_FAILED_SCREEN = 4;
 Router.PAGE_MISSION_SCREEN = 5;
 Router.PAGE_SETTINGS_SCREEN = 6;
+Router.PAGE_HIGHSCORES_SCREEN = 7;
 //=======================
 
 var BaseView = function () {
@@ -724,7 +732,7 @@ var BaseView = function () {
 		this.translate.preload();
 		// Load the sprites
 		this.game.load.atlasXML('space_atlas', 'asset/sprites/space_atlas.png', 'asset/sprites/space_atlas.xml');
-		this.game.load.atlasXML('planet_atlas', 'asset/sprites/planets.png', 'asset/sprites/planets.xml');
+		this.game.load.atlasXML('planet_atlas', 'asset/sprites/planetsv2.png', 'asset/sprites/planetsv2.xml');
 		this.game.load.atlasXML('icon_atlas', 'asset/sprites/icon_atlas.png', 'asset/sprites/icon_atlas.xml');
 		this.game.load.image('background', 'asset/backgrounds/darkPurple.png');
 		this.game.load.text('dictionary', 'asset/data/dictionary.txt');
@@ -1909,10 +1917,9 @@ var LevelEndScreen = function (_BaseDialog) {
 
 		var levels = this.getLevels();
 		// Check if last level
-		if (levels.length - 1 == this.data.level) {
+		if (levels.length - 1 == this.data.level)
 			// Remove the next button
 			this.buttons.splice(1, 1);
-		}
 
 		// This will draw the buttons
 		_BaseDialog.prototype.create.call(this);
@@ -2136,9 +2143,182 @@ var SettingsScreen = function (_Menu) {
 }(Menu);
 //=======================
 
+
+var HighscoresScreen = function (_BaseView5) {
+	_inherits(HighscoresScreen, _BaseView5);
+
+	function HighscoresScreen(app, context) {
+		_classCallCheck(this, HighscoresScreen);
+
+		var _this19 = _possibleConstructorReturn(this, _BaseView5.call(this, app, context));
+
+		_this19.headerHeight = _this19.height / 7.5;
+		_this19.rowHeight = _this19.height / 15;
+		_this19.padding = _this19.width * .05;
+
+		_this19.dragListener = new SimpleDragListener(_this19.game);
+		_this19.dragListener.setLowerBounds(0, -SimpleDragListener.INFINITE);
+		_this19.dragListener.setUpperBounds(0, 0);
+
+		_this19.scrollables = [];
+		_this19.lastScroll = 0;
+		_this19.textRow = null;
+		return _this19;
+	}
+
+	HighscoresScreen.prototype.preload = function preload() {
+		_BaseView5.prototype.preload.call(this);
+		this.game.load.bitmapFont('arialbmp', 'asset/font/arialbmp.png', 'asset/font/arialbmp.fnt');
+	};
+
+	HighscoresScreen.prototype.create = function create() {
+		_BaseView5.prototype.create.call(this);
+
+		var titleHeight = this.height / 10;
+		var title = this.game.add.text(0, 0, this.translate.get("MenuMainHighscores"), Theme.Text.TitleLarge);
+		title.setTextBounds(0, 0, this.width, titleHeight);
+
+		this.mask = this.game.add.graphics(0, 0);
+		this.mask.beginFill(0);
+		this.mask.drawRect(0, titleHeight, this.width, this.height);
+		this.mask.endFill();
+
+		var levels = this.getLevels();
+		var offset = titleHeight;
+		for (var i = 0; i < levels.length; i++) {
+			var l = levels[i];
+			if (l.checkpoint) {
+				this.insertHeaderRow(l, offset);
+				offset += this.headerHeight;
+			} else {
+				this.insertLevelRow(l, offset, i);
+				offset += this.rowHeight;
+			}
+		}
+	};
+
+	HighscoresScreen.prototype.update = function update() {
+		_BaseView5.prototype.update.call(this);
+
+		this.dragListener.update();
+
+		var offset = this.dragListener.y;
+		if (offset != this.lastScroll) {
+			this.lastScroll = offset;
+			this.scrollables.forEach(this.cb(function (s) {
+				var newPos = offset + s.startPos.y;
+				s.y = newPos;
+			}));
+		}
+	};
+
+	HighscoresScreen.prototype.getLevels = function getLevels() {
+		var levels = _BaseView5.prototype.getLevels.call(this);
+
+		var starCount = 0;
+		var totalCount = 0;
+		var lastCheckpoint = null;
+
+		for (var i = 0; i < levels.length; i++) {
+			var l = levels[i];
+			if (l.checkpoint) {
+				if (lastCheckpoint != null) {
+					lastCheckpoint["starcount"] = starCount;
+					lastCheckpoint["totalcount"] = totalCount;
+				}
+
+				lastCheckpoint = l;
+				starCount = 0;
+				totalCount = 0;
+			} else {
+				starCount += this.app.state.getLevelData(i).starcount;
+				totalCount += 3;
+			}
+		}
+
+		if (lastCheckpoint != null) {
+			lastCheckpoint["starcount"] = starCount;
+			lastCheckpoint["totalcount"] = totalCount;
+		}
+
+		return levels;
+	};
+
+	HighscoresScreen.prototype.insertHeaderRow = function insertHeaderRow(levelObject, offset) {
+		var textStyle = Theme.Text.TitleMedium.Builder().centeredHorizontal(false).build();
+
+		var row = this.game.add.text(0, offset, this.translate.get(levelObject.name), textStyle);
+		row.setTextBounds(this.padding, 0, this.width - 2 * this.padding, this.headerHeight);
+		row.mask = this.mask;
+
+		var stars = this.game.add.text(0, offset, levelObject.starcount + " / " + levelObject.totalcount, textStyle);
+		stars.setTextBounds(this.width - this.padding, 0, this.width - 2 * this.padding, this.headerHeight);
+		stars.anchor.set(1, 0);
+		stars.mask = this.mask;
+
+		this.registerScrollElement(row);
+		this.registerScrollElement(stars);
+
+		if (this.textRow != null) {
+			this.textRow.text += "\n\n";
+			this.textRow.textBounds.height += 2 * this.rowHeight;
+		}
+	};
+
+	HighscoresScreen.prototype.insertLevelRow = function insertLevelRow(levelObject, offset, index) {
+		// We only use a single text object for all the levels
+		// otherwise scrolling becomes extremely laggy
+		if (this.textRow == null) {
+			this.textRow = this.game.add.text(0, -this.height, "A", Theme.Text.SubTitleMedium.Builder().centeredHorizontal(false).build());
+			this.textRow.setTextBounds(this.padding, 0, this.width - 2 * this.padding, 0);
+
+			// Set the lineSpacing so the rowHeight is completely filled up
+			this.textSize = this.textRow.height;
+		}
+
+		// Draw the gained star
+		var starcount = this.app.state.getLevelData(index).starcount;
+		if (starcount > 0) {
+			var starSprite = this.createStarSprite(starcount);
+			starSprite.x = this.width - this.padding;
+			starSprite.y = offset + this.rowHeight / 2;
+			starSprite.anchor.set(1, .5);
+			starSprite.mask = this.mask;
+
+			this.registerScrollElement(starSprite);
+		}
+
+		var text = this.game.add.bitmapText(this.padding, offset + this.rowHeight / 2, 'arialbmp', this.translate.get(levelObject.name), this.textSize * .75);
+		text.anchor.set(0, .5);
+		var textColor = parseInt(Theme.Text.SubTitleMedium.fill.substr(1), 16);
+		text.tint = textColor;
+		text.mask = this.mask;
+
+		this.registerScrollElement(text);
+	};
+
+	HighscoresScreen.prototype.registerScrollElement = function registerScrollElement(ele) {
+		ele.startPos = {
+			x: ele.x,
+			y: ele.y
+		};
+		this.scrollables.push(ele);
+	};
+
+	HighscoresScreen.prototype.createStarSprite = function createStarSprite(count) {
+		if (count > 0) {
+			return this.game.add.sprite(0, 0, "space_atlas", [null, 'star_bronze.png', 'star_silver.png', 'star_gold.png'][count]);
+		}
+	};
+
+	return HighscoresScreen;
+}(BaseView);
+//=======================
+
 </script>
 	<link rel="import" href="bower_components/myscript-text-web/myscript-text-web.html">
 
+    
     
     
     
