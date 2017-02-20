@@ -13,7 +13,7 @@ class BaseView {
 	    this.translate.preload();
 		// Load the sprites
 		this.game.load.atlasXML('space_atlas', 'asset/sprites/space_atlas.png', 'asset/sprites/space_atlas.xml');
-		this.game.load.atlasXML('planet_atlas', 'asset/sprites/planets.png', 'asset/sprites/planets.xml');
+		this.game.load.atlasXML('planet_atlas', 'asset/sprites/planetsv2.png', 'asset/sprites/planetsv2.xml');
 		this.game.load.atlasXML('icon_atlas', 'asset/sprites/icon_atlas.png', 'asset/sprites/icon_atlas.xml');
 	    this.game.load.image('background', 'asset/backgrounds/darkPurple.png');
 	    this.game.load.text('dictionary', 'asset/data/dictionary.txt');

@@ -1,0 +1,121 @@
+Mercury
+============
+
+XZ130	0.62
+JG6	0.635
+KW4	0.642
+WT24	0.718
+
+Venus
+==========
+
+VE68	0.724
+VA	0.729
+Atira	0.74
+UC20	0.781
+BA16	0.811
+FH	0.817
+FU162	0.826
+BD19	0.876
+SW130	0.885
+EM7	0.921
+MN4	0.923
+DA	0.935
+Aten	0.967
+Amun	0.974
+SG344	0.977
+FR85	0.982
+Khufu	0.9895
+WP25	0.9909
+RO	0.9910
+TF2	0.9931
+AA29	0.9963
+YN107	0.9971
+Cruithne	0.9978
+UP1	0.9989
+
+Earth
+==========
+
+GU9	1.0004
+YORP	1.0012
+WN10	1.0017
+XX4	1.0065
+GO2	1.00674
+Izhdubar	1.0068
+Asclepius	1.022
+VG	1.027
+CG9	1.061
+Castalia	1.063
+AS1	1.070
+XR2	1.077
+Icarus	1.078
+Bacchus	1.078
+QQ47	1.085
+CU11	1.22
+KY26	1.232
+XJ7	1.243
+Geographos	1.245
+Phaethon	1.271
+Itokawa	1.324
+DP107	1.366
+Toro	1.367
+XF11	1.443
+Eros	1.458
+AN10	1.459
+Nereus	1.490
+SQ222	1.505
+
+Mars
+============
+
+Vesta	525
+Metis	174
+Iris	213
+Hebe	186
+Fortuna	208
+Amphitrite	212
+Egeria	206
+Eunomia	268
+Juno	258
+Bamberga	229
+Eugenia	213
+Nemesis	188
+Daphne	174
+Ceres	946±2
+Thisbe	232
+Herculina	222
+Pallas	512
+Psyche	186
+Patientia	225
+Interamnia	326
+Diotima	209
+Europa	315
+Doris	222
+Ursula	216
+Aletheia	190
+Themis	198
+Hygiea	431
+Euphrosyne	256
+Palma	189
+Aurora	197
+Davida	289
+Alauda	195
+Lachesis	174
+Cybele	273
+Hermione	190
+Camilla	215
+Sylvia	286
+Hektor	241
+
+Jupiter
+==========
+
+Saturn
+==========
+
+Uranus
+==========
+
+Neptune
+==========
