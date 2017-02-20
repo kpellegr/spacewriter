@@ -89,6 +89,14 @@ class LevelsMenu extends BaseView {
 		}));
 
 		this.sprites.forEach(s => s.oldposition = deepCopy(s.position));
+
+		// add button to menu
+		this.menuButton = new IconBuilder(this.game, "menu.png")
+				.setPosition(0, 0)
+				.setScale(.66)
+				.setTint(Theme.Color.Icon)
+				.setOnClick(this.cb(() => this.app.router.showMenu()))
+			.build();
 	}
 
 	update(){

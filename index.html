@@ -11,6 +11,7 @@
     <script src="lib/phaser.min.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/theme.js"></script>
+    <script src="js/iconbuilder.js"></script>
     <script src="js/localstore.js"></script>
     <script src="js/translationmanager.js"></script>
     <script src="js/SimpleDragListener.js"></script>
@@ -48,6 +49,17 @@
 	bottom: 0;
 }
 
+.game-container .side-right .controls img {
+	height: 100%;
+}
+
+.game-container .side-right .controls {
+	display: block;
+	height: 3em;
+	position: absolute;
+	width: 100%;
+}
+
 .game-container .side-right myscript-text-web {
 	display: block;
 	height: 100%;
@@ -70,6 +82,9 @@
 		<div class="side-right">
 			<div id="content">
 				<div id="textLog"></div>
+				<div class="controls">
+					<img id="button-delete" src="asset/img/delete.svg" />
+				</div>
 				<!--<input type="text" id="textInput" onkeypress="processKeyPress(event);" oninput="processInput(this.value);" />-->
 				<myscript-text-web 
 					id="input-handwriting"
@@ -89,7 +104,8 @@ var app = new App(
 	handwritingInput: document.querySelector("#input-handwriting"),
 	gameCanvas: document.querySelector("#gamecanvas"),
 	gameContainer: document.querySelector(".game-container .side-left"),
-	handwritingContainer: document.querySelector(".game-container .side-right")
+	handwritingContainer: document.querySelector(".game-container .side-right"),
+	clearButton: document.querySelector("#button-delete")
 });
 
 	</script>

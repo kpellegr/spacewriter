@@ -6,6 +6,7 @@ class App {
 		this.gameCanvas = args.gameCanvas;
 		this.gameContainer = args.gameContainer;
 		this.handwritingContainer = args.handwritingContainer;
+		this.clearButton = args.clearButton;
 
 		Theme.init(480, 800, this.gameContainer);
 		this.width  = Theme.getWidth();
@@ -44,6 +45,8 @@ class App {
 			// to automatically clear the area
 			this.clearHandwriting();
 		}, 2000)));
+
+		this.clearButton.addEventListener("click", this.cb(() => this.clearHandwriting()));
 	}
 
 	onHandwriteResult(labels){

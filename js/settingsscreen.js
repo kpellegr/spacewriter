@@ -9,6 +9,18 @@ class SettingsScreen extends Menu {
 		];
 	}
 
+	create(){
+		super.create();
+
+		// add button to menu
+		this.menuButton = new IconBuilder(this.game, "menu.png")
+				.setPosition(0, 0)
+				.setScale(.66)
+				.setTint(Theme.Color.Icon)
+				.setOnClick(this.cb(() => this.app.router.showMenu()))
+			.build();
+	}
+
 	rotateLanguage(){
 		var current = this.app.state.getLocale();
 		var langs = this.translate.getLanguages();
