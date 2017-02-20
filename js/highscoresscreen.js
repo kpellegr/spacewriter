@@ -90,10 +90,9 @@ class HighscoresScreen extends BaseView {
 				lastCheckpoint = l;
 				starCount = 0;
 				totalCount = 0;
-			}else{
-				starCount += this.app.state.getLevelData(i).starcount;
-				totalCount += 3;
 			}
+			starCount  += this.app.state.getLevelData(i).starcount;
+			totalCount += 3;
 		}		
 
 		if(lastCheckpoint != null){
