@@ -136,20 +136,17 @@ class LifeManager {
 	}
 }
 
-class Game {
+class Game extends BaseView {
 
 	constructor(app, game){
-		this.app = app;
+		super(app, game);
 
 		//set width and height variables for game
 		this.width = app.width;
 		this.height = app.height;
 		//create game object and initialize the canvas
-		this.game = game;
 		this.comboManager = new ComboManager();
 		this.lifeManager  = new LifeManager(3, 9);
-
-		this.style = { font: "16px Arial", fill: "#ff0044", wordWrap: false, wordWrapWidth: 100, align: "center", backgroundColor: "#ffffff" };
 
 		//initialize some variables
 		this.play = null;
@@ -204,8 +201,8 @@ class Game {
 
 		//add background tiles
 		this.starfield = this.game.add.tileSprite(0, 0, this.width, this.height, 'background');
-		this.dictData = this.game.cache.getText('dictionary').split('\n');
-		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels;
+		this.dictData  = this.getDictionary();
+		this.levelData = this.getLevels();
 		this.targetDistance = this.currentLevelData().distance;
 
 		// Create ammunition
@@ -500,7 +497,7 @@ class Game {
 	}
 
 	spawnAsteroid() {
-		// Get the first laser that's inactive, by passing 'false' as a parameter
+		// Get the first asteroid that's inactive, by passing 'false' as a parameter
 		var asteroid = this.asteroids.getFirstExists(false);
 		if (!asteroid) return null;
 
@@ -520,7 +517,7 @@ class Game {
 			asteroid.label = this.dictData[idx].trim().toLowerCase();
 		else
 			asteroid.label = "label";
-		asteroid.text = this.game.add.text(0, 0, asteroid.label, { font: "16px Arial", fill: "#ffffff" });
+		asteroid.text = this.game.add.text(0, 0, asteroid.label, Theme.Text.Asteroid);
 		asteroid.text.anchor.set(0.5, -.5);
 	}
 
@@ -558,7 +555,7 @@ class Game {
 
 	showWordOverlay(text){
 		// Text overlay when a word is matched
-		var wordOverlayText = this.game.add.text(0, 0, text, { font: "50px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+		var wordOverlayText = this.game.add.text(0, 0, text, Theme.Text.TitleGiant);
 		wordOverlayText.setTextBounds(0, 0, this.width, this.height);
 
 		wordOverlayText.alpha = .5;

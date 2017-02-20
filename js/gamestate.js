@@ -8,8 +8,6 @@ class GameState {
 		this._setDefault("levels", {});
 		this._setDefault("locale", TranslationManager.KEY_FALLBACK);
 		this.invalidate();
-
-		console.log(this.data);
 	}
 
 	getUnlockedIndex(){

@@ -10,8 +10,8 @@ class BaseDialog extends BaseView {
 		this.lineWidthBtn = 4;
 		this.btnHeight    = this.dialogSize * .15;
 
-		this.backgroundColor = 0x3A2E3F;
-		this.borderColor = 0xcccccc;
+		this.backgroundColor = Theme.Color.Background;
+		this.borderColor = Theme.Color.DialogBorder;
 		this.title = "__DIALOG__";
 		this.buttons = [];
 	}
@@ -19,10 +19,10 @@ class BaseDialog extends BaseView {
 	create(){
 		super.create();
 
-		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
+		this.levelData = this.getLevels()[this.data.level];
 
-		var t = this.game.add.text(0, 0, this.translate.get(this.title), { font: "20px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
-		t.setTextBounds(0, this.padding, this.width, this.padding);
+		var t = this.game.add.text(0, 0, this.translate.get(this.title), Theme.Text.TitleMedium);
+		t.setTextBounds(0, 0, this.width, this.dialogY);
 
 		// Draw the dialog frame
 		var dialog = this.game.add.graphics(this.dialogX - this.lineWidthDialog/2, this.dialogY - this.lineWidthDialog/2);
@@ -52,7 +52,7 @@ class BaseDialog extends BaseView {
 			menuBg.inputEnabled = true;
 			menuBg.events.onInputDown.add(btn.action, this);
 
-			var menuBtn = this.game.add.text(0, 0, this.translate.get(btn.title), { font: (btnHeight*.5)+"px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+			var menuBtn = this.game.add.text(0, 0, this.translate.get(btn.title), Theme.Text.TitleSmall);
 			menuBtn.setTextBounds(this.dialogX + i * btnFullWidth, this.dialogY + this.dialogSize - btnHeight/2 + this.lineWidthDialog/2, btnFullWidth, btnHeight);
 		}));
 	}

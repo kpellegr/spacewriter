@@ -4,13 +4,13 @@ class Router {
 		this.app = app;
 		this.context = context;
 
-		this.context.state.add(Router.PAGE_MENU, this.createState(Router.PAGE_MENU));
-		this.context.state.add(Router.PAGE_MENU_LEVELS, this.createState(Router.PAGE_MENU_LEVELS));
-		this.context.state.add(Router.PAGE_GAME, this.createState(Router.PAGE_GAME));
-		this.context.state.add(Router.PAGE_LEVEL_END_SCREEN, this.createState(Router.PAGE_LEVEL_END_SCREEN));
-		this.context.state.add(Router.PAGE_LEVEL_FAILED_SCREEN, this.createState(Router.PAGE_LEVEL_FAILED_SCREEN));
-		this.context.state.add(Router.PAGE_MISSION_SCREEN, this.createState(Router.PAGE_MISSION_SCREEN));
-		this.context.state.add(Router.PAGE_SETTINGS_SCREEN, this.createState(Router.PAGE_SETTINGS_SCREEN));
+		this._registerScreen(Router.PAGE_MENU, "Menu");
+		this._registerScreen(Router.PAGE_MENU_LEVELS, "Levels");
+		this._registerScreen(Router.PAGE_GAME, "Game");
+		this._registerScreen(Router.PAGE_LEVEL_END_SCREEN, "LevelEndScreen");
+		this._registerScreen(Router.PAGE_LEVEL_FAILED_SCREEN, "LevelFailedScreen");
+		this._registerScreen(Router.PAGE_MISSION_SCREEN, "MissionScreen");
+		this._registerScreen(Router.PAGE_SETTINGS_SCREEN, "SettingsScreen");
 
 		this.active_page = null;
 		this.active_page_id = null;
@@ -18,58 +18,6 @@ class Router {
 		this.localeUpdates = {};
 
 		window.addEventListener('hashchange', this.cb(this.hashChanged));
-	}
-
-	showMenu(invalidate = false){
-		this.showPage(Router.PAGE_MENU, invalidate);
-	}
-
-	showLevels(invalidate = false){
-		this.showPage(Router.PAGE_MENU_LEVELS, invalidate);
-	}
-
-	showLevelEndScreen(invalidate = false){
-		this.showPage(Router.PAGE_LEVEL_END_SCREEN, invalidate);
-	}
-
-	showLevelFailedScreen(invalidate = false){
-		this.showPage(Router.PAGE_LEVEL_FAILED_SCREEN, invalidate);
-	}
-
-	showGame(invalidate = false){
-		this.showPage(Router.PAGE_GAME, invalidate);
-	}
-
-	showMissionScreen(invalidate = false){
-		this.showPage(Router.PAGE_MISSION_SCREEN, invalidate);
-	}
-
-	showSettingsScreen(invalidate = false){
-		this.showPage(Router.PAGE_SETTINGS_SCREEN, invalidate);
-	}
-
-	getMenu(cb){
-		this.getPage(Router.PAGE_MENU, cb);
-	}
-
-	getGame(cb){
-		this.getPage(Router.PAGE_GAME, cb);
-	}
-
-	getLevelEndScreen(cb){
-		this.getPage(Router.PAGE_LEVEL_END_SCREEN, cb);
-	}
-
-	getLevelFailedScreen(cb){
-		this.getPage(Router.PAGE_LEVEL_FAILED_SCREEN, cb);
-	}
-
-	getMissionScreen(cb){
-		this.getPage(Router.PAGE_MISSION_SCREEN, cb);
-	}
-
-	getSettingsScreen(cb){
-		this.getPage(Router.PAGE_SETTINGS_SCREEN, cb);
 	}
 
 	showPage(page, invalidate = false){
@@ -197,6 +145,18 @@ class Router {
 			return true;
 		}
 		return false;
+	}
+
+	_registerScreen(pageid, pagename){
+		this.context.state.add(pageid, this.createState(pageid));
+
+		this["show"+pagename] = this.cb(function(invalidate = false){
+			this.showPage(pageid, invalidate);
+		});
+
+		this["get"+pagename] = this.cb(function(cb){
+			this.getPage(pageid, cb);
+		});
 	}
 
 	cb(fun){ return ownedCallback(this, fun); }

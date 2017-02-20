@@ -28,8 +28,12 @@ class BaseView {
 
 	}
 
-	destroy(){
-		this.game.destroy();
+	getLevels(){
+		return JSON.parse(this.game.cache.getText('levels')).levels;
+	}
+
+	getDictionary(){
+		return this.game.cache.getText('dictionary').split('\n');
 	}
 
 	cb(fun){ return ownedCallback(this, fun); }

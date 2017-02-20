@@ -21,7 +21,7 @@ class LevelFailedScreen extends BaseDialog {
 
 		var levelTextHeight = this.dialogSize * .125;
 
-		var levelText = this.game.add.text(0, 0, this.translate.get(levelData.name), { font: (levelTextHeight*.65)+"px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+		var levelText = this.game.add.text(0, 0, this.translate.get(levelData.name), Theme.Text.SubTitleLarge);
 		levelText.setTextBounds(this.dialogX, this.dialogY + this.lineWidthDialog, this.dialogSize, levelTextHeight);
 	}
 }

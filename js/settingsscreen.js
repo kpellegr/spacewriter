@@ -21,6 +21,8 @@ class SettingsScreen extends Menu {
 			default: break;
 		}
 
+		// Force all screens to be re-created to ensure the language
+		// change is reflected correctly throughout the app
 		this.app.router.invalidateLocale();
 		this.app.router.showSettingsScreen(true);
 	}
