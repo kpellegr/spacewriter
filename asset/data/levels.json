@@ -5,7 +5,7 @@
 		"todict": 26,
 		"maxenemies": 3,
 		"checkpoint": true,
-		"planet": "level0.png",
+		"planet": "earth.png",
 		"distance": 1,
 		"mission": {
 			"title": "TitleMission1",
@@ -72,7 +72,7 @@
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": true,
-		"planet": "level1.png",
+		"planet": "venus.png",
 		"distance": 50,
 		"mission": {
 			"title": "TitleMission1",
@@ -139,7 +139,7 @@
 		"todict": 32,
 		"maxenemies": 6,
 		"checkpoint": true,
-		"planet": "level2.png",
+		"planet": "mercury.png",
 		"distance": 75,
 		"mission": {
 			"title": "TitleMission1",
