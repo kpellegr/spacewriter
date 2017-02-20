@@ -2,17 +2,14 @@ class App {
 
 	constructor(args){
 		// Default values, used to determine aspect ratio
-		this.width = 480;
-		this.height = 800;
-
 		this.handwritingInput = args.handwritingInput;
 		this.gameCanvas = args.gameCanvas;
 		this.gameContainer = args.gameContainer;
 		this.handwritingContainer = args.handwritingContainer;
 
-		Theme.init(this.width, this.height, this.gameContainer);
-
-		this.calculateViewport();
+		Theme.init(480, 800, this.gameContainer);
+		this.width  = Theme.getWidth();
+		this.height = Theme.getHeight();
 
 		this.gameContainer.style.width = this.width + "px";
 		this.handwritingContainer.style["margin-left"] = this.width + "px";
@@ -95,15 +92,5 @@ class App {
 
 	cb(fun){
 		return ownedCallback(this, fun);
-	}
-
-	calculateViewport(){
-		var h = this.height;
-		var wh = this.gameContainer.getBoundingClientRect().height;
-
-		var ratio = wh / h;
-
-		this.height = wh;
-		this.width *= ratio;
 	}
 }

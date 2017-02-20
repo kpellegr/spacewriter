@@ -67,8 +67,8 @@ class TextStyleBuilder {
 class Theme {}
 
 Theme.getScale  = () => Theme._scale;
-Theme.getHeight = () => Theme._width;
-Theme.getWidth  = () => Theme._height;
+Theme.getWidth  = () => Theme._width  * Theme.getScale();
+Theme.getHeight = () => Theme._height * Theme.getScale();
 
 Theme.init = function(width, height, gameContainer){
 	Theme._width  = width;
