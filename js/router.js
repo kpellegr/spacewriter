@@ -11,6 +11,7 @@ class Router {
 		this._registerScreen(Router.PAGE_LEVEL_FAILED_SCREEN, "LevelFailedScreen");
 		this._registerScreen(Router.PAGE_MISSION_SCREEN, "MissionScreen");
 		this._registerScreen(Router.PAGE_SETTINGS_SCREEN, "SettingsScreen");
+		this._registerScreen(Router.PAGE_HIGHSCORES_SCREEN, "HighscoresScreen");
 
 		this.active_page = null;
 		this.active_page_id = null;
@@ -29,6 +30,7 @@ class Router {
 			case Router.PAGE_LEVEL_FAILED_SCREEN:
 			case Router.PAGE_MISSION_SCREEN:
 			case Router.PAGE_SETTINGS_SCREEN:
+			case Router.PAGE_HIGHSCORES_SCREEN:
 				this.active_page_id = page;
 				window.location.hash = page.toString();
 				if(invalidate || this.shouldUpdateLocale(page)){
@@ -52,7 +54,7 @@ class Router {
 	createMenu(){
 		return new Menu(this.app, this.context, [
 			{ title: "MenuMainPlay", action: this.cb(this.showLevels) },
-			{ title: "MenuMainHighscores", action: () => {} },
+			{ title: "MenuMainHighscores", action: this.cb(this.showHighscoresScreen) },
 			{ title: "MenuMainSettings", action: this.cb(() => this.showSettingsScreen(true)) },
 			{ title: "MenuMainQuit", action: () => {} }
 		]);
@@ -94,6 +96,8 @@ class Router {
 				return this.cb(this.createMissionScreen);
 			case Router.PAGE_SETTINGS_SCREEN:
 				return this.cb(this.createSettingsScreen);
+			case Router.PAGE_HIGHSCORES_SCREEN:
+				return this.cb(() => new HighscoresScreen(this.app, this.context));
 			default:
 				break;
 		}
@@ -118,6 +122,7 @@ class Router {
 				case Router.PAGE_MENU:
 				case Router.PAGE_MENU_LEVELS:
 				case Router.PAGE_SETTINGS_SCREEN:
+				case Router.PAGE_HIGHSCORES_SCREEN:
 				default:
 					// These are all legal states to return to
 					this.showPage(pageInt);
@@ -170,3 +175,4 @@ Router.PAGE_LEVEL_END_SCREEN = 3;
 Router.PAGE_LEVEL_FAILED_SCREEN = 4;
 Router.PAGE_MISSION_SCREEN = 5;
 Router.PAGE_SETTINGS_SCREEN = 6;
+Router.PAGE_HIGHSCORES_SCREEN = 7;
