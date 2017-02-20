@@ -98,6 +98,7 @@ Theme._setup = function(){
 	Theme.Color.Text = 0xcccccc;
 	Theme.Color.DialogBorder = 0xcccccc;
 	Theme.Color.ButtonBorder = 0xcccccc;
+	Theme.Color.Icon = 0xcccccc;
 
 	// Create the different text styles for title, subtitle and text
 	function createTitleBuilder(){

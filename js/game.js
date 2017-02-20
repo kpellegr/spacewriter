@@ -253,7 +253,8 @@ class Game extends BaseView {
 		this.player.body.collideWorldBounds = false;
 
 		//place score text on the screen
-		this.scoreText = this.game.add.text(10, 15, this.score, { font: "20px Arial Black", fill: "#eeeeee" });
+		this.scoreText = this.game.add.text(this.width - 10, this.height - 50, this.score, Theme.Text.TitleSmall);
+		this.scoreText.anchor.set(1, 1);
 	 	
 	 	//Used when we're doing handwriting
 		this.textInput = document.getElementById("textInput");
@@ -284,6 +285,14 @@ class Game extends BaseView {
 		this.distanceBar.alpha = .7;
 
 		this.createLives();
+
+		// add button to level select
+		this.levelSelect = new IconBuilder(this.game, "back.png")
+				.setPosition(0, 0)
+				.setScale(.66)
+				.setTint(Theme.Color.Icon)
+				.setOnClick(this.cb(() => this.app.router.showLevels()))
+			.build();
 	}
 
 	update() {	
