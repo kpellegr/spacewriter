@@ -1897,14 +1897,6 @@ var LevelEndScreen = function (_BaseDialog) {
 			}) }, { title: "ButtonNext", action: _this12.cb(function () {
 				return _this12.app.advanceLevelEndScreenNextLevel(_this12.data.level);
 			}) }];
-
-		// this.data = {
-		// 	level: 1,
-		// 	wordcount: 50,
-		// 	combo: {
-		// 		maxstreak: 30
-		// 	}
-		// };
 		return _this12;
 	}
 
@@ -1915,9 +1907,17 @@ var LevelEndScreen = function (_BaseDialog) {
 	LevelEndScreen.prototype.create = function create() {
 		var _this13 = this;
 
+		var levels = this.getLevels();
+		// Check if last level
+		if (levels.length - 1 == this.data.level) {
+			// Remove the next button
+			this.buttons.splice(1, 1);
+		}
+
+		// This will draw the buttons
 		_BaseDialog.prototype.create.call(this);
 
-		var levelData = this.getLevels()[this.data.level];
+		var levelData = levels[this.data.level];
 
 		// Draw the stars
 		var stars = this.createStars();
