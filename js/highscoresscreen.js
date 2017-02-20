@@ -12,12 +12,6 @@ class HighscoresScreen extends BaseView {
 
 		this.scrollables = [];
 		this.lastScroll = 0;
-		this.textRow = null;
-	}
-
-	preload(){
-		super.preload();
-		this.game.load.bitmapFont('arialbmp', 'asset/font/arialbmp.png', 'asset/font/arialbmp.fnt');
 	}
 
 	create(){
@@ -124,11 +118,6 @@ class HighscoresScreen extends BaseView {
 
 		this.registerScrollElement(row);
 		this.registerScrollElement(stars);
-
-		if(this.textRow != null){
-			this.textRow.text += "\n\n";
-			this.textRow.textBounds.height += 2*this.rowHeight;
-		}
 	}
 
 	insertLevelRow(levelObject, offset, index){
@@ -145,6 +134,11 @@ class HighscoresScreen extends BaseView {
 			this.registerScrollElement(starSprite);
 		}
 
+		// I'm drawing the text here to a BitmapData object, this way the text is not
+		// redrawn every time the window is scrolled, but it is pre-rendered to a bitmap
+		// and only the bitmap is re-rendered, which takes no extra calculations.
+		// Redrawing the text on every frame was creating immense lagg on less-performant
+		// devices (e.g. a tablet)
 		var t = this.game.make.text(0, 0, this.translate.get(levelObject.name), 
 			Theme.Text.SubTitleMedium.Builder().centered(false).build());
 		this.textBitmap.draw(t, this.padding, offset + (this.rowHeight - t.height)/2);
