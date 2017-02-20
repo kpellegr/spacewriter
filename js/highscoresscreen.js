@@ -15,6 +15,11 @@ class HighscoresScreen extends BaseView {
 		this.textRow = null;
 	}
 
+	preload(){
+		super.preload();
+		this.game.load.bitmapFont('arialbmp', 'asset/font/arialbmp.png', 'asset/font/arialbmp.fnt');
+	}
+
 	create(){
 		super.create();
 
@@ -113,24 +118,12 @@ class HighscoresScreen extends BaseView {
 		// We only use a single text object for all the levels
 		// otherwise scrolling becomes extremely laggy
 		if(this.textRow == null){
-			this.textRow = this.game.add.text(0, offset, "", Theme.Text.SubTitleMedium.Builder().centeredHorizontal(false).build());
+			this.textRow = this.game.add.text(0, -this.height, "A", Theme.Text.SubTitleMedium.Builder().centeredHorizontal(false).build());
 			this.textRow.setTextBounds(this.padding, 0, this.width - 2*this.padding, 0);
-			// this.textRow.mask = this.mask;
-
-			this.registerScrollElement(this.textRow);
 
 			// Set the lineSpacing so the rowHeight is completely filled up
-			this.textRow.lineSpacing = this.rowHeight - this.textRow.height;
-			// There will always be an extra new line => need to start off with rowHeight instead of 0
-			this.textRow.textBounds.height = this.rowHeight;
-			// Add the linespacing offset to correctly align the text
-			this.textRow.y += this.textRow.lineSpacing/2;
+			this.textSize = this.textRow.height;
 		}
-
-		// Append to the existing text element
-		this.textRow.text += this.translate.get(levelObject.name) + "\n";
-		// Increase the height of the bounds to correctly align
-		this.textRow.textBounds.height += this.rowHeight;
 
 		// Draw the gained star
 		var starcount = this.app.state.getLevelData(index).starcount;
@@ -143,6 +136,15 @@ class HighscoresScreen extends BaseView {
 
 			this.registerScrollElement(starSprite);
 		}
+
+		var text = this.game.add.bitmapText(this.padding, offset + this.rowHeight / 2, 'arialbmp', 
+			this.translate.get(levelObject.name), this.textSize * .75);
+		text.anchor.set(0, .5);
+		var textColor = parseInt(Theme.Text.SubTitleMedium.fill.substr(1), 16);
+		text.tint = textColor;
+		text.mask = this.mask;
+
+		this.registerScrollElement(text);
 	}
 
 	registerScrollElement(ele){
