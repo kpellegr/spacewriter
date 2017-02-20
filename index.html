@@ -4,24 +4,110 @@
     <meta charset="utf-8" />
     <title>Spacewriter</title>
 
+    <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+	<link rel="import" href="bower_components/myscript-text-web/myscript-text-web.html">
+
+    <script src="lib/polyfills.js"></script>
     <script src="lib/phaser.min.js"></script>
-    <script src="game.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/iconbuilder.js"></script>
+    <script src="js/localstore.js"></script>
+    <script src="js/translationmanager.js"></script>
+    <script src="js/SimpleDragListener.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/baseview.js"></script>
+    <script src="js/basedialog.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/gamestate.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/levelsmenu.js"></script>
+    <script src="js/levelendscreen.js"></script>
+    <script src="js/levelfailedscreen.js"></script>
+    <script src="js/missionscreen.js"></script>
+    <script src="js/settingsscreen.js"></script>
+
+    <style type="text/css">
+
+.game-container {}
+
+.game-container .side-left {
+	position: absolute;
+	display: block;
+	bottom: 0;
+	top: 0;
+	left: 0;
+}
+
+.game-container .side-right {
+	position: absolute;
+	display: block;
+	right: 0;
+	left: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.game-container .side-right .controls img {
+	height: 100%;
+}
+
+.game-container .side-right .controls {
+	display: block;
+	height: 3em;
+	position: absolute;
+	width: 100%;
+}
+
+.game-container .side-right myscript-text-web {
+	display: block;
+	height: 100%;
+}
+
+#content {
+	display: block;
+	height: 100%;
+}
+
+    </style>
 
 </head>
 <body touch-action="none">
-	<table width="100%">
-	<tr>
-		<td width="480px" style="border: solid red 1px">
+	<div class="game-container">
+		<div class="side-left">
 			<div id="gamecanvas">
 			</div>
-		</td>
-		<td style="border: solid red 1px">
+		</div>
+		<div class="side-right">
 			<div id="content">
 				<div id="textLog"></div>
-				<input type="text" id="textInput" onkeypress="processKeyPress(event);" oninput="processInput(this.value);" />
+				<div class="controls">
+					<img id="button-delete" src="asset/img/delete.svg" />
+				</div>
+				<!--<input type="text" id="textInput" onkeypress="processKeyPress(event);" oninput="processInput(this.value);" />-->
+				<myscript-text-web 
+					id="input-handwriting"
+					applicationkey="9faa1259-48ba-44c4-9857-b3c86d986f94" 
+					hmackey="fb166b5d-3ffd-93bd-7b5b-bca0fe2216a0" 
+					language="nl_NL"
+					hidebuttons="true"
+				></myscript-text-web >
 			</div>
-		</td>
-	</tr>
-	</table>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+
+var app = new App(
+{
+	handwritingInput: document.querySelector("#input-handwriting"),
+	gameCanvas: document.querySelector("#gamecanvas"),
+	gameContainer: document.querySelector(".game-container .side-left"),
+	handwritingContainer: document.querySelector(".game-container .side-right"),
+	clearButton: document.querySelector("#button-delete")
+});
+
+	</script>
 </body>
 </html>

@@ -1,0 +1,17 @@
+{
+	"TitleLevelFailed": "Level Mislukt",
+	"TitleLevelCompleted": "Level Voltooid",
+
+	"MenuMainPlay": "Speel",
+	"MenuMainHighscores": "Records",
+	"MenuMainSettings": "Instellingen",
+	"MenuMainQuit": "Stop",
+
+	"ButtonStart": "Begin",
+	"ButtonMenu": "Menu",
+	"ButtonNext": "Volgende",
+	"ButtonRetry": "Opnieuw",
+
+	"SettingLanguagenl": "Taal: Dutch",
+	"SettingLanguageen": "Taal: English"
+}

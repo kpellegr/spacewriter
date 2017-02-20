@@ -1,0 +1,2245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Spacewriter</title>
+
+    <script src='bower_components/webcomponentsjs/webcomponents-lite.js'></script><script src='lib/polyfills.js'></script><script src='lib/phaser.min.js'></script><script>"use strict";
+
+function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/*
+	Utility function that creates a callback function that when called
+	multiple times will only handle the last result within the backoff
+	value. E.g. backoff is 100ms, the function fires twice with 50ms in
+	between both calls, the first call will be scheduled at 100ms, the
+	second call at 150ms. Once the first call reaches its scheduled time
+	the second call has already arrived and so the first call is dropped.
+
+	After 150ms total the second call's scheduled time is reached and no
+	other calls have been received => second call does fire. Very useful
+	when dealing with spammy events like window resize which fires for
+	every pixel change.
+
+	@param fun Function to schedule
+	@param backoff Time in ms to wait for
+	@return Wrappd function of fun
+*/
+function setBackoffTimeout() {
+	var fun = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function () {};
+	var backoff = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
+	var lastUpdate = new Date().getTime();
+
+	return function () {
+		lastUpdate = new Date().getTime();
+
+		setTimeout(function (context, args) {
+			return function () {
+				if (new Date().getTime() - lastUpdate >= backoff) {
+					fun.apply(context, args);
+				}
+			};
+		}(this, arguments), backoff);
+	};
+}
+
+/*
+	Modifies a function reference's owner. This is very useful
+	for passing callbacks and retaining the class as owner.
+	Usually the owner becomes the one who calls the callback.
+
+	@param owner Reference to the object who should own the function
+	@param fun The function to modify
+	@return Wrapped function that when called calls fun with owner
+*/
+function ownedCallback(owner, fun) {
+	return function () {
+		return fun.apply(owner, arguments);
+	};
+}
+
+function deepCopy(data) {
+	return JSON.parse(JSON.stringify(data));
+}
+
+function last(collection) {
+	return collection[collection.length - 1];
+}
+//=======================
+/*
+	Class using the builder pattern to quickly construct
+	a new text style.
+*/
+
+var TextStyleBuilder = function () {
+	function TextStyleBuilder() {
+		_classCallCheck(this, TextStyleBuilder);
+
+		this.size(16).centered(true).font("Arial").color("#cccccc").wordWrap(false, null);
+	}
+
+	TextStyleBuilder.prototype.centered = function centered(_centered) {
+		this._centeredH = _centered;
+		this._centeredV = _centered;
+		return this;
+	};
+
+	TextStyleBuilder.prototype.centeredHorizontal = function centeredHorizontal(centeredH) {
+		this._centeredH = centeredH;
+		return this;
+	};
+
+	TextStyleBuilder.prototype.centeredVertical = function centeredVertical(centeredV) {
+		this._centeredV = centeredV;
+		return this;
+	};
+
+	TextStyleBuilder.prototype.size = function size(_size) {
+		this._size = _size;
+		return this;
+	};
+
+	TextStyleBuilder.prototype.font = function font(_font) {
+		this._font = _font;
+		return this;
+	};
+
+	TextStyleBuilder.prototype.color = function color(_color) {
+		this._color = _color;
+		return this;
+	};
+
+	TextStyleBuilder.prototype.wordWrap = function wordWrap(enable, width) {
+		this._wordWrap = enable;
+		this._wordWrapWidth = width;
+		return this;
+	};
+
+	TextStyleBuilder.prototype.build = function build() {
+		var colorHex = this._color;
+		if ((typeof colorHex === "undefined" ? "undefined" : _typeof(colorHex)) === _typeof(1)) colorHex = "#" + colorHex.toString(16);
+
+		return {
+			font: this._size * Theme.getScale() + "px " + this._font,
+			fill: colorHex,
+			boundsAlignH: this._centeredH ? "center" : null,
+			boundsAlignV: this._centeredV ? "middle" : null,
+			wordWrap: this._wordWrap,
+			wordWrapWidth: this._wordWrapWidth
+		};
+	};
+
+	return TextStyleBuilder;
+}();
+
+var Theme = function Theme() {
+	_classCallCheck(this, Theme);
+};
+
+Theme.getScale = function () {
+	return Theme._scale;
+};
+Theme.getWidth = function () {
+	return Theme._width * Theme.getScale();
+};
+Theme.getHeight = function () {
+	return Theme._height * Theme.getScale();
+};
+
+Theme.init = function (width, height, gameContainer) {
+	Theme._width = width;
+	Theme._height = height;
+
+	var wh = gameContainer.getBoundingClientRect().height;
+	Theme._scale = wh / height;
+
+	Theme._setup();
+};
+
+/*
+	Init all "internal" classes inside a closure to
+	simulate private access. They are only accessible
+	through the Theme class.
+*/
+Theme._setup = function () {
+	var Text = function Text() {
+		_classCallCheck(this, Text);
+	};
+
+	Theme.Text = Text;
+
+	var Color = function Color() {
+		_classCallCheck(this, Color);
+	};
+
+	Theme.Color = Color;
+
+	// colors
+	Theme.Color.Background = 0x3A2E3F;
+	Theme.Color.Title = 0xeeeeee;
+	Theme.Color.SubTitle = 0xdddddd;
+	Theme.Color.Text = 0xcccccc;
+	Theme.Color.DialogBorder = 0xcccccc;
+	Theme.Color.ButtonBorder = 0xcccccc;
+	Theme.Color.Icon = 0xcccccc;
+
+	// Create the different text styles for title, subtitle and text
+	function createTitleBuilder() {
+		return new TextStyleBuilder().color(Theme.Color.Title).centered(true).size(30);
+	}
+	var titleBuilder = createTitleBuilder();
+
+	// #eeeeee
+	Theme.Text.TitleGiant = titleBuilder.size(50).build();
+	Theme.Text.TitleLarge = titleBuilder.size(30).build();
+	Theme.Text.TitleMedium = titleBuilder.size(26).build();
+	Theme.Text.TitleSmall = titleBuilder.size(22).build();
+
+	Theme.Text.TitleGiant.Builder = createTitleBuilder;
+	Theme.Text.TitleLarge.Builder = createTitleBuilder;
+	Theme.Text.TitleMedium.Builder = createTitleBuilder;
+	Theme.Text.TitleSmall.Builder = createTitleBuilder;
+
+	function createSubtitleBuilder() {
+		return new TextStyleBuilder().color(Theme.Color.SubTitle).centered(true).size(24);
+	}
+	var subTitleBuilder = createSubtitleBuilder();
+
+	// #dddddd
+	Theme.Text.SubTitleLarge = subTitleBuilder.size(24).build();
+	Theme.Text.SubTitleMedium = subTitleBuilder.size(21).build();
+	Theme.Text.SubTitleSmall = subTitleBuilder.size(18).build();
+
+	Theme.Text.SubTitleLarge.Builder = createSubtitleBuilder;
+	Theme.Text.SubTitleMedium.Builder = createSubtitleBuilder;
+	Theme.Text.SubTitleSmall.Builder = createSubtitleBuilder;
+
+	function createTextBuilder() {
+		return new TextStyleBuilder().color(Theme.Color.Text).centered(false).size(16);
+	}
+	var textBuilder = createTextBuilder();
+
+	// #cccccc
+	Theme.Text.Large = textBuilder.size(16).build();
+	Theme.Text.Medium = textBuilder.size(14).build();
+	Theme.Text.Small = textBuilder.size(12).build();
+
+	Theme.Text.Large.Builder = createTextBuilder;
+	Theme.Text.Medium.Builder = createTextBuilder;
+	Theme.Text.Small.Builder = createTextBuilder;
+
+	Theme.Text.Asteroid = new TextStyleBuilder().color(0xffffff).size(20).centered(false).build();
+};
+
+//=======================
+
+var IconBuilder = function () {
+	function IconBuilder(game, spritename) {
+		_classCallCheck(this, IconBuilder);
+
+		this.game = game;
+		this.name = spritename;
+
+		this.setPosition(0, 0).setScale(1).setSize(-1).setTint(0xffffff);
+	}
+
+	IconBuilder.prototype.setPosition = function setPosition(x, y) {
+		this.x = x;
+		this.y = y;
+		return this;
+	};
+
+	IconBuilder.prototype.setX = function setX(x) {
+		this.x = x;
+		return this;
+	};
+
+	IconBuilder.prototype.setY = function setY(y) {
+		this.y = y;
+		return this;
+	};
+
+	IconBuilder.prototype.setScale = function setScale(scale) {
+		this.scale = scale;
+		return this;
+	};
+
+	IconBuilder.prototype.setSize = function setSize(size) {
+		this.size = size;
+		return this;
+	};
+
+	IconBuilder.prototype.setTint = function setTint(tint) {
+		this.tint = tint;
+		return this;
+	};
+
+	IconBuilder.prototype.setOnClick = function setOnClick(callback) {
+		this.clickenabled = true;
+		this.clickcallback = callback;
+		return this;
+	};
+
+	IconBuilder.prototype.build = function build() {
+		var sprite = this.game.add.sprite(this.x, this.y, "icon_atlas", this.name);
+
+		if (this.size < 0) this.size = sprite.width;
+		var scaledSize = this.size * this.scale;
+		var padding = (this.size - scaledSize) / 2.0;
+
+		sprite.scale.set(this.scale);
+		sprite.x += padding;
+		sprite.y += padding;
+		sprite.tint = this.tint;
+
+		if (this.clickenabled) {
+			var background = this.game.add.graphics(this.x, this.y);
+			background.beginFill(0);
+			background.drawRect(0, 0, this.size, this.size);
+			background.endFill();
+			background.inputEnabled = true;
+			background.events.onInputDown.add(this.clickcallback, this);
+			background.alpha = 0;
+		}
+
+		return sprite;
+	};
+
+	return IconBuilder;
+}();
+//=======================
+/*
+	Wrapper around the HTML5 localstorage object that represents a single
+	instance of a stored object. For every new object you want to persist
+	you should use a different identifier inside the constructor.
+*/
+
+
+var LocalStore = function () {
+	/*
+ 	@param key The identifier to use for this localstorage object
+ */
+	function LocalStore(key) {
+		_classCallCheck(this, LocalStore);
+
+		this.key = key;
+	}
+
+	/*
+ 	@return The stored data as text (serialized)
+ */
+
+
+	LocalStore.prototype.loadText = function loadText() {
+		if (window.localStorage) {
+			return window.localStorage.getItem(this.key);
+		}
+		return null;
+	};
+
+	/*
+ 	@return The stored data as JSON (deserialized)
+ */
+
+
+	LocalStore.prototype.loadJson = function loadJson() {
+		return JSON.parse(this.loadText());
+	};
+
+	/*
+ 	Updates the persisted data
+ 		@param data The data to persist
+ */
+
+
+	LocalStore.prototype.store = function store(data) {
+		if (window.localStorage) window.localStorage.setItem(this.key, JSON.stringify(data));
+	};
+
+	return LocalStore;
+}();
+//=======================
+
+
+var TranslationManager = function () {
+	function TranslationManager(game, locale) {
+		_classCallCheck(this, TranslationManager);
+
+		this.game = game;
+		this.locale = locale;
+	}
+
+	TranslationManager.prototype.preload = function preload() {
+		// Load the selected language
+		var strippedMain = this._strippedLocale(this.locale);
+		this.game.load.text(this.locale, 'asset/data/translate/' + strippedMain + '.json');
+
+		// Load the fallback language
+		var stripped = this._strippedLocale(TranslationManager.KEY_FALLBACK);
+		this.game.load.text(TranslationManager.KEY_FALLBACK, 'asset/data/translate/' + stripped + '.json');
+	};
+
+	TranslationManager.prototype.create = function create() {
+		this.mainDict = JSON.parse(this.game.cache.getText(this.locale));
+		this.fallbackDict = JSON.parse(this.game.cache.getText(TranslationManager.KEY_FALLBACK));
+	};
+
+	TranslationManager.prototype.get = function get(key) {
+		if (this.mainDict && this.fallbackDict) {
+			if (key in this.mainDict) {
+				return this.mainDict[key];
+			} else if (key in this.fallbackDict) {
+				return this.fallbackDict[key];
+			}
+		}
+		return key;
+	};
+
+	TranslationManager.prototype.getLanguages = function getLanguages() {
+		return TranslationManager.getLanguages();
+	};
+
+	TranslationManager.prototype._strippedLocale = function _strippedLocale(key) {
+		return key.replace("translate_", "");
+	};
+
+	return TranslationManager;
+}();
+
+TranslationManager.KEY_NL = "translate_nl";
+TranslationManager.KEY_EN = "translate_en";
+TranslationManager.KEY_FALLBACK = TranslationManager.KEY_EN;
+
+// Register newly added language configs here
+TranslationManager.getLanguages = function () {
+	return [TranslationManager.KEY_NL, TranslationManager.KEY_EN];
+};
+//=======================
+
+var SimpleDragListener = function () {
+	function SimpleDragListener(game) {
+		_classCallCheck(this, SimpleDragListener);
+
+		this.game = game;
+		this.dragUpdated = false;
+		this.beenDown = false;
+		this.click = true;
+		this.clickableItems = [];
+
+		this.y = 0;
+		this.baseDraggedY = 0;
+		this.x = 0;
+		this.baseDraggedX = 0;
+
+		this.setLowerBounds(-SimpleDragListener.INFINITE, -SimpleDragListener.INFINITE);
+		this.setUpperBounds(SimpleDragListener.INFINITE, SimpleDragListener.INFINITE);
+
+		this.onClick = this._onClick;
+	}
+
+	SimpleDragListener.prototype.setLowerBounds = function setLowerBounds(x, y) {
+		this.lowerBoundX = x;
+		this.lowerBoundY = y;
+	};
+
+	SimpleDragListener.prototype.setUpperBounds = function setUpperBounds(x, y) {
+		this.upperBoundX = x;
+		this.upperBoundY = y;
+	};
+
+	SimpleDragListener.prototype.registerClick = function registerClick(element, action) {
+		this.clickableItems.push({ "element": element, "action": action });
+	};
+
+	SimpleDragListener.prototype.update = function update() {
+		var pos = this.game.input.activePointer;
+
+		if (pos.isDown) {
+			this.beenDown = true;
+			this.dragUpdated = false;
+
+			var draggedExtraY = pos.position.y - pos.positionDown.y;
+			var draggedExtraX = pos.position.x - pos.positionDown.x;
+			this.y = this._normalizeY(this.baseDraggedY + draggedExtraY);
+			this.x = this._normalizeX(this.baseDraggedX + draggedExtraX);
+
+			var distance = Math.sqrt(draggedExtraX * draggedExtraX + draggedExtraY * draggedExtraY);
+			if (distance > SimpleDragListener.CLICK_DISTANCE) {
+				this.click = false;
+			}
+		} else if (!this.dragUpdated && this.beenDown) {
+			this.dragUpdated = true;
+
+			this.baseDraggedY += pos.positionUp.y - pos.positionDown.y;
+			this.baseDraggedY = this._normalizeY(this.baseDraggedY);
+
+			this.baseDraggedX += pos.positionUp.x - pos.positionDown.x;
+			this.baseDraggedX = this._normalizeX(this.baseDraggedX);
+
+			// Send a "click" event if the distance traveled stayed below
+			// the CLICK_DISTANCE value during the dragging
+			if (this.click) {
+				this.onClick(pos.positionUp.x, pos.positionUp.y);
+			}
+			this.click = true;
+		}
+	};
+
+	SimpleDragListener.prototype._normalizeY = function _normalizeY(y) {
+		return this._normalize(y, this.upperBoundY, this.lowerBoundY);
+	};
+
+	SimpleDragListener.prototype._normalizeX = function _normalizeX(x) {
+		return this._normalize(x, this.upperBoundX, this.lowerBoundX);
+	};
+
+	SimpleDragListener.prototype._normalize = function _normalize(value, upper, lower) {
+		return Math.min(upper, Math.max(lower, value));
+	};
+
+	SimpleDragListener.prototype._onClick = function _onClick(x, y) {
+		var candidates = this.clickableItems.filter(function (i) {
+			return i.element.getBounds().contains(x, y);
+		});
+		if (candidates.length > 0) candidates[0].action();
+	};
+
+	return SimpleDragListener;
+}();
+
+SimpleDragListener.INFINITE = Infinity;
+SimpleDragListener.CLICK_DISTANCE = 25;
+//=======================
+
+var Router = function () {
+	function Router(app, context) {
+		_classCallCheck(this, Router);
+
+		this.app = app;
+		this.context = context;
+
+		this._registerScreen(Router.PAGE_MENU, "Menu");
+		this._registerScreen(Router.PAGE_MENU_LEVELS, "Levels");
+		this._registerScreen(Router.PAGE_GAME, "Game");
+		this._registerScreen(Router.PAGE_LEVEL_END_SCREEN, "LevelEndScreen");
+		this._registerScreen(Router.PAGE_LEVEL_FAILED_SCREEN, "LevelFailedScreen");
+		this._registerScreen(Router.PAGE_MISSION_SCREEN, "MissionScreen");
+		this._registerScreen(Router.PAGE_SETTINGS_SCREEN, "SettingsScreen");
+
+		this.active_page = null;
+		this.active_page_id = null;
+		this.localeChanged = false;
+		this.localeUpdates = {};
+
+		window.addEventListener('hashchange', this.cb(this.hashChanged));
+	}
+
+	Router.prototype.showPage = function showPage(page) {
+		var invalidate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+		switch (page) {
+			case Router.PAGE_MENU:
+			case Router.PAGE_GAME:
+			case Router.PAGE_MENU_LEVELS:
+			case Router.PAGE_LEVEL_END_SCREEN:
+			case Router.PAGE_LEVEL_FAILED_SCREEN:
+			case Router.PAGE_MISSION_SCREEN:
+			case Router.PAGE_SETTINGS_SCREEN:
+				this.active_page_id = page;
+				window.location.hash = page.toString();
+				if (invalidate || this.shouldUpdateLocale(page)) {
+					this.localeUpdates[page.toString()] = true;
+					this.context.state.add(page, this.createState(page));
+				}
+
+				this.context.state.start(page.toString());
+			default:
+				break;
+		}
+	};
+
+	Router.prototype.getPage = function getPage(page, cb) {
+		if (page === this.active_page_id) {
+			return cb(this.context.state.states[page.toString()]);
+		}
+		return null;
+	};
+
+	Router.prototype.createMenu = function createMenu() {
+		var _this = this;
+
+		return new Menu(this.app, this.context, [{ title: "MenuMainPlay", action: this.cb(this.showLevels) }, { title: "MenuMainHighscores", action: function action() {} }, { title: "MenuMainSettings", action: this.cb(function () {
+				return _this.showSettingsScreen(true);
+			}) }, { title: "MenuMainQuit", action: function action() {} }]);
+	};
+
+	Router.prototype.createLevelsMenu = function createLevelsMenu() {
+		return new LevelsMenu(this.app, this.context);
+	};
+
+	Router.prototype.createLevelEndScreen = function createLevelEndScreen() {
+		return new LevelEndScreen(this.app, this.context);
+	};
+
+	Router.prototype.createLevelFailedScreen = function createLevelFailedScreen() {
+		return new LevelFailedScreen(this.app, this.context);
+	};
+
+	Router.prototype.createMissionScreen = function createMissionScreen() {
+		return new MissionScreen(this.app, this.context);
+	};
+
+	Router.prototype.createSettingsScreen = function createSettingsScreen() {
+		return new SettingsScreen(this.app, this.context);
+	};
+
+	Router.prototype.createState = function createState(state) {
+		var _this2 = this;
+
+		switch (state) {
+			case Router.PAGE_MENU_LEVELS:
+				return this.cb(this.createLevelsMenu);
+			case Router.PAGE_GAME:
+				return this.cb(function () {
+					return new Game(_this2.app, _this2.context);
+				});
+			case Router.PAGE_MENU:
+				return this.cb(this.createMenu);
+			case Router.PAGE_LEVEL_END_SCREEN:
+				return this.cb(this.createLevelEndScreen);
+			case Router.PAGE_LEVEL_FAILED_SCREEN:
+				return this.cb(this.createLevelFailedScreen);
+			case Router.PAGE_MISSION_SCREEN:
+				return this.cb(this.createMissionScreen);
+			case Router.PAGE_SETTINGS_SCREEN:
+				return this.cb(this.createSettingsScreen);
+			default:
+				break;
+		}
+		return null;
+	};
+
+	Router.prototype.hashChanged = function hashChanged(e) {
+		var h = window.location.hash.substr(1);
+		var pageInt = parseInt(h);
+		var currentPage = parseInt(this.active_page_id);
+
+		if (pageInt !== currentPage) {
+			switch (pageInt) {
+				case Router.PAGE_GAME:
+				case Router.PAGE_LEVEL_END_SCREEN:
+				case Router.PAGE_LEVEL_FAILED_SCREEN:
+				case Router.PAGE_MISSION_SCREEN:
+					// These are all illegal game states to return to, keep going back
+					// untill a legal state is reached
+					window.history.back();
+					break;
+				case Router.PAGE_MENU:
+				case Router.PAGE_MENU_LEVELS:
+				case Router.PAGE_SETTINGS_SCREEN:
+				default:
+					// These are all legal states to return to
+					this.showPage(pageInt);
+					break;
+			}
+		}
+	};
+
+	Router.prototype.invalidateLocale = function invalidateLocale() {
+		this.localeChanged = true;
+
+		for (var key in this.localeUpdates) {
+			this.localeUpdates[key] = false;
+		}
+	};
+
+	Router.prototype.shouldUpdateLocale = function shouldUpdateLocale(page) {
+		page = page.toString();
+		if (!(page in this.localeUpdates)) {
+			this.localeUpdates[page] = true;
+			return true;
+		} else if (!this.localeUpdates[page]) {
+			this.localeUpdates[page] = true;
+			return true;
+		}
+		return false;
+	};
+
+	Router.prototype._registerScreen = function _registerScreen(pageid, pagename) {
+		this.context.state.add(pageid, this.createState(pageid));
+
+		this["show" + pagename] = this.cb(function () {
+			var invalidate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+			this.showPage(pageid, invalidate);
+		});
+
+		this["get" + pagename] = this.cb(function (cb) {
+			this.getPage(pageid, cb);
+		});
+	};
+
+	Router.prototype.cb = function cb(fun) {
+		return ownedCallback(this, fun);
+	};
+
+	return Router;
+}();
+
+// Statics
+
+
+Router.PAGE_MENU = 0;
+Router.PAGE_MENU_LEVELS = 1;
+Router.PAGE_GAME = 2;
+Router.PAGE_LEVEL_END_SCREEN = 3;
+Router.PAGE_LEVEL_FAILED_SCREEN = 4;
+Router.PAGE_MISSION_SCREEN = 5;
+Router.PAGE_SETTINGS_SCREEN = 6;
+//=======================
+
+var BaseView = function () {
+	function BaseView(app, context) {
+		_classCallCheck(this, BaseView);
+
+		this.app = app;
+		this.game = context;
+		this.translate = new TranslationManager(this.game, this.app.state.getLocale());
+
+		this.width = app.width;
+		this.height = app.height;
+		this.iconSize = this.width / 8;
+	}
+
+	BaseView.prototype.preload = function preload() {
+		this.translate.preload();
+		// Load the sprites
+		this.game.load.atlasXML('space_atlas', 'asset/sprites/space_atlas.png', 'asset/sprites/space_atlas.xml');
+		this.game.load.atlasXML('planet_atlas', 'asset/sprites/planets.png', 'asset/sprites/planets.xml');
+		this.game.load.atlasXML('icon_atlas', 'asset/sprites/icon_atlas.png', 'asset/sprites/icon_atlas.xml');
+		this.game.load.image('background', 'asset/backgrounds/darkPurple.png');
+		this.game.load.text('dictionary', 'asset/data/dictionary.txt');
+		this.game.load.text('levels', 'asset/data/levels.json');
+	};
+
+	BaseView.prototype.create = function create() {
+		this.translate.create();
+		// draw background
+		this.starfield = this.game.add.tileSprite(0, 0, this.width, this.height, 'background');
+	};
+
+	BaseView.prototype.update = function update() {};
+
+	BaseView.prototype.getLevels = function getLevels() {
+		return JSON.parse(this.game.cache.getText('levels')).levels;
+	};
+
+	BaseView.prototype.getDictionary = function getDictionary() {
+		return this.game.cache.getText('dictionary').split('\n');
+	};
+
+	BaseView.prototype.cb = function cb(fun) {
+		return ownedCallback(this, fun);
+	};
+
+	return BaseView;
+}();
+//=======================
+
+
+var BaseDialog = function (_BaseView) {
+	_inherits(BaseDialog, _BaseView);
+
+	function BaseDialog(app, context) {
+		_classCallCheck(this, BaseDialog);
+
+		var _this3 = _possibleConstructorReturn(this, _BaseView.call(this, app, context));
+
+		_this3.padding = _this3.width / 10;
+		_this3.dialogSize = _this3.width - 2 * _this3.padding;
+		_this3.dialogX = (_this3.width - _this3.dialogSize) / 2;
+		_this3.dialogY = (_this3.height - _this3.dialogSize) / 2;
+		_this3.lineWidthDialog = 8;
+		_this3.lineWidthBtn = 4;
+		_this3.btnHeight = _this3.dialogSize * .15;
+
+		_this3.backgroundColor = Theme.Color.Background;
+		_this3.borderColor = Theme.Color.DialogBorder;
+		_this3.title = "__DIALOG__";
+		_this3.buttons = [];
+		return _this3;
+	}
+
+	BaseDialog.prototype.create = function create() {
+		_BaseView.prototype.create.call(this);
+
+		this.levelData = this.getLevels()[this.data.level];
+
+		var t = this.game.add.text(0, 0, this.translate.get(this.title), Theme.Text.TitleMedium);
+		t.setTextBounds(0, 0, this.width, this.dialogY);
+
+		// Draw the dialog frame
+		var dialog = this.game.add.graphics(this.dialogX - this.lineWidthDialog / 2, this.dialogY - this.lineWidthDialog / 2);
+		dialog.beginFill(this.backgroundColor);
+		dialog.lineStyle(this.lineWidthDialog, this.borderColor, 1);
+		dialog.drawRect(0, 0, this.dialogSize + this.lineWidthDialog, this.dialogSize + this.btnHeight / 2 + this.lineWidthDialog * 2);
+		dialog.endFill();
+
+		// Draw buttons
+		this.drawButtons();
+	};
+
+	BaseDialog.prototype.drawButtons = function drawButtons() {
+		var btnCount = this.buttons.length;
+		if (btnCount == 0) return;
+
+		var btnHeight = this.btnHeight;
+		var btnPadding = this.lineWidthDialog;
+		var btnFullWidth = (this.dialogSize - btnPadding) / btnCount;
+		var btnWidth = btnFullWidth - btnPadding;
+
+		this.buttons.forEach(this.cb(function (btn, i) {
+			var menuBg = this.game.add.graphics(this.dialogX + i * btnFullWidth + btnPadding, this.dialogY + this.dialogSize - btnHeight / 2);
+			menuBg.beginFill(this.backgroundColor);
+			menuBg.lineStyle(this.lineWidthBtn, this.borderColor, 1);
+			menuBg.drawRect(0, 0, btnWidth, btnHeight);
+			menuBg.inputEnabled = true;
+			menuBg.events.onInputDown.add(btn.action, this);
+
+			var menuBtn = this.game.add.text(0, 0, this.translate.get(btn.title), Theme.Text.TitleSmall);
+			menuBtn.setTextBounds(this.dialogX + i * btnFullWidth, this.dialogY + this.dialogSize - btnHeight / 2 + this.lineWidthDialog / 2, btnFullWidth, btnHeight);
+		}));
+	};
+
+	return BaseDialog;
+}(BaseView);
+//=======================
+
+
+var App = function () {
+	function App(args) {
+		_classCallCheck(this, App);
+
+		// Default values, used to determine aspect ratio
+		this.handwritingInput = args.handwritingInput;
+		this.gameCanvas = args.gameCanvas;
+		this.gameContainer = args.gameContainer;
+		this.handwritingContainer = args.handwritingContainer;
+		this.clearButton = args.clearButton;
+
+		Theme.init(480, 800, this.gameContainer);
+		this.width = Theme.getWidth();
+		this.height = Theme.getHeight();
+
+		this.gameContainer.style.width = this.width + "px";
+		this.handwritingContainer.style["margin-left"] = this.width + "px";
+
+		this.state = new GameState(this);
+		this.context = new Phaser.Game(this.width, this.height, Phaser.AUTO, this.gameCanvas);
+		this.router = new Router(this, this.context);
+
+		this.router.showMenu();
+		this.setupHandwriting();
+
+		//this.router.showLevelEndScreen();
+	}
+
+	App.prototype.setupHandwriting = function setupHandwriting() {
+		var _this4 = this;
+
+		this.handwritingInput.addEventListener("myscript-text-web-result", this.cb(function (a) {
+			try {
+				var segmentResults = a.detail.result.textSegmentResult;
+				var candidates = segmentResults.candidates;
+				var labels = candidates.map(function (c) {
+					return c.label.toLowerCase();
+				});
+
+				this.onHandwriteResult(labels);
+			} catch (e) {
+				// something went wrong with the event
+			}
+		}));
+
+		this.handwritingInput.addEventListener("changed", this.cb(setBackoffTimeout(function () {
+			// 2 second back off that detects when nothing is input for a while
+			// to automatically clear the area
+			this.clearHandwriting();
+		}, 2000)));
+
+		this.clearButton.addEventListener("click", this.cb(function () {
+			return _this4.clearHandwriting();
+		}));
+	};
+
+	App.prototype.onHandwriteResult = function onHandwriteResult(labels) {
+		this.router.getGame(function (game) {
+			return game.onHandwriteResult(labels);
+		});
+	};
+
+	App.prototype.clearHandwriting = function clearHandwriting() {
+		this.handwritingInput.clear();
+	};
+
+	App.prototype.startLevel = function startLevel(level) {
+		this.router.showMissionScreen(true);
+		this.router.getMissionScreen(function (m) {
+			return m.setData({ level: level });
+		});
+		//this.router.showGame(true);
+		//this.router.getGame(g => g.loadLevel(level));
+	};
+
+	App.prototype.beginLevel = function beginLevel(level) {
+		this.router.showGame(true);
+		this.router.getGame(function (g) {
+			return g.loadLevel(level);
+		});
+	};
+
+	App.prototype.levelCompleted = function levelCompleted(levelData) {
+		// Unlock the next level if it hasn't been unlocked
+		var level = levelData.level;
+		if (this.state.getUnlockedIndex() < level + 1) {
+			this.state.setUnlockedIndex(level + 1);
+		}
+
+		this.router.showLevelEndScreen(true);
+		this.router.getLevelEndScreen(function (e) {
+			return e.setData(levelData);
+		});
+	};
+
+	App.prototype.levelFailed = function levelFailed(levelData) {
+		this.router.showLevelFailedScreen(true);
+		this.router.getLevelFailedScreen(function (f) {
+			return f.setData(levelData);
+		});
+	};
+
+	App.prototype.advanceLevelEndScreen = function advanceLevelEndScreen() {
+		this.router.showLevels(true);
+	};
+
+	App.prototype.advanceLevelEndScreenNextLevel = function advanceLevelEndScreenNextLevel(level) {
+		this.startLevel(level + 1);
+	};
+
+	App.prototype.cb = function cb(fun) {
+		return ownedCallback(this, fun);
+	};
+
+	return App;
+}();
+//=======================
+
+
+var GameState = function () {
+	function GameState(app) {
+		_classCallCheck(this, GameState);
+
+		this.app = app;
+		this.localStore = new LocalStore("GameState");
+
+		this.data = this.localStore.loadJson() || {};
+		this._setDefault("unlockedIndex", 0);
+		this._setDefault("levels", {});
+		this._setDefault("locale", TranslationManager.KEY_FALLBACK);
+		this.invalidate();
+	}
+
+	GameState.prototype.getUnlockedIndex = function getUnlockedIndex() {
+		return this.data.unlockedIndex;
+	};
+
+	GameState.prototype.setUnlockedIndex = function setUnlockedIndex(index) {
+		this.data.unlockedIndex = index;
+		this.invalidate();
+	};
+
+	GameState.prototype.getLocale = function getLocale() {
+		return this.data.locale;
+	};
+
+	GameState.prototype.setLocale = function setLocale(locale) {
+		this.data.locale = locale;
+		this.invalidate();
+	};
+
+	GameState.prototype.setLevelData = function setLevelData(index, levelData) {
+		this.data.levels[index.toString()] = levelData;
+		this.invalidate();
+	};
+
+	GameState.prototype.getLevelData = function getLevelData(index) {
+		if (index.toString() in this.data.levels) return this.data.levels[index.toString()];
+		return {
+			starcount: 0
+		};
+	};
+
+	GameState.prototype.getLevels = function getLevels() {
+		return this.data.levels;
+	};
+
+	GameState.prototype.invalidate = function invalidate() {
+		this.localStore.store(this.data);
+	};
+
+	GameState.prototype._setDefault = function _setDefault(name, value) {
+		if (!(name in this.data)) this.data[name] = value;
+	};
+
+	return GameState;
+}();
+//=======================
+
+
+var ComboManager = function () {
+	function ComboManager() {
+		_classCallCheck(this, ComboManager);
+
+		// max milliseconds/letter to write a word in order to increase the multiplier
+		this.COMBO_TRESHOLD = 1000;
+		// time per letter to keep the current combo
+		this.COMBO_HOLD_TRESHOLD = 2000;
+		this.MAX_MULTIPLIER = 5;
+
+		this.lastWord = "";
+		this.lastWordTime = 0;
+		this.multiplier = 1;
+		this.streak = 0;
+
+		// bookkeeping
+		this.b_combos = 0;
+		this.b_maxmultiplier = 0;
+		this.b_maxstreak = 0;
+	}
+
+	ComboManager.prototype.foundWord = function foundWord(word) {
+		var time = this.getCurrentTime();
+		var isCombo = false;
+
+		if (this.insideTreshold(word)) {
+			// It's a combo!
+			this.multiplier = Math.min(this.MAX_MULTIPLIER, this.multiplier + 1);
+			isCombo = true;
+		} else if (this.insideHoldTreshold(word)) {
+			// multiplier stays as is
+			isCombo = true;
+		} else {
+			// Reset the multiplier
+			this.multiplier = 1;
+		}
+
+		this.lastWordTime = time;
+		this.lastWord = word;
+
+		if (isCombo) {
+			this.b_combos++;
+			this.streak++;
+
+			// update stats
+			this.b_maxstreak = Math.max(this.b_maxstreak, this.streak);
+			this.b_maxmultiplier = Math.max(this.b_maxmultiplier, this.multiplier);
+		} else {
+			this.streak = 0;
+		}
+
+		return isCombo;
+	};
+
+	ComboManager.prototype.update = function update() {
+		// Use a word of length 10 to decrease the multiplier
+		if (!this.insideHoldTreshold("0123456789")) {
+			this.lastWordTime = this.getCurrentTime();
+			this.multiplier = 1;
+		}
+	};
+
+	ComboManager.prototype.insideTreshold = function insideTreshold(word) {
+		var time = this.getCurrentTime();
+		var period = time - this.lastWordTime;
+		// Time available to write the word
+		var treshold = this.COMBO_TRESHOLD * word.length;
+
+		return period < treshold;
+	};
+
+	ComboManager.prototype.insideHoldTreshold = function insideHoldTreshold(word) {
+		var time = this.getCurrentTime();
+		var period = time - this.lastWordTime;
+		// Time available to write the word
+		var holdTreshold = this.COMBO_HOLD_TRESHOLD * word.length;
+
+		return period < holdTreshold;
+	};
+
+	ComboManager.prototype.getMultiplier = function getMultiplier() {
+		return this.multiplier;
+	};
+
+	ComboManager.prototype.getMaxCombo = function getMaxCombo() {
+		return this.MAX_MULTIPLIER;
+	};
+
+	ComboManager.prototype.getCurrentTime = function getCurrentTime() {
+		return new Date().getTime();
+	};
+
+	ComboManager.prototype.getSteak = function getSteak() {
+		return this.streak;
+	};
+
+	ComboManager.prototype.getData = function getData() {
+		return {
+			combos: this.b_combos,
+			maxmultiplier: this.b_maxmultiplier,
+			maxstreak: this.b_maxstreak
+		};
+	};
+
+	return ComboManager;
+}();
+
+var LifeManager = function () {
+	function LifeManager(startLifeCount, lifecap) {
+		_classCallCheck(this, LifeManager);
+
+		this.lifecount = startLifeCount;
+		// max amount of lifes you can have
+		this.LIFE_CAP = lifecap;
+		// Generate a new life everytime x amount of streaks
+		this.STREAK_INTERVAL = 5;
+
+		this.lastStreak = -1;
+	}
+
+	LifeManager.prototype.getLifeCount = function getLifeCount() {
+		return this.lifecount;
+	};
+
+	LifeManager.prototype.updateStreak = function updateStreak(streak) {
+		if (streak !== this.lastStreak) {
+			this.lastStreak = streak;
+
+			if (streak >= this.STREAK_INTERVAL && streak % this.STREAK_INTERVAL == 0) {
+				this.generateLife();
+			}
+		}
+	};
+
+	LifeManager.prototype.generateLife = function generateLife() {
+		var count = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+		this.lifecount = Math.min(this.lifecount + count, this.LIFE_CAP);
+	};
+
+	LifeManager.prototype.consumeLife = function consumeLife() {
+		var count = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+		this.lifecount = Math.max(0, this.lifecount - count);
+	};
+
+	return LifeManager;
+}();
+
+var Game = function (_BaseView2) {
+	_inherits(Game, _BaseView2);
+
+	function Game(app, game) {
+		_classCallCheck(this, Game);
+
+		//set width and height variables for game
+		var _this5 = _possibleConstructorReturn(this, _BaseView2.call(this, app, game));
+
+		_this5.width = app.width;
+		_this5.height = app.height;
+		//create game object and initialize the canvas
+		_this5.comboManager = new ComboManager();
+		_this5.lifeManager = new LifeManager(3, 9);
+
+		//initialize some variables
+		_this5.play = null;
+		_this5.food = null;
+		_this5.cursors = null;
+		_this5.speed = 175;
+		_this5.score = 0;
+		_this5.scoreText = null;
+		_this5.distance = 0;
+		_this5.targetDistance = 25;
+		_this5.nextAsteroidTime = null;
+		_this5.wordsBuffer = [];
+
+		_this5.dictData = null;
+		_this5.levelData = null;
+		_this5.currentLevel = 0;
+
+		_this5.textInput = null;
+
+		_this5.exhaustCount = 50;
+		_this5.exhaustDelay = 1000;
+
+		// bookkeeping
+		_this5.b_wordcount = 0;
+		_this5.b_lettercount = 0;
+		return _this5;
+	}
+
+	Game.prototype.loadLevel = function loadLevel(levelIndex) {
+		this.currentLevel = levelIndex;
+	};
+
+	Game.prototype.preload = function preload() {
+		// Load the sprites
+		this.game.load.atlasXML('space_atlas', 'asset/sprites/space_atlas.png', 'asset/sprites/space_atlas.xml');
+		this.game.load.image('background', 'asset/backgrounds/darkPurple.png');
+		this.game.load.text('dictionary', 'asset/data/dictionary.txt');
+		this.game.load.text('levels', 'asset/data/levels.json');
+	};
+
+	Game.prototype.create = function create() {
+		var _this6 = this;
+
+		//start arcade physics engine
+		this.game.physics.startSystem(Phaser.Physics.ARCADE);
+		this.game.physics.arcade.gravity.y = 0;
+
+		//initialize keyboard arrows for the game controls
+		this.cursors = this.game.input.keyboard.createCursorKeys();
+		var keys = [Phaser.KeyCode.SPACEBAR];
+		this.phaserKeys = this.game.input.keyboard.addKeys(keys);
+		this.game.input.keyboard.addKeyCapture(keys);
+		//game.input.keyboard.addCallbacks(this, null, null, onKeyPress);
+
+		//add background tiles
+		this.starfield = this.game.add.tileSprite(0, 0, this.width, this.height, 'background');
+		this.dictData = this.getDictionary();
+		this.levelData = this.getLevels();
+		this.targetDistance = this.currentLevelData().distance;
+
+		// Create ammunition
+		this.lasers = this.game.add.group();
+		this.lasers.enableBody = true;
+		this.lasers.physicsBodyType = Phaser.Physics.ARCADE;
+
+		this.lasers.createMultiple(20, 'space_atlas', 'laserBlue01.png');
+		this.lasers.setAll('checkWorldBounds', true);
+		this.lasers.setAll('outOfBoundsKill', true);
+		this.lasers.setAll('anchor', new Phaser.Point(0.5, 1));
+		this.lasers.setAll('tracking', true);
+
+		// Create asteroid collision objects
+		this.asteroids = this.game.add.group();
+		this.asteroids.enableBody = true;
+		this.asteroids.physicsBodyType = Phaser.Physics.ARCADE;
+		this.game.physics.enable(this.asteroids, Phaser.Physics.ARCADE);
+
+		this.asteroids.createMultiple(20, 'space_atlas', 'meteorGrey_big1.png');
+		this.asteroids.setAll('checkWorldBounds', true);
+		this.asteroids.setAll('outOfBoundsKill', true);
+		this.asteroids.setAll('allowRotation', true);
+		this.asteroids.setAll('anchor', new Phaser.Point(0.5, 0.5));
+		this.asteroids.setAll('body.bounce', new Phaser.Point(0.1, 0.1));
+
+		// create explosion emitter
+		this.emitter = this.game.add.emitter(0, 0, 100);
+		this.emitter.makeParticles('space_atlas', 'meteorGrey_tiny1.png');
+		this.emitter.gravity = 20;
+
+		// create exhaust emitter
+		this.exhaustEmitters = this.add.group();
+		for (var i = 0; i < this.exhaustCount; i++) {
+			this.exhaustEmitters.add(this.game.add.emitter(0, 0, 1));
+		}this.exhaustEmitters.setAll("gravity", -10);
+		this.exhaustEmitters.forEach(function (l) {
+			l.makeParticles("space_atlas", "meteorGrey_tiny1.png");
+
+			l.minParticleSpeed.set(-30, 80);
+			l.maxParticleSpeed.set(30, 100);
+		});
+
+		//add player sprite
+		this.player = this.game.add.sprite(this.width * 0.5, this.height * 0.8, 'space_atlas', 'playerShip1_red.png');
+		this.player.anchor.set(0.5, 0.5);
+		this.game.physics.enable(this.player, Phaser.Physics.ARCADE);
+		this.player.body.collideWorldBounds = false;
+
+		//place score text on the screen
+		this.scoreText = this.game.add.text(this.width - 10, this.height - 50, this.score, Theme.Text.TitleSmall);
+		this.scoreText.anchor.set(1, 1);
+
+		//Used when we're doing handwriting
+		this.textInput = document.getElementById("textInput");
+		this.textLog = document.getElementById("textLog");
+
+		// Create sprites for the combo bar
+		this.comboBar = [];
+		var maxcombo = this.comboManager.getMaxCombo();
+		for (var i = 0; i < maxcombo; i++) {
+			var spr = this.game.add.sprite(this.width - 10 * (maxcombo - i - 1) - 10, this.height - 10, 'space_atlas', 'laserGreen05.png');
+			spr.anchor.set(1, 1);
+			var mask = 0xff0000;
+			var fadeStart = 0x002222;
+			var fadeEnd = 0x00ffff;
+
+			var fade = parseInt((fadeEnd - fadeStart) * (1.0 * i / (maxcombo - 1)) + fadeStart);
+			spr.tint = mask | fade;
+
+			this.comboBar.push(spr);
+		}
+
+		this.distanceBar = this.game.add.graphics(0, 0);
+		this.distanceBar.beginFill(0x00ff00);
+		this.distanceBar.drawRect(0, 0, this.width, 2);
+		this.distanceBar.endFill();
+
+		this.distanceBar.scale.x = 0;
+		this.distanceBar.alpha = .7;
+
+		this.createLives();
+
+		// add button to level select
+		this.levelSelect = new IconBuilder(this.game, "back.png").setPosition(0, 0).setScale(.66).setTint(Theme.Color.Icon).setOnClick(this.cb(function () {
+			return _this6.app.router.showLevels();
+		})).build();
+	};
+
+	Game.prototype.update = function update() {
+		if (this.distance >= this.targetDistance) {
+			this.app.levelCompleted(this.getData());
+			return;
+		} else if (this.lifeManager.getLifeCount() == 0) {
+			this.app.levelFailed(this.getData());
+			return;
+		}
+
+		this.distanceBar.scale.x = 1.0 * this.distance / this.targetDistance;
+
+		// first, draw the moving background and the health indicators...
+		this.starfield.tilePosition.x = 0.5;
+		this.starfield.tilePosition.y += 2 * this.comboManager.getMultiplier();
+
+		//game.physics.arcade.collide(asteroids, asteroids);
+		this.game.physics.arcade.overlap(this.asteroids, this.lasers, this.shootAsteroid, null, this);
+
+		//move the player up and down based on keyboard arrows
+		if (this.cursors.up.isDown) {
+			this.player.body.velocity.y = -this.speed;
+		} else if (this.cursors.down.isDown) {
+			this.player.body.velocity.y = this.speed;
+		} else {
+			this.player.body.velocity.y = 0;
+		}
+
+		//move the player right and left based on keyboard arrows
+		if (this.cursors.left.isDown) {
+			this.player.body.velocity.x = -this.speed;
+		} else if (this.cursors.right.isDown) {
+			this.player.body.velocity.x = this.speed;
+		} else {
+			this.player.body.velocity.x = 0;
+		}
+
+		for (var index in this.phaserKeys) {
+			// Save a reference to the current key
+			var key = this.phaserKeys[index];
+			// If the key was just pressed, fire a laser
+			if (key.justDown) {
+				this.fireLaser();
+			}
+		}
+
+		//spawn new enemies as needed
+		if (this.moreAsteroidsNeeded()) this.spawnAsteroid();
+
+		var matchedWord = false;
+		var sortedAsteroids = [];
+		this.asteroids.forEachAlive(function (a) {
+			return sortedAsteroids.push(a);
+		}, this);
+
+		// Destroy astroids in y-order, if 2 identical astroids are present
+		// the one closest to destruction will be removed first
+		sortedAsteroids.sort(function (a, b) {
+			return b.y - a.y;
+		}).forEach(this.cb(function (asteroid) {
+			// Check if there is a match
+			var matches = this.wordsBuffer.filter(function (w) {
+				return w === asteroid.label;
+			});
+			// update the current combo
+			if (matches.length > 0) this.comboManager.foundWord(matches[0]);
+
+			// update/destroy astroid, score will now use the correct combo
+			// as it is updated in the previous line
+			this.updateAsteroid(asteroid);
+
+			if (matches.length > 0 && !matchedWord) {
+				matchedWord = true;
+				// clear the buffer, duplicates are not cleared at once
+				this.wordsBuffer = [];
+			}
+		}));
+
+		this.lifeManager.updateStreak(this.comboManager.getSteak());
+
+		// Check if a combo has run out
+		this.comboManager.update();
+
+		this.updateComboBar();
+		this.updateLives();
+	};
+
+	Game.prototype.updateComboBar = function updateComboBar() {
+		this.comboBar.forEach(this.cb(function (c, i) {
+			if (i < this.comboManager.getMultiplier()) {
+				c.alpha = 1;
+			} else {
+				c.alpha = .4;
+			}
+		}));
+
+		// Update the exhaust
+		var interval = this.comboManager.getMaxCombo() - this.comboManager.getMultiplier() + 1;
+		for (var i = 0; i < this.exhaustEmitters.children.length; i++) {
+			var e = this.exhaustEmitters.children[i];
+			e.forEachAlive(function (p) {
+				p.alpha = p.lifespan / e.lifespan;
+				p.tint = 0xffdc51;
+
+				if (i % interval != 0) p.alpha = 0;
+			});
+		}
+
+		this.exhaustEmitters.setAll("x", this.player.x);
+		this.exhaustEmitters.setAll("y", this.player.y + this.player.height / 2);
+
+		for (var i = 0; i < this.exhaustEmitters.length; i++) {
+			var e = this.exhaustEmitters.children[i];
+			setTimeout(function (e, t) {
+				return function () {
+					e.start(true, t.exhaustDelay, null, 1);
+				};
+			}(e, this), this.exhaustDelay / this.exhaustCount * i);
+		}
+	};
+
+	Game.prototype.processKeyPress = function processKeyPress(event) {
+		var chCode = 'charCode' in event ? event.charCode : event.keyCode;
+
+		if (chCode == 13) {
+			/* CR */
+			var para = document.createElement("p");
+			var t = document.createTextNode(textInput.value);
+			para.appendChild(t);
+			this.textLog.appendChild(para);
+
+			this.wordsBuffer = [];
+			this.textInput.value = '';
+			return true;
+		}
+	};
+
+	Game.prototype.onHandwriteResult = function onHandwriteResult(words) {
+		this.wordsBuffer = words;
+	};
+
+	Game.prototype.fireLaser = function fireLaser() {
+		var target = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+		// Get the first laser that's inactive, by passing 'false' as a parameter
+		var laser = this.lasers.getFirstExists(false);
+		if (laser) {
+			// If we have a laser, set it to the starting position
+			laser.reset(this.player.x, this.player.y - 50);
+			// Give it a velocity of -500 so it starts shooting
+			if (target) {
+				this.rot = this.game.physics.arcade.angleBetween(target, this.player) - 3.14 / 2;
+				this.Xvector = (target.x - this.player.x) * 1;
+				this.Yvector = (target.y + 10 - this.player.y) * 1;
+
+				this.game.add.tween(this.laser).to({ x: target.x, y: target.y, rotation: this.rot }, 750, Phaser.Easing.Linear.None, true);
+			} else {
+				laser.rotation = 0;
+				laser.body.velocity.setTo(0, -500);
+			}
+		}
+	};
+
+	Game.prototype.updateAsteroid = function updateAsteroid(asteroid) {
+		var matchedWord = null;
+
+		if (asteroid.y > this.height) {
+			this.destroyAsteroid(asteroid, -asteroid.label.length); // loose
+			this.lifeManager.consumeLife();
+			// TODO: penalize the user?
+		}
+		if (asteroid && asteroid.text && asteroid.label) {
+			var matches = this.wordsBuffer.filter(function (w) {
+				return w === asteroid.label;
+			});
+			if (matches.length > 0) {
+				matchedWord = matches[0];
+
+				this.destroyAsteroid(asteroid, asteroid.label.length); // win
+				// Clear the handwriting input
+				this.app.clearHandwriting();
+				this.showWordOverlay(matches[0] + " +" + this.comboManager.getMultiplier() * matchedWord.length);
+			}
+			asteroid.text.x = asteroid.x;
+			asteroid.text.y = asteroid.y - asteroid.height / 2 - 10;
+		}
+
+		return matchedWord;
+	};
+
+	Game.prototype.moreAsteroidsNeeded = function moreAsteroidsNeeded() {
+		// no more than three asteroids at a time
+
+		if (this.asteroids.countLiving() >= this.currentLevelData().maxenemies) return false;
+
+		// wait a minimum amount of time
+		if (this.nextAsteroidTime > this.game.time.totalElapsedSeconds()) return false;
+
+		if (this.game.rnd.frac() > 0.7) {
+			this.nextAsteroidTime = this.game.time.totalElapsedSeconds() + 2;
+			return true;
+		}
+		return false;
+	};
+
+	Game.prototype.currentLevelData = function currentLevelData() {
+		if (this.currentLevel > this.levelData.length) return this.levelData[this.levelData.length - 1];else return this.levelData[this.currentLevel];
+	};
+
+	Game.prototype.spawnAsteroid = function spawnAsteroid() {
+		// Get the first asteroid that's inactive, by passing 'false' as a parameter
+		var asteroid = this.asteroids.getFirstExists(false);
+		if (!asteroid) return null;
+
+		// Set the asteroid's physical properties
+		var halfwit = asteroid.width / 2; // pun intended
+		var xpos = this.game.rnd.integerInRange(halfwit, this.width - halfwit);
+		var v = this.game.rnd.integerInRange(5, 50);
+		var av = this.game.rnd.integerInRange(-25, 25);
+
+		asteroid.reset(xpos, asteroid.height / 2);
+		asteroid.body.velocity.y = v;
+		asteroid.body.angularVelocity = av;
+
+		// Give the asteroid a label
+		var idx = this.game.rnd.integerInRange(this.currentLevelData().fromdict, this.currentLevelData().todict) - 1;
+		if (idx >= 0 && idx < this.dictData.length) asteroid.label = this.dictData[idx].trim().toLowerCase();else asteroid.label = "label";
+		asteroid.text = this.game.add.text(0, 0, asteroid.label, Theme.Text.Asteroid);
+		asteroid.text.anchor.set(0.5, -.5);
+	};
+
+	Game.prototype.shootAsteroid = function shootAsteroid(enemy, laser) {
+		if (laser) laser.kill();
+		this.destroyAsteroid(enemy, -1);
+	};
+
+	Game.prototype.destroyAsteroid = function destroyAsteroid(enemy) {
+		var delta = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
+		this.score += delta;
+		this.scoreText.text = this.score;
+
+		// increase the distance when positive
+		if (delta > 0) {
+			this.distance += delta * this.comboManager.getMultiplier();
+			this.b_wordcount += 1;
+			this.b_lettercount += delta;
+		}
+
+		if (enemy.text) {
+			enemy.text.destroy();
+			enemy.label = '';
+		}
+
+		this.emitter.x = enemy.x;
+		this.emitter.y = enemy.y;
+		enemy.kill();
+
+		//  The first parameter sets the effect to "explode" which means all particles are emitted at once
+		//  The second gives each particle a 2000ms lifespan
+		//  The third is ignored when using burst/explode mode
+		//  The final parameter (10) is how many particles will be emitted in this single burst
+		this.emitter.start(true, 2000, null, 10);
+	};
+
+	Game.prototype.showWordOverlay = function showWordOverlay(text) {
+		// Text overlay when a word is matched
+		var wordOverlayText = this.game.add.text(0, 0, text, Theme.Text.TitleGiant);
+		wordOverlayText.setTextBounds(0, 0, this.width, this.height);
+
+		wordOverlayText.alpha = .5;
+		this.game.add.tween(wordOverlayText).to({ alpha: 0, y: -this.height / 4 }, 1000, Phaser.Easing.Cubic.InOut, true).onComplete.add(function () {
+			wordOverlayText.destroy();
+		}, this);
+	};
+
+	Game.prototype.createLives = function createLives() {
+		var maxLives = this.lifeManager.LIFE_CAP;
+		var spriteName = "playerLife1_red.png";
+		var padding = this.width * .02;
+		var scale = .75;
+
+		this.lives = [];
+		for (var i = 0; i < maxLives; i++) {
+			var l = this.game.add.sprite(padding, this.height - padding, "space_atlas", spriteName);
+			l.y -= (l.height + padding) * i * scale;
+			l.anchor.set(0, 1);
+			l.scale.set(scale);
+			this.lives.push(l);
+		}
+	};
+
+	Game.prototype.updateLives = function updateLives() {
+		this.lives.forEach(this.cb(function (l, i) {
+			l.alpha = i < this.lifeManager.getLifeCount() ? 1 : 0;
+		}));
+	};
+
+	Game.prototype.getData = function getData() {
+		return {
+			combo: this.comboManager.getData(),
+			level: this.currentLevel,
+			wordcount: this.b_wordcount,
+			lettercount: this.b_lettercount
+		};
+	};
+
+	Game.prototype.destroy = function destroy() {
+		this.game.destroy();
+	};
+
+	Game.prototype.cb = function cb(fun) {
+		return ownedCallback(this, fun);
+	};
+
+	return Game;
+}(BaseView);
+
+/*
+
+function writeListener (e) {
+    if (e.detail && e.detail.type == 'textResult') {
+        var candidates = e.detail.getDocument().getTextSegment().getCandidates();
+        candidates.forEach(function(c){
+            console.log(c.getLabel() + '(' + c.getNormalizedScore() + ')');
+            onKeyPress(c.getLabel());
+        });
+    }
+
+}
+
+function onKeyPress(key) {
+	console.log(key);
+	food.forEach(function(b) {
+		key = key.toUpperCase();
+		if (b.label.startsWith(key)) {
+			b.label = b.label.substring(1);
+			b.text.kill();
+
+			textInput.clear();
+
+			if (b.label.length == 0) {
+				eatFood(b);
+				return;
+			}
+			b.text = game.add.text(0, 0, b.label, style);
+    		b.text.anchor.set(0.5);
+		}
+	}, this, true);
+}
+
+function drawFood(b) {
+	b.text.x = b.x;
+    b.text.y = b.y - b.text.height - 10;
+}
+//eatFood function
+function eatFood(food) {
+	//update the score
+	score += food.value;
+	scoreText.text = score;
+
+	//remove the piece of food
+	food.kill();
+}
+
+function createBlock(food, label, xpos) {
+	b = food.create(xpos, 60, 'food');
+	
+	b.anchor.set(0.5);
+	b.body.collideWorldBounds = true;
+
+	b.label = label;
+	b.value = label.length;
+	b.text = game.add.text(0, 0, b.label, style);
+    b.text.anchor.set(0.5);
+	
+	return b;
+}
+
+*/
+//=======================
+/*
+	Generic class to create a menu with the provided
+	menu options as menu items.
+*/
+
+
+var Menu = function (_BaseView3) {
+	_inherits(Menu, _BaseView3);
+
+	/*
+ 	Create a new menu view provided an instance of App and
+ 	an array of javascript objects with a title and action
+ 	property. Titles will be displayed in the menu and the
+ 	provided action will be called on click.
+ */
+	function Menu(app, context, options) {
+		_classCallCheck(this, Menu);
+
+		var _this7 = _possibleConstructorReturn(this, _BaseView3.call(this, app, context));
+
+		_this7.padding = app.width / 3.0;
+		_this7.menu = options;
+		return _this7;
+	}
+
+	Menu.prototype.create = function create() {
+		_BaseView3.prototype.create.call(this);
+
+		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels;
+
+		var availableHeight = this.height - this.padding * 2;
+		var heightPerItem = availableHeight / this.menu.length;
+		var y = this.padding;
+
+		for (var i = 0; i < this.menu.length; i++) {
+			var title = this.translate.get(this.menu[i].title).toUpperCase();
+			var action = this.menu[i].action;
+
+			// add entry to menu
+			var text = this.game.add.text(0, 0, title, Theme.Text.TitleLarge);
+			text.setTextBounds(0, y, this.width, heightPerItem);
+			text.inputEnabled = true;
+			text.events.onInputDown.add(action, this);
+
+			y += heightPerItem;
+		}
+	};
+
+	return Menu;
+}(BaseView);
+//=======================
+/*
+	Displays a list of all available levels
+*/
+
+
+var LevelsMenu = function (_BaseView4) {
+	_inherits(LevelsMenu, _BaseView4);
+
+	function LevelsMenu(app, context) {
+		_classCallCheck(this, LevelsMenu);
+
+		var _this8 = _possibleConstructorReturn(this, _BaseView4.call(this, app, context, []));
+
+		_this8.sprites = [];
+		_this8.clickableItems = [];
+		_this8.dragListener = new SimpleDragListener(_this8.game);
+		_this8.dragListener.setLowerBounds(0, 0);
+		return _this8;
+	}
+
+	LevelsMenu.prototype.preload = function preload() {
+		var _this9 = this;
+
+		_BaseView4.prototype.preload.call(this);
+
+		var levels = this.getLevels();
+		var startLevel = this.cb(function (l) {
+			return _this9.startLevel(l);
+		});
+
+		this.menu = levels.map(this.cb(function (l, levelIndex) {
+			return {
+				data: l,
+				action: function (level) {
+					return function () {
+						return startLevel(level);
+					};
+				}(levelIndex)
+			};
+		}));
+	};
+
+	LevelsMenu.prototype.create = function create() {
+		var _this10 = this;
+
+		_BaseView4.prototype.create.call(this);
+
+		var getXPos = this.cb(function (levelIndex) {
+			return (Math.cos(levelIndex * Math.PI / 8.0) * .5 + .5) * this.width / 2 + this.width / 4;
+		});
+
+		var offset = 50;
+		this.menu.forEach(this.cb(function (item, index) {
+			var levelSprite;
+			var x = getXPos(index);
+			var y, spriteSize, starOffset, starScale;
+
+			if (item.data.checkpoint) {
+				offset += 75;
+				y = this.height - offset;
+				levelSprite = this.game.add.sprite(x, y, 'planet_atlas', item.data.planet);
+				offset += 75;
+				spriteSize = 150;
+				starOffset = 75;
+				starScale = 1;
+			} else {
+				offset += 25;
+				y = this.height - offset;
+				levelSprite = this.game.add.sprite(x, y, 'space_atlas', 'meteorGrey_big1.png');
+				levelSprite.scale.set(.25);
+				offset += 25;
+				spriteSize = 50;
+				starOffset = 25;
+				starScale = .5;
+			}
+
+			this.dragListener.setUpperBounds(0, offset + 50 - this.height);
+
+			levelSprite.anchor.x = .5;
+			levelSprite.anchor.y = .5;
+
+			if (index > this.app.state.getUnlockedIndex()) {
+				levelSprite.alpha = .5;
+			} else {
+				var g = this.game.add.graphics(x, y);
+				g.alpha = 0;
+				g.beginFill("black");
+				g.drawCircle(0, 0, spriteSize);
+				g.endFill();
+
+				this.dragListener.registerClick(g, item.action);
+				this.sprites.push(g);
+			}
+
+			var ROTATIONS = 10000;
+			this.game.add.tween(levelSprite).to({ rotation: ROTATIONS * 2 * Math.PI }, (.5 + Math.random() / 2.0) * 60000 * ROTATIONS, Phaser.Easing.Linear.InOut, true);
+			this.sprites.push(levelSprite);
+
+			var levelData = this.app.state.getLevelData(index);
+			if (levelData.starcount > 0) {
+				var starSprite = this.game.add.sprite(x + starOffset, y, "space_atlas", [null, "star_bronze.png", "star_silver.png", "star_gold.png"][levelData.starcount]);
+				starSprite.anchor.set(.5);
+				starSprite.scale.set(starScale);
+				this.sprites.push(starSprite);
+			}
+		}));
+
+		this.sprites.forEach(function (s) {
+			return s.oldposition = deepCopy(s.position);
+		});
+
+		// add button to menu
+		this.menuButton = new IconBuilder(this.game, "menu.png").setPosition(0, 0).setScale(.66).setTint(Theme.Color.Icon).setOnClick(this.cb(function () {
+			return _this10.app.router.showMenu();
+		})).build();
+	};
+
+	LevelsMenu.prototype.update = function update() {
+		var _this11 = this;
+
+		_BaseView4.prototype.update.call(this);
+		this.dragListener.update();
+
+		this.sprites.forEach(this.cb(function (s) {
+			s.position.set(s.oldposition.x, Math.max(s.oldposition.y, s.oldposition.y + _this11.dragListener.y));
+		}));
+	};
+
+	LevelsMenu.prototype.startLevel = function startLevel(level) {
+		this.app.startLevel(level);
+	};
+
+	return LevelsMenu;
+}(BaseView);
+//=======================
+
+
+var LevelEndScreen = function (_BaseDialog) {
+	_inherits(LevelEndScreen, _BaseDialog);
+
+	function LevelEndScreen(app, game) {
+		_classCallCheck(this, LevelEndScreen);
+
+		var _this12 = _possibleConstructorReturn(this, _BaseDialog.call(this, app, game));
+
+		_this12.title = "TitleLevelCompleted";
+		_this12.buttons = [{ title: "ButtonMenu", action: _this12.cb(function () {
+				return _this12.app.advanceLevelEndScreen();
+			}) }, { title: "ButtonNext", action: _this12.cb(function () {
+				return _this12.app.advanceLevelEndScreenNextLevel(_this12.data.level);
+			}) }];
+		return _this12;
+	}
+
+	LevelEndScreen.prototype.setData = function setData(levelData) {
+		this.data = levelData;
+	};
+
+	LevelEndScreen.prototype.create = function create() {
+		var _this13 = this;
+
+		var levels = this.getLevels();
+		// Check if last level
+		if (levels.length - 1 == this.data.level) {
+			// Remove the next button
+			this.buttons.splice(1, 1);
+		}
+
+		// This will draw the buttons
+		_BaseDialog.prototype.create.call(this);
+
+		var levelData = levels[this.data.level];
+
+		// Draw the stars
+		var stars = this.createStars();
+		var starCount = this.getStarCount();
+		var starScale = this.dialogSize / (stars[0].width * stars.length) / 1.5;
+
+		var levelTextHeight = this.dialogSize * .125;
+
+		var starYPos = (this.height - this.dialogSize) / 2 + levelTextHeight + this.lineWidthDialog;
+		stars.forEach(this.cb(function (s, i) {
+			s.width *= starScale;
+			s.height *= starScale;
+
+			s.anchor.set(.5, .5);
+			s.x = _this13.width / 2 + (i - Math.floor(stars.length / 2)) * (s.width * 1.25);
+			s.y = starYPos + s.height;
+
+			if (i == 1) s.y -= s.height / 2;
+
+			s.alpha = 0;
+			if (i < starCount) {
+				s.scale.set(3.0 * starScale);
+				_this13.game.add.tween(s.scale).to({ x: starScale, y: starScale }, 300, Phaser.Easing.Linear.None, true, 300 * i);
+				_this13.game.add.tween(s).to({ alpha: 1 }, 300, Phaser.Easing.Linear.None, true, 300 * i);
+			} else {
+				s.scale.set(starScale);
+				_this13.game.add.tween(s).to({ alpha: .35 }, 300, Phaser.Easing.Linear.None, true, 300 * i);
+			}
+		}));
+
+		var levelText = this.game.add.text(0, 0, this.translate.get(levelData.name), Theme.Text.SubTitleLarge);
+		levelText.setTextBounds(this.dialogX, this.dialogY + this.lineWidthDialog, this.dialogSize, levelTextHeight);
+
+		this.persistScore();
+	};
+
+	LevelEndScreen.prototype.update = function update() {};
+
+	LevelEndScreen.prototype.getStarCount = function getStarCount() {
+		var d = this.levelData.distance;
+		var wordcount = this.data.wordcount;
+		var streak = this.data.combo.maxstreak;
+
+		// streak should be longer than 20% of the word count
+		var tresholdOne = .2 * wordcount;
+		// streak should be longer than 50% of the word count
+		var tresholdTwo = .5 * wordcount;
+		// streak should be longer than 80% of the word count
+		var tresholdThree = .8 * wordcount;
+
+		if (streak >= tresholdThree) return 3;else if (streak >= tresholdTwo) return 2;else if (streak >= tresholdOne) return 1;
+		return 0;
+	};
+
+	LevelEndScreen.prototype.createStars = function createStars() {
+		return [this.game.add.sprite(0, 0, "space_atlas", 'star_bronze.png'), this.game.add.sprite(0, 0, "space_atlas", 'star_silver.png'), this.game.add.sprite(0, 0, "space_atlas", 'star_gold.png')];
+	};
+
+	LevelEndScreen.prototype.persistScore = function persistScore() {
+		var persist = this.app.state.getLevelData(this.data.level);
+		persist.starcount = Math.max(this.getStarCount(), persist.starcount);
+		this.app.state.setLevelData(this.data.level, persist);
+	};
+
+	return LevelEndScreen;
+}(BaseDialog);
+//=======================
+
+
+var LevelFailedScreen = function (_BaseDialog2) {
+	_inherits(LevelFailedScreen, _BaseDialog2);
+
+	function LevelFailedScreen(app, game) {
+		_classCallCheck(this, LevelFailedScreen);
+
+		var _this14 = _possibleConstructorReturn(this, _BaseDialog2.call(this, app, game));
+
+		_this14.title = "TitleLevelFailed";
+		_this14.buttons = [{ title: "ButtonMenu", action: _this14.cb(function () {
+				return _this14.app.router.showLevels();
+			}) }, { title: "ButtonRetry", action: _this14.cb(function () {
+				return _this14.app.startLevel(_this14.data.level);
+			}) }];
+		return _this14;
+	}
+
+	LevelFailedScreen.prototype.setData = function setData(levelData) {
+		this.data = levelData;
+	};
+
+	LevelFailedScreen.prototype.create = function create() {
+		_BaseDialog2.prototype.create.call(this);
+
+		var levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
+
+		var levelTextHeight = this.dialogSize * .125;
+
+		var levelText = this.game.add.text(0, 0, this.translate.get(levelData.name), Theme.Text.SubTitleLarge);
+		levelText.setTextBounds(this.dialogX, this.dialogY + this.lineWidthDialog, this.dialogSize, levelTextHeight);
+	};
+
+	return LevelFailedScreen;
+}(BaseDialog);
+//=======================
+
+
+var MissionScreen = function (_BaseDialog3) {
+	_inherits(MissionScreen, _BaseDialog3);
+
+	function MissionScreen(app, game) {
+		_classCallCheck(this, MissionScreen);
+
+		var _this15 = _possibleConstructorReturn(this, _BaseDialog3.call(this, app, game));
+
+		_this15.textPadding = _this15.dialogSize * .05;
+		_this15.textWidth = _this15.dialogSize - 2 * _this15.textPadding;
+		_this15.dragListener = new SimpleDragListener(_this15.game);
+		_this15.dragListener.setLowerBounds(0, -SimpleDragListener.INFINITE);
+		_this15.dragListener.setUpperBounds(0, 0);
+
+		_this15.validMission = true;
+		return _this15;
+	}
+
+	MissionScreen.prototype.setData = function setData(missionData) {
+		this.data = missionData;
+	};
+
+	MissionScreen.prototype.create = function create() {
+		var _this16 = this;
+
+		this.levelData = this.getLevels()[this.data.level];
+		this.buttons = [{ title: "ButtonStart", action: this.cb(function () {
+				return _this16.app.beginLevel(_this16.data.level);
+			}) }];
+
+		if (this.levelData.mission && this.levelData.mission.title && this.levelData.mission.description) {
+			this.title = this.levelData.mission.title;
+
+			_BaseDialog3.prototype.create.call(this);
+
+			this.missionDescription = this.game.add.text(0, 0, this.translate.get(this.levelData.mission.description), Theme.Text.Small.Builder().wordWrap(true, this.textWidth).build());
+
+			this.missionDescription.setTextBounds(this.dialogX + this.textPadding, this.dialogY + this.textPadding, this.textWidth, this.textWidth);
+
+			var maskHeight = this.dialogSize - this.btnHeight;
+			this.mask = this.game.add.graphics(0, 0);
+			this.mask.beginFill("black");
+			this.mask.drawRect(0, this.dialogY, this.width, maskHeight);
+			this.mask.endFill();
+
+			this.missionDescription.mask = this.mask;
+
+			this.dragListener.setLowerBounds(0, -this.missionDescription.height + maskHeight - this.dialogSize / 2);
+		} else {
+			// No mission set, just start the level
+			this.validMission = false;
+			setTimeout(this.buttons[0].action, 50);
+		}
+	};
+
+	MissionScreen.prototype.update = function update() {
+		_BaseDialog3.prototype.update.call(this);
+
+		if (this.validMission) {
+			this.dragListener.update();
+			var y = this.dragListener.y;
+			this.missionDescription.setTextBounds(this.dialogX + this.textPadding, this.dialogY + this.textPadding + y, this.textWidth, this.textWidth);
+		}
+	};
+
+	return MissionScreen;
+}(BaseDialog);
+//=======================
+
+
+var SettingsScreen = function (_Menu) {
+	_inherits(SettingsScreen, _Menu);
+
+	function SettingsScreen(app, context) {
+		_classCallCheck(this, SettingsScreen);
+
+		var _this17 = _possibleConstructorReturn(this, _Menu.call(this, app, context, []));
+
+		_this17.currentLocale = app.state.getLocale();
+		_this17.currentLocaleCode = _this17.currentLocale.replace("translate_", "");
+		_this17.menu = [{ title: "SettingLanguage" + _this17.currentLocaleCode, action: _this17.cb(_this17.rotateLanguage) }];
+		return _this17;
+	}
+
+	SettingsScreen.prototype.create = function create() {
+		var _this18 = this;
+
+		_Menu.prototype.create.call(this);
+
+		// add button to menu
+		this.menuButton = new IconBuilder(this.game, "menu.png").setPosition(0, 0).setScale(.66).setTint(Theme.Color.Icon).setOnClick(this.cb(function () {
+			return _this18.app.router.showMenu();
+		})).build();
+	};
+
+	SettingsScreen.prototype.rotateLanguage = function rotateLanguage() {
+		var current = this.app.state.getLocale();
+		var langs = this.translate.getLanguages();
+
+		var nextIndex = (langs.indexOf(current) + 1) % langs.length;
+		this.app.state.setLocale(langs[nextIndex]);
+
+		// Force all screens to be re-created to ensure the language
+		// change is reflected correctly throughout the app
+		this.app.router.invalidateLocale();
+		this.app.router.showSettingsScreen(true);
+	};
+
+	return SettingsScreen;
+}(Menu);
+//=======================
+
+</script>
+	<link rel="import" href="bower_components/myscript-text-web/myscript-text-web.html">
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    <style type="text/css">
+
+.game-container {}
+
+.game-container .side-left {
+	position: absolute;
+	display: block;
+	bottom: 0;
+	top: 0;
+	left: 0;
+}
+
+.game-container .side-right {
+	position: absolute;
+	display: block;
+	right: 0;
+	left: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.game-container .side-right .controls img {
+	height: 100%;
+}
+
+.game-container .side-right .controls {
+	display: block;
+	height: 3em;
+	position: absolute;
+	width: 100%;
+}
+
+.game-container .side-right myscript-text-web {
+	display: block;
+	height: 100%;
+}
+
+#content {
+	display: block;
+	height: 100%;
+}
+
+    </style>
+
+</head>
+<body touch-action="none">
+	<div class="game-container">
+		<div class="side-left">
+			<div id="gamecanvas">
+			</div>
+		</div>
+		<div class="side-right">
+			<div id="content">
+				<div id="textLog"></div>
+				<div class="controls">
+					<img id="button-delete" src="asset/img/delete.svg" />
+				</div>
+				<!--<input type="text" id="textInput" onkeypress="processKeyPress(event);" oninput="processInput(this.value);" />-->
+				<myscript-text-web 
+					id="input-handwriting"
+					applicationkey="9faa1259-48ba-44c4-9857-b3c86d986f94" 
+					hmackey="fb166b5d-3ffd-93bd-7b5b-bca0fe2216a0" 
+					language="nl_NL"
+					hidebuttons="true"
+				></myscript-text-web >
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+
+var app = new App(
+{
+	handwritingInput: document.querySelector("#input-handwriting"),
+	gameCanvas: document.querySelector("#gamecanvas"),
+	gameContainer: document.querySelector(".game-container .side-left"),
+	handwritingContainer: document.querySelector(".game-container .side-right"),
+	clearButton: document.querySelector("#button-delete")
+});
+
+	</script>
+</body>
+</html>

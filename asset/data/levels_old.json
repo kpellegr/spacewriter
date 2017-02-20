@@ -1,0 +1,149 @@
+{
+	"levels": [{
+		"name": "TitleLevel1",
+		"fromdict": 1,
+		"todict": 26,
+		"maxenemies": 3,
+		"checkpoint": true,
+		"planet": "level0.png",
+		"distance": 1,
+		"mission": {
+			"title": "TitleMission1",
+			"description": "DescriptionMission1"
+		}
+	},{
+		"name": "TitleLevel2",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6,
+		"checkpoint": false,
+		"distance": 25,
+		"mission": {
+			"title": "TitleMission1",
+			"description": "DescriptionMission1"
+		}
+	},{
+		"name": "TitleLevel3",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6,
+		"checkpoint": false,
+		"distance": 25,
+		"mission": {
+			"title": "TitleMission1",
+			"description": "DescriptionMission1"
+		}
+	},{
+		"name": "TitleLevel4",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6,
+		"checkpoint": false,
+		"distance": 50,
+		"mission": {
+			"title": "TitleMission1",
+			"description": "DescriptionMission1"
+		}
+	},{
+		"name": "TitleLevel5",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6,
+		"checkpoint": false,
+		"distance": 50,
+		"mission": {
+			"title": "TitleMission1",
+			"description": "DescriptionMission1"
+		}
+	},{
+		"name": "TitleLevel6",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6,
+		"checkpoint": false,
+		"distance": 50,
+		"mission": {
+			"title": "TitleMission1",
+			"description": "DescriptionMission1"
+		}
+	},{
+		"name": "TitleLevel7",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6,
+		"checkpoint": true,
+		"planet": "level1.png",
+		"distance": 50,
+		"mission": {
+			"title": "TitleMission1",
+			"description": "DescriptionMission1"
+		}
+	},{
+		"name": "TitleLevel8",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6,
+		"checkpoint": false,
+		"distance": 50,
+		"mission": {
+			"title": "TitleMission1",
+			"description": "DescriptionMission1"
+		}
+	},{
+		"name": "TitleLevel9",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6,
+		"checkpoint": false,
+		"distance": 50,
+		"mission": {
+			"title": "TitleMission1",
+			"description": "DescriptionMission1"
+		}
+	},{
+		"name": "TitleLevel10",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6,
+		"checkpoint": false,
+		"distance": 50,
+		"mission": {
+			"title": "TitleMission1",
+			"description": "DescriptionMission1"
+		}
+	},{
+		"name": "TitleLevel11",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6,
+		"checkpoint": false,
+		"distance": 75,
+		"mission": {
+			"title": "TitleMission1",
+			"description": "DescriptionMission1"
+		}
+	},{
+		"name": "TitleLevel12",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6,
+		"checkpoint": false,
+		"distance": 75,
+		"mission": {
+			"title": "TitleMission1",
+			"description": "DescriptionMission1"
+		}
+	},{
+		"name": "TitleLevel13",
+		"fromdict": 27,
+		"todict": 32,
+		"maxenemies": 6,
+		"checkpoint": true,
+		"planet": "level2.png",
+		"distance": 75,
+		"mission": {
+			"title": "TitleMission1",
+			"description": "DescriptionMission1"
+		}
+	}]
+}
