@@ -16,7 +16,7 @@ class MissionScreen extends BaseDialog {
 	}
 
 	create(){
-		this.levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
+		this.levelData = this.getLevels()[this.data.level];
 		this.buttons = [
 			{ title: "ButtonStart", action: this.cb(() => this.app.beginLevel(this.data.level)) }
 		];
@@ -27,7 +27,7 @@ class MissionScreen extends BaseDialog {
 			super.create();
 
 			this.missionDescription = this.game.add.text(0, 0, this.translate.get(this.levelData.mission.description), 
-				{ font: '12px Arial', fill: '#ccc', align: 'left', wordWrap: true, wordWrapWidth: this.textWidth });
+				Theme.Text.Small.Builder().wordWrap(true, this.textWidth).build());
 
 			this.missionDescription.setTextBounds(this.dialogX + this.textPadding, 
 				this.dialogY + this.textPadding, this.textWidth, this.textWidth);
@@ -40,7 +40,7 @@ class MissionScreen extends BaseDialog {
 
 			this.missionDescription.mask = this.mask;
 
-			this.dragListener.setLowerBounds(0, -this.missionDescription.height + maskHeight);
+			this.dragListener.setLowerBounds(0, -this.missionDescription.height + maskHeight - this.dialogSize/2);
 		}
 		else{
 			// No mission set, just start the level

@@ -5,11 +5,12 @@ class App {
 		this.width = 480;
 		this.height = 800;
 
-
 		this.handwritingInput = args.handwritingInput;
 		this.gameCanvas = args.gameCanvas;
 		this.gameContainer = args.gameContainer;
 		this.handwritingContainer = args.handwritingContainer;
+
+		Theme.init(this.width, this.height, this.gameContainer);
 
 		this.calculateViewport();
 

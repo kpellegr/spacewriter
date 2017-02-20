@@ -31,7 +31,7 @@ class Menu extends BaseView {
 			var action = this.menu[i].action;
 
 			// add entry to menu
-			var text = this.game.add.text(0, 0, title, { font: "20px Arial Black", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+			var text = this.game.add.text(0, 0, title, Theme.Text.TitleLarge);
 			text.setTextBounds(0, y, this.width, heightPerItem);
 			text.inputEnabled = true;
 			text.events.onInputDown.add(action, this);

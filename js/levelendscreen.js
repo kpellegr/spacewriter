@@ -25,7 +25,7 @@ class LevelEndScreen extends BaseDialog {
 	create(){
 		super.create();
 
-		var levelData = JSON.parse(this.game.cache.getText('levels')).levels[this.data.level];
+		var levelData = this.getLevels()[this.data.level];
 
 		// Draw the stars
 		var stars = this.createStars();
@@ -56,7 +56,7 @@ class LevelEndScreen extends BaseDialog {
 			}
 		}));
 
-		var levelText = this.game.add.text(0, 0, this.translate.get(levelData.name), { font: (levelTextHeight*.65)+"px Arial", fill: "#eeeeee", boundsAlignH: "center", boundsAlignV: "middle" });
+		var levelText = this.game.add.text(0, 0, this.translate.get(levelData.name), Theme.Text.SubTitleLarge);
 		levelText.setTextBounds(this.dialogX, this.dialogY + this.lineWidthDialog, this.dialogSize, levelTextHeight);
 
 		this.persistScore();
