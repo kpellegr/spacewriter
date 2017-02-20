@@ -834,6 +834,7 @@ var App = function () {
 		this.gameCanvas = args.gameCanvas;
 		this.gameContainer = args.gameContainer;
 		this.handwritingContainer = args.handwritingContainer;
+		this.clearButton = args.clearButton;
 
 		Theme.init(480, 800, this.gameContainer);
 		this.width = Theme.getWidth();
@@ -853,6 +854,8 @@ var App = function () {
 	}
 
 	App.prototype.setupHandwriting = function setupHandwriting() {
+		var _this4 = this;
+
 		this.handwritingInput.addEventListener("myscript-text-web-result", this.cb(function (a) {
 			try {
 				var segmentResults = a.detail.result.textSegmentResult;
@@ -872,6 +875,10 @@ var App = function () {
 			// to automatically clear the area
 			this.clearHandwriting();
 		}, 2000)));
+
+		this.clearButton.addEventListener("click", this.cb(function () {
+			return _this4.clearHandwriting();
+		}));
 	};
 
 	App.prototype.onHandwriteResult = function onHandwriteResult(labels) {
@@ -1154,39 +1161,39 @@ var Game = function (_BaseView2) {
 		_classCallCheck(this, Game);
 
 		//set width and height variables for game
-		var _this4 = _possibleConstructorReturn(this, _BaseView2.call(this, app, game));
+		var _this5 = _possibleConstructorReturn(this, _BaseView2.call(this, app, game));
 
-		_this4.width = app.width;
-		_this4.height = app.height;
+		_this5.width = app.width;
+		_this5.height = app.height;
 		//create game object and initialize the canvas
-		_this4.comboManager = new ComboManager();
-		_this4.lifeManager = new LifeManager(3, 9);
+		_this5.comboManager = new ComboManager();
+		_this5.lifeManager = new LifeManager(3, 9);
 
 		//initialize some variables
-		_this4.play = null;
-		_this4.food = null;
-		_this4.cursors = null;
-		_this4.speed = 175;
-		_this4.score = 0;
-		_this4.scoreText = null;
-		_this4.distance = 0;
-		_this4.targetDistance = 25;
-		_this4.nextAsteroidTime = null;
-		_this4.wordsBuffer = [];
+		_this5.play = null;
+		_this5.food = null;
+		_this5.cursors = null;
+		_this5.speed = 175;
+		_this5.score = 0;
+		_this5.scoreText = null;
+		_this5.distance = 0;
+		_this5.targetDistance = 25;
+		_this5.nextAsteroidTime = null;
+		_this5.wordsBuffer = [];
 
-		_this4.dictData = null;
-		_this4.levelData = null;
-		_this4.currentLevel = 0;
+		_this5.dictData = null;
+		_this5.levelData = null;
+		_this5.currentLevel = 0;
 
-		_this4.textInput = null;
+		_this5.textInput = null;
 
-		_this4.exhaustCount = 50;
-		_this4.exhaustDelay = 1000;
+		_this5.exhaustCount = 50;
+		_this5.exhaustDelay = 1000;
 
 		// bookkeeping
-		_this4.b_wordcount = 0;
-		_this4.b_lettercount = 0;
-		return _this4;
+		_this5.b_wordcount = 0;
+		_this5.b_lettercount = 0;
+		return _this5;
 	}
 
 	Game.prototype.loadLevel = function loadLevel(levelIndex) {
@@ -1202,7 +1209,7 @@ var Game = function (_BaseView2) {
 	};
 
 	Game.prototype.create = function create() {
-		var _this5 = this;
+		var _this6 = this;
 
 		//start arcade physics engine
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -1304,7 +1311,7 @@ var Game = function (_BaseView2) {
 
 		// add button to level select
 		this.levelSelect = new IconBuilder(this.game, "back.png").setPosition(0, 0).setScale(.66).setTint(Theme.Color.Icon).setOnClick(this.cb(function () {
-			return _this5.app.router.showLevels();
+			return _this6.app.router.showLevels();
 		})).build();
 	};
 
@@ -1706,11 +1713,11 @@ var Menu = function (_BaseView3) {
 	function Menu(app, context, options) {
 		_classCallCheck(this, Menu);
 
-		var _this6 = _possibleConstructorReturn(this, _BaseView3.call(this, app, context));
+		var _this7 = _possibleConstructorReturn(this, _BaseView3.call(this, app, context));
 
-		_this6.padding = app.width / 3.0;
-		_this6.menu = options;
-		return _this6;
+		_this7.padding = app.width / 3.0;
+		_this7.menu = options;
+		return _this7;
 	}
 
 	Menu.prototype.create = function create() {
@@ -1750,23 +1757,23 @@ var LevelsMenu = function (_BaseView4) {
 	function LevelsMenu(app, context) {
 		_classCallCheck(this, LevelsMenu);
 
-		var _this7 = _possibleConstructorReturn(this, _BaseView4.call(this, app, context, []));
+		var _this8 = _possibleConstructorReturn(this, _BaseView4.call(this, app, context, []));
 
-		_this7.sprites = [];
-		_this7.clickableItems = [];
-		_this7.dragListener = new SimpleDragListener(_this7.game);
-		_this7.dragListener.setLowerBounds(0, 0);
-		return _this7;
+		_this8.sprites = [];
+		_this8.clickableItems = [];
+		_this8.dragListener = new SimpleDragListener(_this8.game);
+		_this8.dragListener.setLowerBounds(0, 0);
+		return _this8;
 	}
 
 	LevelsMenu.prototype.preload = function preload() {
-		var _this8 = this;
+		var _this9 = this;
 
 		_BaseView4.prototype.preload.call(this);
 
 		var levels = this.getLevels();
 		var startLevel = this.cb(function (l) {
-			return _this8.startLevel(l);
+			return _this9.startLevel(l);
 		});
 
 		this.menu = levels.map(this.cb(function (l, levelIndex) {
@@ -1782,7 +1789,7 @@ var LevelsMenu = function (_BaseView4) {
 	};
 
 	LevelsMenu.prototype.create = function create() {
-		var _this9 = this;
+		var _this10 = this;
 
 		_BaseView4.prototype.create.call(this);
 
@@ -1852,18 +1859,18 @@ var LevelsMenu = function (_BaseView4) {
 
 		// add button to menu
 		this.menuButton = new IconBuilder(this.game, "menu.png").setPosition(0, 0).setScale(.66).setTint(Theme.Color.Icon).setOnClick(this.cb(function () {
-			return _this9.app.router.showMenu();
+			return _this10.app.router.showMenu();
 		})).build();
 	};
 
 	LevelsMenu.prototype.update = function update() {
-		var _this10 = this;
+		var _this11 = this;
 
 		_BaseView4.prototype.update.call(this);
 		this.dragListener.update();
 
 		this.sprites.forEach(this.cb(function (s) {
-			s.position.set(s.oldposition.x, Math.max(s.oldposition.y, s.oldposition.y + _this10.dragListener.y));
+			s.position.set(s.oldposition.x, Math.max(s.oldposition.y, s.oldposition.y + _this11.dragListener.y));
 		}));
 	};
 
@@ -1882,13 +1889,13 @@ var LevelEndScreen = function (_BaseDialog) {
 	function LevelEndScreen(app, game) {
 		_classCallCheck(this, LevelEndScreen);
 
-		var _this11 = _possibleConstructorReturn(this, _BaseDialog.call(this, app, game));
+		var _this12 = _possibleConstructorReturn(this, _BaseDialog.call(this, app, game));
 
-		_this11.title = "TitleLevelCompleted";
-		_this11.buttons = [{ title: "ButtonMenu", action: _this11.cb(function () {
-				return _this11.app.advanceLevelEndScreen();
-			}) }, { title: "ButtonNext", action: _this11.cb(function () {
-				return _this11.app.advanceLevelEndScreenNextLevel(_this11.data.level);
+		_this12.title = "TitleLevelCompleted";
+		_this12.buttons = [{ title: "ButtonMenu", action: _this12.cb(function () {
+				return _this12.app.advanceLevelEndScreen();
+			}) }, { title: "ButtonNext", action: _this12.cb(function () {
+				return _this12.app.advanceLevelEndScreenNextLevel(_this12.data.level);
 			}) }];
 
 		// this.data = {
@@ -1898,7 +1905,7 @@ var LevelEndScreen = function (_BaseDialog) {
 		// 		maxstreak: 30
 		// 	}
 		// };
-		return _this11;
+		return _this12;
 	}
 
 	LevelEndScreen.prototype.setData = function setData(levelData) {
@@ -1906,7 +1913,7 @@ var LevelEndScreen = function (_BaseDialog) {
 	};
 
 	LevelEndScreen.prototype.create = function create() {
-		var _this12 = this;
+		var _this13 = this;
 
 		_BaseDialog.prototype.create.call(this);
 
@@ -1925,7 +1932,7 @@ var LevelEndScreen = function (_BaseDialog) {
 			s.height *= starScale;
 
 			s.anchor.set(.5, .5);
-			s.x = _this12.width / 2 + (i - Math.floor(stars.length / 2)) * (s.width * 1.25);
+			s.x = _this13.width / 2 + (i - Math.floor(stars.length / 2)) * (s.width * 1.25);
 			s.y = starYPos + s.height;
 
 			if (i == 1) s.y -= s.height / 2;
@@ -1933,11 +1940,11 @@ var LevelEndScreen = function (_BaseDialog) {
 			s.alpha = 0;
 			if (i < starCount) {
 				s.scale.set(3.0 * starScale);
-				_this12.game.add.tween(s.scale).to({ x: starScale, y: starScale }, 300, Phaser.Easing.Linear.None, true, 300 * i);
-				_this12.game.add.tween(s).to({ alpha: 1 }, 300, Phaser.Easing.Linear.None, true, 300 * i);
+				_this13.game.add.tween(s.scale).to({ x: starScale, y: starScale }, 300, Phaser.Easing.Linear.None, true, 300 * i);
+				_this13.game.add.tween(s).to({ alpha: 1 }, 300, Phaser.Easing.Linear.None, true, 300 * i);
 			} else {
 				s.scale.set(starScale);
-				_this12.game.add.tween(s).to({ alpha: .35 }, 300, Phaser.Easing.Linear.None, true, 300 * i);
+				_this13.game.add.tween(s).to({ alpha: .35 }, 300, Phaser.Easing.Linear.None, true, 300 * i);
 			}
 		}));
 
@@ -1986,15 +1993,15 @@ var LevelFailedScreen = function (_BaseDialog2) {
 	function LevelFailedScreen(app, game) {
 		_classCallCheck(this, LevelFailedScreen);
 
-		var _this13 = _possibleConstructorReturn(this, _BaseDialog2.call(this, app, game));
+		var _this14 = _possibleConstructorReturn(this, _BaseDialog2.call(this, app, game));
 
-		_this13.title = "TitleLevelFailed";
-		_this13.buttons = [{ title: "ButtonMenu", action: _this13.cb(function () {
-				return _this13.app.router.showLevels();
-			}) }, { title: "ButtonRetry", action: _this13.cb(function () {
-				return _this13.app.startLevel(_this13.data.level);
+		_this14.title = "TitleLevelFailed";
+		_this14.buttons = [{ title: "ButtonMenu", action: _this14.cb(function () {
+				return _this14.app.router.showLevels();
+			}) }, { title: "ButtonRetry", action: _this14.cb(function () {
+				return _this14.app.startLevel(_this14.data.level);
 			}) }];
-		return _this13;
+		return _this14;
 	}
 
 	LevelFailedScreen.prototype.setData = function setData(levelData) {
@@ -2023,16 +2030,16 @@ var MissionScreen = function (_BaseDialog3) {
 	function MissionScreen(app, game) {
 		_classCallCheck(this, MissionScreen);
 
-		var _this14 = _possibleConstructorReturn(this, _BaseDialog3.call(this, app, game));
+		var _this15 = _possibleConstructorReturn(this, _BaseDialog3.call(this, app, game));
 
-		_this14.textPadding = _this14.dialogSize * .05;
-		_this14.textWidth = _this14.dialogSize - 2 * _this14.textPadding;
-		_this14.dragListener = new SimpleDragListener(_this14.game);
-		_this14.dragListener.setLowerBounds(0, -SimpleDragListener.INFINITE);
-		_this14.dragListener.setUpperBounds(0, 0);
+		_this15.textPadding = _this15.dialogSize * .05;
+		_this15.textWidth = _this15.dialogSize - 2 * _this15.textPadding;
+		_this15.dragListener = new SimpleDragListener(_this15.game);
+		_this15.dragListener.setLowerBounds(0, -SimpleDragListener.INFINITE);
+		_this15.dragListener.setUpperBounds(0, 0);
 
-		_this14.validMission = true;
-		return _this14;
+		_this15.validMission = true;
+		return _this15;
 	}
 
 	MissionScreen.prototype.setData = function setData(missionData) {
@@ -2040,11 +2047,11 @@ var MissionScreen = function (_BaseDialog3) {
 	};
 
 	MissionScreen.prototype.create = function create() {
-		var _this15 = this;
+		var _this16 = this;
 
 		this.levelData = this.getLevels()[this.data.level];
 		this.buttons = [{ title: "ButtonStart", action: this.cb(function () {
-				return _this15.app.beginLevel(_this15.data.level);
+				return _this16.app.beginLevel(_this16.data.level);
 			}) }];
 
 		if (this.levelData.mission && this.levelData.mission.title && this.levelData.mission.description) {
@@ -2093,13 +2100,24 @@ var SettingsScreen = function (_Menu) {
 	function SettingsScreen(app, context) {
 		_classCallCheck(this, SettingsScreen);
 
-		var _this16 = _possibleConstructorReturn(this, _Menu.call(this, app, context, []));
+		var _this17 = _possibleConstructorReturn(this, _Menu.call(this, app, context, []));
 
-		_this16.currentLocale = app.state.getLocale();
-		_this16.currentLocaleCode = _this16.currentLocale.replace("translate_", "");
-		_this16.menu = [{ title: "SettingLanguage" + _this16.currentLocaleCode, action: _this16.cb(_this16.rotateLanguage) }];
-		return _this16;
+		_this17.currentLocale = app.state.getLocale();
+		_this17.currentLocaleCode = _this17.currentLocale.replace("translate_", "");
+		_this17.menu = [{ title: "SettingLanguage" + _this17.currentLocaleCode, action: _this17.cb(_this17.rotateLanguage) }];
+		return _this17;
 	}
+
+	SettingsScreen.prototype.create = function create() {
+		var _this18 = this;
+
+		_Menu.prototype.create.call(this);
+
+		// add button to menu
+		this.menuButton = new IconBuilder(this.game, "menu.png").setPosition(0, 0).setScale(.66).setTint(Theme.Color.Icon).setOnClick(this.cb(function () {
+			return _this18.app.router.showMenu();
+		})).build();
+	};
 
 	SettingsScreen.prototype.rotateLanguage = function rotateLanguage() {
 		var current = this.app.state.getLocale();
@@ -2163,6 +2181,17 @@ var SettingsScreen = function (_Menu) {
 	bottom: 0;
 }
 
+.game-container .side-right .controls img {
+	height: 100%;
+}
+
+.game-container .side-right .controls {
+	display: block;
+	height: 3em;
+	position: absolute;
+	width: 100%;
+}
+
 .game-container .side-right myscript-text-web {
 	display: block;
 	height: 100%;
@@ -2185,6 +2214,9 @@ var SettingsScreen = function (_Menu) {
 		<div class="side-right">
 			<div id="content">
 				<div id="textLog"></div>
+				<div class="controls">
+					<img id="button-delete" src="asset/img/delete.svg" />
+				</div>
 				<!--<input type="text" id="textInput" onkeypress="processKeyPress(event);" oninput="processInput(this.value);" />-->
 				<myscript-text-web 
 					id="input-handwriting"
@@ -2204,7 +2236,8 @@ var app = new App(
 	handwritingInput: document.querySelector("#input-handwriting"),
 	gameCanvas: document.querySelector("#gamecanvas"),
 	gameContainer: document.querySelector(".game-container .side-left"),
-	handwritingContainer: document.querySelector(".game-container .side-right")
+	handwritingContainer: document.querySelector(".game-container .side-right"),
+	clearButton: document.querySelector("#button-delete")
 });
 
 	</script>
