@@ -32,18 +32,35 @@ class HighscoresScreen extends BaseView {
 		this.mask.drawRect(0, titleHeight, this.width, this.height);
 		this.mask.endFill();
 
+
 		var levels = this.getLevels();
 		var offset = titleHeight;
+
+		var totalHeight = offset;
+		levels.forEach(this.cb(l => totalHeight += (l.checkpoint ? this.headerHeight : 0) + this.rowHeight));
+
+		this.textBitmap = this.game.add.bitmapData(this.width, totalHeight);
+		var textBitmapImg = this.textBitmap.addToWorld();
+		textBitmapImg.mask = this.mask;
+		this.registerScrollElement(textBitmapImg);
+
 		for(var i = 0; i < levels.length; i++){
 			var l = levels[i];
 			if(l.checkpoint){
 				this.insertHeaderRow(l, offset);
 				offset += this.headerHeight;
-			}else{
-				this.insertLevelRow(l, offset, i);
-				offset += this.rowHeight;
 			}
+			this.insertLevelRow(l, offset, i);
+			offset += this.rowHeight;
 		}
+
+		// add button to menu
+		this.menuButton = new IconBuilder(this.game, "menu.png")
+				.setPosition(0, 0)
+				.setScale(.66)
+				.setTint(Theme.Color.Icon)
+				.setOnClick(this.cb(() => this.app.router.showMenu()))
+			.build();
 	}
 
 	update(){
@@ -115,16 +132,6 @@ class HighscoresScreen extends BaseView {
 	}
 
 	insertLevelRow(levelObject, offset, index){
-		// We only use a single text object for all the levels
-		// otherwise scrolling becomes extremely laggy
-		if(this.textRow == null){
-			this.textRow = this.game.add.text(0, -this.height, "A", Theme.Text.SubTitleMedium.Builder().centeredHorizontal(false).build());
-			this.textRow.setTextBounds(this.padding, 0, this.width - 2*this.padding, 0);
-
-			// Set the lineSpacing so the rowHeight is completely filled up
-			this.textSize = this.textRow.height;
-		}
-
 		// Draw the gained star
 		var starcount = this.app.state.getLevelData(index).starcount;
 		if(starcount > 0){	
@@ -132,19 +139,15 @@ class HighscoresScreen extends BaseView {
 			starSprite.x = this.width - this.padding;
 			starSprite.y = offset + this.rowHeight/2;
 			starSprite.anchor.set(1, .5);
+			starSprite.scale.set(.66);
 			starSprite.mask = this.mask;
 
 			this.registerScrollElement(starSprite);
 		}
 
-		var text = this.game.add.bitmapText(this.padding, offset + this.rowHeight / 2, 'arialbmp', 
-			this.translate.get(levelObject.name), this.textSize * .75);
-		text.anchor.set(0, .5);
-		var textColor = parseInt(Theme.Text.SubTitleMedium.fill.substr(1), 16);
-		text.tint = textColor;
-		text.mask = this.mask;
-
-		this.registerScrollElement(text);
+		var t = this.game.make.text(0, 0, this.translate.get(levelObject.name), 
+			Theme.Text.SubTitleMedium.Builder().centered(false).build());
+		this.textBitmap.draw(t, this.padding, offset + (this.rowHeight - t.height)/2);
 	}
 
 	registerScrollElement(ele){
