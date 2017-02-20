@@ -11,15 +11,10 @@ class SettingsScreen extends Menu {
 
 	rotateLanguage(){
 		var current = this.app.state.getLocale();
-		switch(current){
-			case TranslationManager.KEY_EN:
-				this.app.state.setLocale(TranslationManager.KEY_NL);
-				break;
-			case TranslationManager.KEY_NL:
-				this.app.state.setLocale(TranslationManager.KEY_EN);
-				break;
-			default: break;
-		}
+		var langs = this.translate.getLanguages();
+
+		var nextIndex = (langs.indexOf(current) + 1) % langs.length;
+		this.app.state.setLocale(langs[nextIndex]);
 
 		// Force all screens to be re-created to ensure the language
 		// change is reflected correctly throughout the app

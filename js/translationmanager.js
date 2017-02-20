@@ -31,6 +31,10 @@ class TranslationManager {
 		return key;
 	}
 
+	getLanguages(){
+		return TranslationManager.getLanguages();
+	}
+
 	_strippedLocale(key){
 		return key.replace("translate_", "");
 	}
@@ -39,3 +43,11 @@ class TranslationManager {
 TranslationManager.KEY_NL = "translate_nl";
 TranslationManager.KEY_EN = "translate_en";
 TranslationManager.KEY_FALLBACK = TranslationManager.KEY_EN;
+
+// Register newly added language configs here
+TranslationManager.getLanguages = function(){
+	return [
+		TranslationManager.KEY_NL,
+		TranslationManager.KEY_EN
+	];
+}
