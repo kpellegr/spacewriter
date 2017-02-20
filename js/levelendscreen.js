@@ -8,14 +8,6 @@ class LevelEndScreen extends BaseDialog {
 			{ title: "ButtonMenu", action: this.cb(() => this.app.advanceLevelEndScreen()) },
 			{ title: "ButtonNext", action: this.cb(() => this.app.advanceLevelEndScreenNextLevel(this.data.level)) },
 		];
-
-		// this.data = {
-		// 	level: 1,
-		// 	wordcount: 50,
-		// 	combo: {
-		// 		maxstreak: 30
-		// 	}
-		// };
 	}
 
 	setData(levelData){
@@ -23,9 +15,16 @@ class LevelEndScreen extends BaseDialog {
 	}
 
 	create(){
+		var levels = this.getLevels();
+		// Check if last level
+		if(levels.length - 1 == this.data.level)
+			// Remove the next button
+			this.buttons.splice(1, 1);
+
+		// This will draw the buttons
 		super.create();
 
-		var levelData = this.getLevels()[this.data.level];
+		var levelData = levels[this.data.level];
 
 		// Draw the stars
 		var stars = this.createStars();
