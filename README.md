@@ -63,7 +63,7 @@ the `levels` array. The object can have several properties, most of them are req
 	"name": "TitleLevel", /* Translation key of the level title */
 	"fromdict": 1, /* Index inside the word dictionary to start at for picking words in the level */
 	"todict": 26, /* Index inside the word dictionary to end at */
-	"maxenemies": 3, /* How many asteroids should alive simultaneously at most */
+	"maxenemies": 3, /* Upper bound for simultaniously alive asteroids */
 	"checkpoint": true, /* [OPTIONAL] If the level is a checkpoint, will be displayed inside the level selector as a planet instead of an asteroid */
 	"planet": "level0.png", /* [REQUIRED when checkpoint == true] The name of the sprite to display in the level selector */
 	"distance": 100, /* Distance you need to "fly" in order to complete the level, each letter of a completed word gains 1 distance */
@@ -102,7 +102,7 @@ way:
 
 Without the brackets.
 
-So for the en.json file this would be `SettingLanguageen`. This is case sensitive!
+So for the `en.json` file this would be `SettingLanguageen`. This is case sensitive!
 
 #### Setting the fallback language
 
@@ -123,7 +123,7 @@ and you'll see immediately which strings you forgot to translate.
 
 To use a key you need an instance of the `TranslationManager` class. This class follows the same lifecycle
 as the `Phaser` game objects (all screens). It also has the `preload` and `create` methods. You'll have to
-call there manually from within your game objects. When those 2 methods have been called the manager will be
+call these manually from within your game objects. When those 2 methods have been called the manager will be
 fully initialized and ready to use.
 
 Thankfully all classes that extend from `BaseView` already have an instance available. You can access this 
