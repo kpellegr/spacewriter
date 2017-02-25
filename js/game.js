@@ -513,7 +513,8 @@ class Game extends BaseView {
 		// Set the asteroid's physical properties
 		var halfwit = asteroid.width / 2; // pun intended
 		var xpos = this.game.rnd.integerInRange(halfwit , this.width - halfwit);
-		var v = this.game.rnd.integerInRange(5, 50)
+		var minmaxVelocity = this.getLevelVelocity();
+		var v = this.game.rnd.integerInRange(minmaxVelocity.min, minmaxVelocity.max);
 		var av = this.game.rnd.integerInRange(-25, 25)
 
 		asteroid.reset(xpos, asteroid.height/2);
@@ -595,6 +596,16 @@ class Game extends BaseView {
   		}));
   	}
 
+  	getLevelVelocity(){
+  		var leveldata = this.currentLevelData();
+  		return {
+  			min: Game.KEY_CONFIG_MIN_VELOCITY in leveldata ? 
+  					leveldata[Game.KEY_CONFIG_MIN_VELOCITY] : Game.DEFAULT_MIN_VELOCITY,
+  			max: Game.KEY_CONFIG_MAX_VELOCITY in leveldata ? 
+  					leveldata[Game.KEY_CONFIG_MAX_VELOCITY] : Game.DEFAULT_MAX_VELOCITY
+  		};
+  	}
+
   	getData(){
   		return {
   			combo: this.comboManager.getData(),
@@ -613,66 +624,7 @@ class Game extends BaseView {
 	}
 }
 
-
-/*
-
-function writeListener (e) {
-    if (e.detail && e.detail.type == 'textResult') {
-        var candidates = e.detail.getDocument().getTextSegment().getCandidates();
-        candidates.forEach(function(c){
-            console.log(c.getLabel() + '(' + c.getNormalizedScore() + ')');
-            onKeyPress(c.getLabel());
-        });
-    }
-
-}
-
-function onKeyPress(key) {
-	console.log(key);
-	food.forEach(function(b) {
-		key = key.toUpperCase();
-		if (b.label.startsWith(key)) {
-			b.label = b.label.substring(1);
-			b.text.kill();
-
-			textInput.clear();
-
-			if (b.label.length == 0) {
-				eatFood(b);
-				return;
-			}
-			b.text = game.add.text(0, 0, b.label, style);
-    		b.text.anchor.set(0.5);
-		}
-	}, this, true);
-}
-
-function drawFood(b) {
-	b.text.x = b.x;
-    b.text.y = b.y - b.text.height - 10;
-}
-//eatFood function
-function eatFood(food) {
-	//update the score
-	score += food.value;
-	scoreText.text = score;
-
-	//remove the piece of food
-	food.kill();
-}
-
-function createBlock(food, label, xpos) {
-	b = food.create(xpos, 60, 'food');
-	
-	b.anchor.set(0.5);
-	b.body.collideWorldBounds = true;
-
-	b.label = label;
-	b.value = label.length;
-	b.text = game.add.text(0, 0, b.label, style);
-    b.text.anchor.set(0.5);
-	
-	return b;
-}
-
-*/
+Game.DEFAULT_MIN_VELOCITY = 5;
+Game.DEFAULT_MAX_VELOCITY = 25;
+Game.KEY_CONFIG_MIN_VELOCITY = "minvelocity";
+Game.KEY_CONFIG_MAX_VELOCITY = "maxvelocity";
