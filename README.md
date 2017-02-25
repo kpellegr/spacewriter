@@ -70,7 +70,9 @@ the `levels` array. The object can have several properties, most of them are req
 	"mission": {
 		"title": "TitleMission", /* Translation key that contains the mission title */
 		"description": "DescriptionMission" /* Translation key that contains the mission description */
-	}
+	},
+	"minvelocity": 5, /* [OPTIONAL] minimum velocity of the spawned asteroids (default = 5) */
+	"maxvelocity": 25 /* [OPTIONAL] maximum velocity of the spawned asteroids (default = 25) */
 }
 
 	...
